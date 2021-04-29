@@ -22,12 +22,12 @@ jobs:
         python-version: 3.8
     - name: Install poetry
       uses: snok/install-poetry@v1.1.4
+      with:
+        virtualenvs-create: true
+        virtualenvs-in-project: false
     - name: Install dependencies
       run: |
         poetry install
-    - name: Poetry shell
-      run: |
-        poetry shell
 #    - name: Lint with flake8
 #      run: |
 #        # stop the build if there are Python syntax errors or undefined names
