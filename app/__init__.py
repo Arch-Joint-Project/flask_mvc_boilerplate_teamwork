@@ -7,6 +7,8 @@ from sqlalchemy.exc import DBAPIError
 
 from flask_swagger_ui import get_swaggerui_blueprint
 from werkzeug.exceptions import HTTPException
+from werkzeug.utils import import_string
+
 
 # load dotenv in the base root
 from app.definitions.exceptions.app_exceptions import app_exception_handler
@@ -26,14 +28,23 @@ SWAGGER_URL = "/swagger"
 API_URL = "/static/swagger.json"
 
 SWAGGERUI_BLUEPRINT = get_swaggerui_blueprint(
-    SWAGGER_URL, API_URL, config={"app_name": "Seans-Python-Flask-REST-Boilerplate"}
+    SWAGGER_URL, API_URL, config={"app_name": "Python-Flask-REST-Boilerplate"}
 )
+
+FLASK_ENV = os.getenv("FLASK_ENV") if os.getenv("FLASK_ENV") else "production"
 
 
 def create_app():
     """Construct the core application"""
     app = Flask(__name__, instance_relative_config=False)
-    app.config.from_object("config.Config")
+    cfg = None
+    if FLASK_ENV == 'development':
+        cfg = import_string("config.DevelopmentConfig")()
+    elif FLASK_ENV == 'production':
+        cfg = import_string("config.ProductionConfig")()
+    elif FLASK_ENV == "testing":
+        cfg = import_string("config.TestingConfig")()
+    app.config.from_object(cfg)
 
     # add extensions
     register_extensions(app)

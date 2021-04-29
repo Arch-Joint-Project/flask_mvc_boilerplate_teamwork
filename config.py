@@ -4,30 +4,44 @@ from dotenv import load_dotenv
 
 load_dotenv(dotenv_path)
 
-user = os.getenv("DB_USER")
-password = os.getenv("DB_PASSWORD")
-url = os.getenv("DB_SERVER")
-db_name = os.getenv("DB_NAME")
-
 
 class Config:
     """Set Flask configuration vars from .env file."""
 
-    global user
-    global password
-    global db_name
-    global url
+    DB_USER = os.getenv("DB_USER")
+    DB_NAME = os.getenv("DB_NAME")
+    DB_PASSWORD = os.getenv("DB_PASSWORD")
+    DB_SERVER = ""
 
-    DB_URL = "postgresql+psycopg2://{user}:{pw}@{url}/{db}".format(
-        user=user, pw=password, url=url, db=db_name
-    )
     # General
-    TESTING = True
-    DEBUG = True
-    DEVELOPMENT = True
+    DEBUG = False
+    DEVELOPMENT = False
     SECRET_KEY = "SECRET"
-    FLASK_RUN_PORT = 8000
+    FLASK_RUN_PORT = 6000
 
     # Database
-    SQLALCHEMY_DATABASE_URI = DB_URL
+    @property
+    def SQLALCHEMY_DATABASE_URI(self): # noqa
+        return "postgresql+psycopg2://{user}:{pw}@{url}/{db}".format(
+            user=self.DB_USER, pw=self.DB_PASSWORD, url=self.DB_SERVER, db=self.DB_NAME
+        )
+
     SQLALCHEMY_TRACK_MODIFICATIONS = True
+
+
+class DevelopmentConfig(Config):
+    DEBUG = True
+    DEVELOPMENT = True
+    DB_SERVER = os.getenv("DEV_DB_SERVER")
+
+
+class ProductionConfig(Config):
+    DEBUG = False
+    DEVELOPMENT = False
+    DB_SERVER = os.getenv("DB_SERVER")
+
+
+class TestingConfig(Config):
+    DEBUG = True
+    DEVELOPMENT = True
+    DB_SERVER = os.getenv("DEV_DB_SERVER")

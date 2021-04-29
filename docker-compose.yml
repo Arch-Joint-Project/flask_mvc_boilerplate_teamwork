@@ -4,9 +4,17 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    command: 'flask run --host=0.0.0.0 --port=5000'
+    environment:
+      DB_USER: ${DB_USER}
+      DB_SERVER: ${DB_SERVER}
+      DEV_DB_SERVER: ${DEV_DB_SERVER}
+      TEST_DB_SERVER: ${TEST_DB_SERVER}
+      DB_NAME: ${DB_NAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      FLASK_ENV: ${FLASK_ENV}
+    command: 'flask run'
     ports:
-      - 8001:5000
+      - 8000:5000
     volumes:
       - .:/app
     depends_on:
@@ -27,8 +35,8 @@ services:
     restart: always
     environment:
       POSTGRES_USER: ${DB_USER}
-      POSTGRES_PASSWORD: ${DB_SERVER}
-      POSTGRES_DB: ${DB_NAE}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
     volumes:
       - .dbdata:/var/lib/postgres
     ports:
