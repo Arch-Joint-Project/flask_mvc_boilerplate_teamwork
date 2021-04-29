@@ -19,11 +19,7 @@ jobs:
 
     runs-on: ubuntu-latest
     env:
-        DB_SERVER: .
-        DB_USER: postgres
-        DB_PASSWORD: zx1tt2qdd77ixq@
         DB_NAME: test
-        DEV_DB_SERVER: localhost
         TEST_DB_SERVER: .
         FLASK_ENV: testing
 
