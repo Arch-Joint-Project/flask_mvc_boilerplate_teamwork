@@ -21,7 +21,6 @@ jobs:
       with:
         python-version: 3.8
     - name: Install poetry and dependencies
-      run: |
       uses: snok/install-poetry@v1.1.4
     - name: Lint with flake8
       run: |
