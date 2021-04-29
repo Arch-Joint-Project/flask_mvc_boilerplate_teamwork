@@ -16,6 +16,7 @@ def index():
 @user.route("/", methods=["POST"])
 def create():
     data = request.json
+    print(data)
     email = data["email"]
     name = data["name"]
 

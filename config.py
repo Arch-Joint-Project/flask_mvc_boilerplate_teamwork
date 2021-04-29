@@ -1,8 +1,11 @@
-import os
+import os, sys
 from app import dotenv_path
 from dotenv import load_dotenv
 
 load_dotenv(dotenv_path)
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+basedir = os.path.abspath(os.path.dirname(__file__))
 
 
 class Config:
@@ -18,12 +21,16 @@ class Config:
     DEVELOPMENT = False
     SECRET_KEY = "SECRET"
     FLASK_RUN_PORT = 6000
+    TESTING = False
 
     # Database
     @property
-    def SQLALCHEMY_DATABASE_URI(self): # noqa
+    def SQLALCHEMY_DATABASE_URI(self):  # noqa
         return "postgresql+psycopg2://{user}:{pw}@{url}/{db}".format(
-            user=self.DB_USER, pw=self.DB_PASSWORD, url=self.DB_SERVER, db=self.DB_NAME
+            user=self.DB_USER,
+            pw=self.DB_PASSWORD,
+            url=self.DB_SERVER,
+            db=self.DB_NAME,
         )
 
     SQLALCHEMY_TRACK_MODIFICATIONS = True
@@ -42,6 +49,7 @@ class ProductionConfig(Config):
 
 
 class TestingConfig(Config):
+    TESTING = True
     DEBUG = True
     DEVELOPMENT = True
-    DB_SERVER = os.getenv("DEV_DB_SERVER")
+    # SQL_ALCHEMY_DATABASE_URI = "sqlite:///:memory:"

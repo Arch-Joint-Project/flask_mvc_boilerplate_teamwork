@@ -25,6 +25,7 @@ pytest = "^6.2.3"
 black = "^21.4b1"
 flake8 = "^3.9.1"
 pre-commit = "^2.12.1"
+Flask-Testing = "^0.8.1"
 
 [tool.black]
 line-length = 89
