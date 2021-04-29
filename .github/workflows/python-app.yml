@@ -9,45 +9,23 @@ on:
   pull_request:
     branches: [ master ]
 
-#jobs:
-#  build:
-#
-#    runs-on: ubuntu-latest
-#
-#    steps:
-#    - uses: actions/checkout@v2
-#    - name: Set up Python 3.8
-#      uses: actions/setup-python@v2
-#      with:
-#        python-version: 3.8
-#    - name: Install poetry
-#      uses: snok/install-poetry@v1.1.4
-#      with:
-#        virtualenvs-create: true
-#        virtualenvs-in-project: false
-#    - name: Install dependencies
-#      run: |
-#        poetry install
-##    - name: Lint with flake8
-##      run: |
-##        # stop the build if there are Python syntax errors or undefined names
-##        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-##        # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
-##        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
-#    - name: Test with pytest
-#      run: |
-#        pytest
-#
-
 jobs:
   build:
     strategy:
       fail-fast: false
       matrix:
-        python-version: [3.8, 3.9]
+        python-version: [3.8]
         poetry-version: [1.1.4]
 
     runs-on: ubuntu-latest
+    env:
+        DB_SERVER: .
+        DB_USER: postgres
+        DB_PASSWORD: zx1tt2qdd77ixq@
+        DB_NAME: test
+        DEV_DB_SERVER: localhost
+        TEST_DB_SERVER: .
+        FLASK_ENV: development
 
     steps:
     - uses: actions/checkout@v2
@@ -65,7 +43,8 @@ jobs:
 
     - name: View poetry --help
       run: poetry --help
-
+    - name: View file structure
+      run: ls -la
     - name: Install dependencies
       shell: bash
       run: python -m poetry install
