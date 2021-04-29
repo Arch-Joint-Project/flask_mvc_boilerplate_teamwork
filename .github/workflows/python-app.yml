@@ -25,7 +25,7 @@ jobs:
         DB_NAME: test
         DEV_DB_SERVER: localhost
         TEST_DB_SERVER: .
-        FLASK_ENV: development
+        FLASK_ENV: testing
 
     steps:
     - uses: actions/checkout@v2
