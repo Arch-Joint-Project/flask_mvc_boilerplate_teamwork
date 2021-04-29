@@ -14,6 +14,8 @@ class Config:
     DB_USER = os.getenv("DB_USER")
     DB_NAME = os.getenv("DB_NAME")
     DB_PASSWORD = os.getenv("DB_PASSWORD")
+    FLASK_ENV = os.getenv("FLASK_ENV")
+
     DB_SERVER = ""
 
     # General
@@ -26,12 +28,15 @@ class Config:
     # Database
     @property
     def SQLALCHEMY_DATABASE_URI(self):  # noqa
-        return "postgresql+psycopg2://{user}:{pw}@{url}/{db}".format(
-            user=self.DB_USER,
-            pw=self.DB_PASSWORD,
-            url=self.DB_SERVER,
-            db=self.DB_NAME,
-        )
+        if self.FLASK_ENV == "testing":
+            return "sqlite:///" + os.path.join(basedir, "test.sqlite")
+        else:
+            return "postgresql+psycopg2://{user}:{pw}@{url}/{db}".format(
+                user=self.DB_USER,
+                pw=self.DB_PASSWORD,
+                url=self.DB_SERVER,
+                db=self.DB_NAME,
+            )
 
     SQLALCHEMY_TRACK_MODIFICATIONS = True
 
