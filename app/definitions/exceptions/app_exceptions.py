@@ -66,3 +66,13 @@ class AppException:
             """
             status_code = 401
             AppExceptionCase.__init__(self, status_code, context)
+
+    class KeyCloakAdminError(AppExceptionCase):
+        def __init__(self, context: dict = None):
+            """
+            Key Cloak Error. Error with regards to Keycloak authentication
+            :param context: extra dictionary object to give the error more context
+            """
+
+            status_code = 500
+            AppExceptionCase.__init__(self, status_code, context)

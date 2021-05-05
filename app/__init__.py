@@ -1,4 +1,6 @@
+import logging
 import os
+from loguru import logger
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
@@ -9,11 +11,11 @@ from flask_swagger_ui import get_swaggerui_blueprint
 from werkzeug.exceptions import HTTPException
 from werkzeug.utils import import_string
 
-
 # load dotenv in the base root
 from app.definitions.exceptions.app_exceptions import app_exception_handler
 
-APP_ROOT = os.path.join(os.path.dirname(__file__), "..")  # refers to application_top
+APP_ROOT = os.path.join(os.path.dirname(__file__),
+                        "..")  # refers to application_top
 dotenv_path = os.path.join(APP_ROOT, ".env")
 
 db = SQLAlchemy()
@@ -34,6 +36,12 @@ SWAGGERUI_BLUEPRINT = get_swaggerui_blueprint(
 FLASK_ENV = os.getenv("FLASK_ENV") if os.getenv("FLASK_ENV") else "production"
 
 
+class InterceptHandler(logging.Handler):
+    def emit(self, record):
+        logger_opt = logger.opt(depth=6, exception=record.exc_info)
+        logger_opt.log(record.levelno, record.getMessage())
+
+
 def create_app():
     """Construct the core application"""
     app = Flask(__name__, instance_relative_config=False)
@@ -48,6 +56,12 @@ def create_app():
 
     # add extensions
     register_extensions(app)
+    logger.start(app.config['LOGFILE'], level=app.config['LOG_LEVEL'],
+                 format="{time} {level} {message}",
+                 backtrace=app.config['LOG_BACKTRACE'], rotation='25 MB')
+
+    # register loguru as handler
+    app.logger.addHandler(InterceptHandler())
     register_blueprints(app)
     return app
 
