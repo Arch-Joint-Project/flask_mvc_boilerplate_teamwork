@@ -13,6 +13,8 @@ services:
       DB_PASSWORD: ${DB_PASSWORD}
       FLASK_ENV: ${FLASK_ENV}
       DEBUG: ${DEBUG}
+      CLIENT_ID: ${CLIENT_ID}
+      CLIENT_SECRET: ${CLIENT_SECRET}
     command: 'flask run --host=0.0.0.0 --port=5000'
     ports:
       - 8000:5000

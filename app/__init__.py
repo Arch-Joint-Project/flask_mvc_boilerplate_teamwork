@@ -12,7 +12,8 @@ from werkzeug.exceptions import HTTPException
 from werkzeug.utils import import_string
 
 # load dotenv in the base root
-from app.definitions.exceptions.app_exceptions import app_exception_handler
+from app.definitions.exceptions.app_exceptions import app_exception_handler, \
+    AppExceptionCase
 
 APP_ROOT = os.path.join(os.path.dirname(__file__),
                         "..")  # refers to application_top
@@ -78,6 +79,10 @@ def register_extensions(app):
 
     @app.errorhandler(DBAPIError)
     def handle_db_exception(e):
+        return app_exception_handler(e)
+
+    @app.errorhandler(AppExceptionCase)
+    def handle_app_exceptions(e):
         return app_exception_handler(e)
 
     with app.app_context():
