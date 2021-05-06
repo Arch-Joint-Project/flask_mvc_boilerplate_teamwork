@@ -62,4 +62,6 @@ class TestingConfig(Config):
     TESTING = True
     DEBUG = True
     DEVELOPMENT = True
+    LOG_BACKTRACE = True
+    LOG_LEVEL = 'DEBUG'
     # SQL_ALCHEMY_DATABASE_URI = "sqlite:///:memory:"
