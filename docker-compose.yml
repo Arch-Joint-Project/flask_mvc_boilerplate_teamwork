@@ -13,6 +13,16 @@ services:
       DB_PASSWORD: ${DB_PASSWORD}
       FLASK_ENV: ${FLASK_ENV}
       DEBUG: ${DEBUG}
+      KEYCLOAK_CLIENT_ID: ${KEYCLOAK_CLIENT_ID}
+      KEYCLOAK_CLIENT_SECRET: ${KEYCLOAK_CLIENT_SECRET}
+      KEYCLOAK_URI: ${KEYCLOAK_URI}
+      KEYCLOAK_REALM: ${KEYCLOAK_REALM}
+      KEYCLOAK_ADMIN_USER: ${KEYCLOAK_ADMIN_USER}
+      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
+      KAFKA_BOOTSTRAP_SERVERS: ${KAFKA_BOOTSTRAP_SERVERS}
+      KAFKA_CONSUMER_GROUP_ID: $[KAFKA_CONSUMER_GROUP_ID}
+      KAFKA_SUBSCRIPTIONS: ${KAFKA_SUBSCRIPTIONS}
+
     command: 'flask run --host=0.0.0.0 --port=5000'
     ports:
       - 8000:5000
@@ -20,16 +30,14 @@ services:
       - .:/app
     depends_on:
       - db
-
-#THIS WILL BE UNCOMMENTED FOR QUEUEING
-#  queue:
-#    build:
-#      context: .
-#      dockerfile: Dockerfile
-#    command: 'python -u /app/consumer.py'
-#    restart: always
-#    depends_on:
-#      - db
+  queue:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: 'python -u /app/consumer.py'
+    restart: always
+    depends_on:
+      - db
 
   db:
     image: postgres:12
