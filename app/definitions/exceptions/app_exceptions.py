@@ -67,6 +67,16 @@ class AppException:
             status_code = 401
             AppExceptionCase.__init__(self, status_code, context)
 
+    class ValidationException(AppExceptionCase):
+        """
+        Resource Creation Failed Exception
+        """
+
+        def __init__(self, context):
+
+            status_code = 400
+            AppExceptionCase.__init__(self, status_code, context)
+
     class KeyCloakAdminException(AppExceptionCase):
         def __init__(self, context: dict = None, status_code=400):
             """

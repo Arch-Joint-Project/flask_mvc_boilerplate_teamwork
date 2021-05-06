@@ -23,9 +23,6 @@ db = SQLAlchemy()
 migrate = Migrate()
 ma = Marshmallow()
 
-# IMPORT BLUEPRINTS HERE
-
-
 # SWAGGER
 SWAGGER_URL = "/swagger"
 API_URL = "/static/swagger.json"
@@ -57,9 +54,9 @@ def create_app():
 
     # add extensions
     register_extensions(app)
-    logger.start(app.config['LOGFILE'], level=app.config['LOG_LEVEL'],
-                 format="{time} {level} {message}",
-                 backtrace=app.config['LOG_BACKTRACE'], rotation='25 MB')
+    logger.add(app.config['LOGFILE'], level=app.config['LOG_LEVEL'],
+               format="{time} {level} {message}",
+               backtrace=app.config['LOG_BACKTRACE'], rotation='25 MB')
 
     # register loguru as handler
     app.logger.addHandler(InterceptHandler())

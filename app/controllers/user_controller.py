@@ -1,6 +1,3 @@
-import os
-import requests
-from flask import current_app as app
 from app.definitions.repository_interfaces.user_repository_interface import (
     UserRepositoryInterface,
 )
@@ -27,3 +24,9 @@ class UserController:
     def user_login(self, user_data):
         token = self.auth_service.get_token(user_data)
         return ServiceResult(Result(token, status_code=200))
+
+    def register_user(self, user_data):
+        self.auth_service.create_user(user_data)
+        return ServiceResult(Result({
+            "message": "Account created successfully",
+        }, status_code=204))
