@@ -1,5 +1,6 @@
 import inspect
 
+import marshmallow
 from flask import Response
 from loguru import logger
 from app.definitions.exceptions.app_exceptions import AppExceptionCase
@@ -41,13 +42,20 @@ def caller_info() -> str:
     return f"{info.filename}:{info.function}:{info.lineno}"
 
 
-def handle_result(result):
+def handle_result(result, schema: marshmallow.Schema = None):
     if not result.success:
         with result as exception:
             logger.error(f"{exception} | caller={caller_info()}")
             raise exception
     with result as result:
 
-        return Response(
-            result.value, status=result.status_code, mimetype="application/json"
-        )
+        if schema:
+            return Response(
+                schema.dumps(result.value),
+                status=result.status_code,
+                mimetype="application/json",
+            )
+        else:
+            return Response(
+                result.value, status=result.status_code, mimetype="application/json"
+            )

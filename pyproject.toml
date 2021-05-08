@@ -20,6 +20,8 @@ Flask-Script = "^2.0.6"
 loguru = "^0.5.3"
 flask-swagger-ui = "^3.36.0"
 pinject = "^0.14.1"
+apispec = "^4.4.0"
+apispec-webframeworks = "^0.5.2"
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.2.3"

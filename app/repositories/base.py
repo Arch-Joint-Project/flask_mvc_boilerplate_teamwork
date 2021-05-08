@@ -19,13 +19,18 @@ class BaseRepository(CRUDRepository):
         self.model = model
 
     def index(self):
-        pass
+        """
+
+        :return: {list} returns a list of objects of type model
+        """
+        data = self.model.query.all()
+        return data
 
     def create(self, obj_in):
         """
 
         :param obj_in: the data you want to use to create the model
-        :return: model_object - Returns an instance object of the model passed
+        :return: {object} - Returns an instance object of the model passed
         """
         obj_data = dict(obj_in)
         db_obj = self.model(**obj_data)
