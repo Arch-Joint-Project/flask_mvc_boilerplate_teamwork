@@ -5,26 +5,26 @@ from app.definitions.service_interfaces.auth_service_interface import (
     AuthServiceInterface,
 )
 
+CLIENT_ID = os.getenv("KEYCLOAK_CLIENT_ID")
+CLIENT_SECRET = os.getenv("KEYCLOAK_CLIENT_SECRET")
+URI = os.getenv("KEYCLOAK_URI")
+REALM = os.getenv("KEYCLOAK_REALM")
+REALM_PREFIX = "/auth/realms/"
+AUTH_ENDPOINT = "/protocol/openid-connect/token/"
+
 
 class AuthService(AuthServiceInterface):
     def get_token(self, request_data):
 
         data = {
             "grant_type": "password",
-            "client_id": os.getenv("KEYCLOAK_CLIENT_ID"),
-            "client_secret": os.getenv("KEYCLOAK_CLIENT_SECRET"),
+            "client_id": CLIENT_ID,
+            "client_secret": CLIENT_SECRET,
             "username": request_data.get("username"),
             "password": request_data.get("password"),
         }
 
-        url = "".join(
-            [
-                os.getenv("KEYCLOAK_URI"),
-                "/auth/realms/",
-                os.getenv("KEYCLOAK_REALM"),
-                "/protocol/openid-connect/token",
-            ]
-        )
+        url = URI + REALM_PREFIX + REALM + AUTH_ENDPOINT
 
         response = requests.post(url, data=data)
         if response.status_code != 200:
@@ -43,24 +43,16 @@ class AuthService(AuthServiceInterface):
     def refresh_token(self, refresh_token):
         request_data = {
             "grant_type": "refresh_token",
-            "client_id": os.getenv("KEYCLOAK_CLIENT_ID"),
-            "client_secret": os.getenv("KEYCLOAK_CLIENT_SECRET"),
+            "client_id": CLIENT_ID,
+            "client_secret": CLIENT_SECRET,
             "refresh_token": refresh_token,
         }
 
-        url = "".join(
-            [
-                os.getenv("KEYCLOAK_URI"),
-                "/auth/realms/",
-                os.getenv("KEYCLOAK_REALM"),
-                "/protocol/openid-connect/token",
-            ]
-        )
+        url = URI + REALM_PREFIX + REALM + AUTH_ENDPOINT
 
         response = requests.post(url, data=request_data)
 
         if response.status_code != requests.codes.ok:
-
             raise AppException.BadRequest(
                 context={"errorMessage": "Error in refresh token"}
             )
@@ -99,12 +91,7 @@ class AuthService(AuthServiceInterface):
         :data {object} data Keycloak data object
         :return {Response} request response object
         """
-        url = (
-            os.getenv("KEYCLOAK_URI")
-            + "/auth/admin/realms/"
-            + os.getenv("KEYCLOAK_REALM")
-            + endpoint
-        )
+        url = URI + "/auth/admin/realms/" + REALM + endpoint
         headers = self.get_keycloak_headers()
         response = requests.post(url, headers=headers, json=data)
         if response.status_code >= 300:
@@ -127,14 +114,8 @@ class AuthService(AuthServiceInterface):
             "password": os.getenv("KEYCLOAK_ADMIN_PASSWORD"),
         }
 
-        url = "".join(
-            [
-                os.getenv("KEYCLOAK_URI"),
-                "/auth/realms/",
-                os.getenv("KEYCLOAK_REALM"),
-                "/protocol/openid-connect/token",
-            ]
-        )
+        url = URI + REALM_PREFIX + REALM + AUTH_ENDPOINT
+
         response = requests.post(
             url,
             data=data,

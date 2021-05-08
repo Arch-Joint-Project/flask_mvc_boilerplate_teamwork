@@ -1,8 +1,7 @@
 from app import db
 from app.definitions.exceptions.HTTPException import HTTPException
-from app.definitions.repository_interfaces.base.crud_repository_interface import (
-    CRUDRepository,
-)
+from app.definitions.repository_interfaces.base.crud_repository_interface \
+    import (CRUDRepository)
 
 
 class BaseRepository(CRUDRepository):
@@ -11,8 +10,7 @@ class BaseRepository(CRUDRepository):
         Base class to be inherited by all repositories. This class comes with
         base crud functionalities attached
 
-        :param db: Session - sqlalchemy db session to be used for queries
-        :param model: base model of the class to be used for queries and returns
+        :param model: base model of the class to be used for queries
         """
 
         self.db = db
@@ -38,35 +36,37 @@ class BaseRepository(CRUDRepository):
         self.db.session.commit()
         return db_obj
 
-    def update_by_id(self, id, obj_in):
+    def update_by_id(self, item_id, obj_in):
         """
-
-        :param obj_in:
+        :param item_id: {int}
+        :param obj_in: {dict}
         :return: model_object - Returns an instance object of the model passed
         """
-        db_obj = self.find_by_id(id)
+        db_obj = self.find_by_id(item_id)
         if not db_obj:
-            raise HTTPException(status_code=400, description="Resource does not exist")
+            raise HTTPException(status_code=400,
+                                description="Resource does not exist")
 
-    def find_by_id(self, id: int):
+    def find_by_id(self, item_id: int):
         """
         returns a user if it exists in the database
-        :param id: int - id of the user
+        :param item_id: int - id of the user
         :return: model_object - Returns an instance object of the model passed
         """
-        db_obj = self.db.query(self.model).get(id)
+        db_obj = self.db.query(self.model).get(item_id)
         return db_obj
 
-    def delete(self, id):
+    def delete(self, item_id):
 
         """
 
-        :param id:
+        :param item_id:
         :return:
         """
 
-        db_obj = self.find_by_id(id)
+        db_obj = self.find_by_id(item_id)
         if not db_obj:
-            raise HTTPException(status_code=400, description="Resource does not exist")
+            raise HTTPException(status_code=400,
+                                description="Resource does not exist")
         db.session.delete(db_obj)
         db.session.commit()
