@@ -46,7 +46,7 @@ jobs:
       shell: bash
       run: poetry install
     - name: Run pre-commit
-      run: pre-commit run -a
-    - name: Test with pytest
+      run: which pre-commit
+    - name: Test with pytesta
       run: |
         poetry run python -m pytest -v tests
