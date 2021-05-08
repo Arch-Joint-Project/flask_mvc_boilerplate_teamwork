@@ -25,8 +25,10 @@ class UserController:
         token = self.auth_service.get_token(user_data)
         return ServiceResult(Result(token, status_code=200))
 
+    def refresh_token(self, refresh_token):
+        token = self.auth_service.refresh_token(refresh_token)
+        return ServiceResult(Result(token, status_code=200))
+
     def register_user(self, user_data):
         self.auth_service.create_user(user_data)
-        return ServiceResult(Result({
-            "message": "Account created successfully",
-        }, status_code=204))
+        return ServiceResult(Result(user_data, status_code=200))

@@ -19,11 +19,11 @@ class AppExceptionCase(Exception):
 def app_exception_handler(exc: AppExceptionCase):
     if isinstance(exc, DBAPIError):
         return Response(
-            json.dumps({"app_exception": "Database Error", "context": exc.orig.pgerror}),
+            json.dumps({"app_exception": "Database Error", "errorMessage": exc.orig.pgerror}),
             status=400,
         )
     return Response(
-        json.dumps({"app_exception": exc.exception_case, "context": exc.context}),
+        json.dumps({"app_exception": exc.exception_case, "errorMessage": exc.context}),
         status=exc.status_code,
         mimetype="application/json",
     )
@@ -84,4 +84,14 @@ class AppException:
             :param context: extra dictionary object to give the error more context
             """
 
+            AppExceptionCase.__init__(self, status_code, context)
+
+    class BadRequest(AppExceptionCase):
+        def __init__(self, context: dict = None):
+            """
+            Bad Request
+
+            :param context:
+            """
+            status_code = 400
             AppExceptionCase.__init__(self, status_code, context)

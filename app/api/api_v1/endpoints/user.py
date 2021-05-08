@@ -1,15 +1,16 @@
 import json
 
 import pinject
-import requests
-from flask import Blueprint, jsonify, request, current_app as app
+from flask import Blueprint, jsonify, request
 from app.controllers.user_controller import UserController
 from app.definitions.exceptions.app_exceptions import AppException
 from app.definitions.service_result import handle_result
 from app.models.user import User
 from app.repositories.user_repository import UserRepository
-from app.schema.user_schema import CreateUserSchema
+from app.schema.user_schema import UserCreate, UserLogin, AccessToken, User \
+    as UserSchema, RefreshToken
 from app.services.keycloak_service import AuthService
+from app.utils.validator import validator
 
 user = Blueprint("user", __name__)
 
@@ -38,29 +39,27 @@ def create():
     return handle_result(result)
 
 
-@user.route("/token_login", methods=["POST"])
-def login_user():
-    data = request.json
-    username = data["username"]
-    password = data["password"]
-
-    result = user_controller.user_login(
-        {
-            "username": username,
-            "password": password,
-        }
-    )
-
-    return handle_result(result)
-
-
 @user.route("/", methods=["POST"])
+@validator(schema=UserCreate())
 def register_user():
-    schema = CreateUserSchema()
-    errors = schema.validate(request.json)
-
-    if errors:
-        raise AppException.ValidationException(context=errors)
+    """
+    ---
+    post:
+      description: creates a new user
+      requestBody:
+        required: true
+        content:
+            application/json:
+                schema: UserCreate
+      responses:
+        '204':
+          description: call successful
+          content:
+            application/json:
+              schema: User
+      tags:
+          - Authentication
+    """
 
     data = request.json
     result = user_controller.register_user(
@@ -73,4 +72,72 @@ def register_user():
         }
     )
 
-    return handle_result(result)
+    return handle_result(result, schema=UserSchema())
+
+
+@user.route("/token_login", methods=["POST"])
+@validator(schema=UserLogin())
+def login_user():
+    """
+    ---
+    post:
+      description: logs in a user
+      requestBody:
+        required: true
+        content:
+            application/json:
+                schema: UserLogin
+      responses:
+        '200':
+          description: call successful
+          content:
+            application/json:
+              schema: AccessToken
+      tags:
+          - Authentication
+    """
+
+    data = request.json
+    username = data["email"]
+    password = data["password"]
+
+    result = user_controller.user_login(
+        {
+            "username": username,
+            "password": password,
+        }
+    )
+
+    return handle_result(result, schema=AccessToken())
+
+
+@user.route("/refresh_token", methods=['POST'])
+@validator(schema=RefreshToken())
+def refresh_token():
+    """
+    ---
+    post:
+      description: logs in a user
+      requestBody:
+        required: true
+        content:
+            application/json:
+                schema: RefreshToken
+      responses:
+        '200':
+          description: call successful
+          content:
+            application/json:
+              schema: AccessToken
+      tags:
+          - Authentication
+    """
+
+    data = request.json
+
+    result = user_controller.refresh_token(
+        refresh_token=data["refresh_token"]
+    )
+
+    return handle_result(result, schema=AccessToken())
+

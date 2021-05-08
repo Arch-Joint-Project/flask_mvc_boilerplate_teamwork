@@ -1,23 +1,40 @@
-from app import ma
-from marshmallow import validate, fields
+from marshmallow import fields, Schema
 
 
-class UserBase(ma.Schema):
+class User(Schema):
     first_name = fields.Str()
     last_name = fields.Str()
     email = fields.Email()
-    password = fields.Str()
 
     class Meta:
-        fields = ['first_name', 'last_name', 'email', 'password']
+        fields = ["first_name", "last_name", "email"]
 
 
-class CreateUserSchema(UserBase):
+class UserCreate(Schema):
     first_name = fields.Str(required=True)
     last_name = fields.Str(required=True)
     email = fields.Email(required=True)
     password = fields.Str(required=True)
 
+    class Meta:
+        fields = ["first_name", "last_name", "email", "password"]
 
-class UserSchema(UserBase):
-    pass
+
+class UserLogin(Schema):
+    email = fields.Email(required=True)
+    password = fields.Str(required=True)
+
+    class Meta:
+        fields = ["email", "password"]
+
+
+class AccessToken(Schema):
+    access_token = fields.Str()
+    refresh_token = fields.Str()
+
+    class Meta:
+        fields = ["access_token", "refresh_token"]
+
+
+class RefreshToken(Schema):
+    refresh_token = fields.Str(required=True)

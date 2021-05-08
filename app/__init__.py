@@ -1,17 +1,21 @@
 import logging
 import os
 from loguru import logger
-from flask import Flask
+from flask import Flask, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_marshmallow import Marshmallow
 from sqlalchemy.exc import DBAPIError
+from apispec import APISpec
+from apispec.ext.marshmallow import MarshmallowPlugin
+from apispec_webframeworks.flask import FlaskPlugin
 
 from flask_swagger_ui import get_swaggerui_blueprint
 from werkzeug.exceptions import HTTPException
 from werkzeug.utils import import_string
 
 # load dotenv in the base root
+from app.api_spec import spec
 from app.definitions.exceptions.app_exceptions import app_exception_handler, \
     AppExceptionCase
 
@@ -23,8 +27,9 @@ db = SQLAlchemy()
 migrate = Migrate()
 ma = Marshmallow()
 
+
 # SWAGGER
-SWAGGER_URL = "/swagger"
+SWAGGER_URL = "/api/docs"
 API_URL = "/static/swagger.json"
 
 SWAGGERUI_BLUEPRINT = get_swaggerui_blueprint(
@@ -61,6 +66,7 @@ def create_app():
     # register loguru as handler
     app.logger.addHandler(InterceptHandler())
     register_blueprints(app)
+    register_swagger_definitions(app)
     return app
 
 
@@ -94,3 +100,20 @@ def register_blueprints(app):
     app.register_blueprint(SWAGGERUI_BLUEPRINT, url_prefix=SWAGGER_URL)
     api.init_app(app)
     return None
+
+
+def register_swagger_definitions(app):
+    with app.test_request_context():
+        for fn_name in app.view_functions:
+            if fn_name == 'static':
+                continue
+            print(f"Loading swagger docs for function: {fn_name}")
+            view_fn = app.view_functions[fn_name]
+            spec.path(view=view_fn)
+
+    @app.route("/static/swagger.json")
+    def create_swagger_spec():
+        """
+        Swagger API definition.
+        """
+        return jsonify(spec.to_dict())

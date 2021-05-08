@@ -13,17 +13,17 @@ class AuthService(AuthServiceInterface):
 
         data = {
             "grant_type": "password",
-            "client_id": os.getenv("CLIENT_ID"),
-            "client_secret": os.getenv("CLIENT_SECRET"),
-            "username": request_data["username"],
-            "password": request_data["password"],
+            "client_id": os.getenv("KEYCLOAK_CLIENT_ID"),
+            "client_secret": os.getenv("KEYCLOAK_CLIENT_SECRET"),
+            "username": request_data.get("username"),
+            "password": request_data.get("password"),
         }
 
         url = "".join(
             [
                 os.getenv("KEYCLOAK_URI"),
                 "/auth/realms/",
-                os.getenv("REALM"),
+                os.getenv("KEYCLOAK_REALM"),
                 "/protocol/openid-connect/token",
             ]
         )
@@ -36,23 +36,49 @@ class AuthService(AuthServiceInterface):
             )
         tokens_data = response.json()
         result = {
-            "tokens": {
-                "access_token": tokens_data["access_token"],
-                "refresh_token": tokens_data["refresh_token"],
-            }
+            "access_token": tokens_data["access_token"],
+            "refresh_token": tokens_data["refresh_token"],
         }
 
         return result
 
     def refresh_token(self, refresh_token):
-        pass
+        request_data = {
+            "grant_type": "refresh_token",
+            "client_id": os.getenv("KEYCLOAK_CLIENT_ID"),
+            "client_secret": os.getenv("KEYCLOAK_CLIENT_SECRET"),
+            "refresh_token": refresh_token,
+        }
+
+        url = "".join(
+            [
+                os.getenv("KEYCLOAK_URI"),
+                "/auth/realms/",
+                os.getenv("KEYCLOAK_REALM"),
+                "/protocol/openid-connect/token",
+            ]
+        )
+
+        response = requests.post(url, data=request_data)
+
+        if response.status_code != requests.codes.ok:
+
+            raise AppException.BadRequest(context={
+                "errorMessage": "Error in refresh token"
+            })
+
+        data = response.json()
+        return {
+            "access_token": data["access_token"],
+            "refresh_token": data["refresh_token"],
+        }
 
     def create_user(self, request_data):
         data = {
             "email": request_data.get("email"),
             "username": request_data.get("username"),
             "firstName": request_data.get("first_name"),
-            "lastName": request_data.get("first_name"),
+            "lastName": request_data.get("last_name"),
             "credentials": [
                 {
                     "value": request_data.get("password"),
@@ -78,7 +104,7 @@ class AuthService(AuthServiceInterface):
         url = (
             os.getenv("KEYCLOAK_URI")
             + "/auth/admin/realms/"
-            + os.getenv("REALM")
+            + os.getenv("KEYCLOAK_REALM")
             + endpoint
         )
         headers = self.get_keycloak_headers()
@@ -86,7 +112,8 @@ class AuthService(AuthServiceInterface):
         if response.status_code >= 300:
             # app.logger.error(response.text)
             raise AppException.KeyCloakAdminException(
-                context={'message': response.json().get("errorMessage")}, status_code=response.status_code
+                context={"message": response.json().get("errorMessage")},
+                status_code=response.status_code,
             )
         return response
 
@@ -106,7 +133,7 @@ class AuthService(AuthServiceInterface):
             [
                 os.getenv("KEYCLOAK_URI"),
                 "/auth/realms/",
-                os.getenv("REALM"),
+                os.getenv("KEYCLOAK_REALM"),
                 "/protocol/openid-connect/token",
             ]
         )
