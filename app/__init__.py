@@ -13,11 +13,12 @@ from werkzeug.utils import import_string
 
 # load dotenv in the base root
 from app.api_spec import spec
-from app.definitions.exceptions.app_exceptions import app_exception_handler, \
-    AppExceptionCase
+from app.definitions.exceptions.app_exceptions import (
+    app_exception_handler,
+    AppExceptionCase,
+)
 
-APP_ROOT = os.path.join(os.path.dirname(__file__),
-                        "..")  # refers to application_top
+APP_ROOT = os.path.join(os.path.dirname(__file__), "..")  # refers to application_top
 dotenv_path = os.path.join(APP_ROOT, ".env")
 
 db = SQLAlchemy()
@@ -56,9 +57,13 @@ def create_app():
 
     # add extensions
     register_extensions(app)
-    logger.add(app.config['LOGFILE'], level=app.config['LOG_LEVEL'],
-               format="{time} {level} {message}",
-               backtrace=app.config['LOG_BACKTRACE'], rotation='25 MB')
+    logger.add(
+        app.config["LOGFILE"],
+        level=app.config["LOG_LEVEL"],
+        format="{time} {level} {message}",
+        backtrace=app.config["LOG_BACKTRACE"],
+        rotation="25 MB",
+    )
 
     # register loguru as handler
     app.logger.addHandler(InterceptHandler())
@@ -102,7 +107,7 @@ def register_blueprints(app):
 def register_swagger_definitions(app):
     with app.test_request_context():
         for fn_name in app.view_functions:
-            if fn_name == 'static':
+            if fn_name == "static":
                 continue
             print(f"Loading swagger docs for function: {fn_name}")
             view_fn = app.view_functions[fn_name]

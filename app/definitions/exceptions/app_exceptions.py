@@ -19,7 +19,9 @@ class AppExceptionCase(Exception):
 def app_exception_handler(exc: AppExceptionCase):
     if isinstance(exc, DBAPIError):
         return Response(
-            json.dumps({"app_exception": "Database Error", "errorMessage": exc.orig.pgerror}),
+            json.dumps(
+                {"app_exception": "Database Error", "errorMessage": exc.orig.pgerror}
+            ),
             status=400,
         )
     return Response(

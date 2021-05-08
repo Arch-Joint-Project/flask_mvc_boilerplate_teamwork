@@ -6,8 +6,7 @@ from apispec.ext.marshmallow import MarshmallowPlugin
 from apispec_webframeworks.flask import FlaskPlugin
 
 # Create an APISpec
-from app.schema.user_schema import UserCreate, User, UserLogin, AccessToken, \
-    RefreshToken
+from app.schema.user_schema import UserCreate, User, UserLogin, AccessToken, RefreshToken
 
 spec = APISpec(
     title="My App",

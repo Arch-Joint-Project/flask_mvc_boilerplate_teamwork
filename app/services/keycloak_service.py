@@ -1,11 +1,9 @@
 import os
-import json
 import requests
 from app.definitions.exceptions.app_exceptions import AppException
 from app.definitions.service_interfaces.auth_service_interface import (
     AuthServiceInterface,
 )
-from flask import current_app as app
 
 
 class AuthService(AuthServiceInterface):
@@ -63,9 +61,9 @@ class AuthService(AuthServiceInterface):
 
         if response.status_code != requests.codes.ok:
 
-            raise AppException.BadRequest(context={
-                "errorMessage": "Error in refresh token"
-            })
+            raise AppException.BadRequest(
+                context={"errorMessage": "Error in refresh token"}
+            )
 
         data = response.json()
         return {

@@ -1,4 +1,5 @@
-import os, sys
+import os
+import sys
 from app import dotenv_path
 from dotenv import load_dotenv
 
@@ -47,7 +48,7 @@ class DevelopmentConfig(Config):
     DEVELOPMENT = True
     DB_SERVER = os.getenv("DEV_DB_SERVER")
     LOG_BACKTRACE = True
-    LOG_LEVEL = 'DEBUG'
+    LOG_LEVEL = "DEBUG"
 
 
 class ProductionConfig(Config):
@@ -55,7 +56,7 @@ class ProductionConfig(Config):
     DEVELOPMENT = False
     DB_SERVER = os.getenv("DB_SERVER")
     LOG_BACKTRACE = False
-    LOG_LEVEL = 'INFO'
+    LOG_LEVEL = "INFO"
 
 
 class TestingConfig(Config):
@@ -63,5 +64,5 @@ class TestingConfig(Config):
     DEBUG = True
     DEVELOPMENT = True
     LOG_BACKTRACE = True
-    LOG_LEVEL = 'DEBUG'
+    LOG_LEVEL = "DEBUG"
     # SQL_ALCHEMY_DATABASE_URI = "sqlite:///:memory:"

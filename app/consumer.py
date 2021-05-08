@@ -11,8 +11,8 @@ bootstrap_servers = KAFKA_BOOTSTRAP_SERVERS.split("|")
 
 consumer = KafkaConsumer(
     bootstrap_servers=bootstrap_servers,
-    auto_offset_reset='earliest',
-    group_id=KAFKA_CONSUMER_GROUP_ID
+    auto_offset_reset="earliest",
+    group_id=KAFKA_CONSUMER_GROUP_ID,
 )
 
 consumer.subscribe(subscriptions)

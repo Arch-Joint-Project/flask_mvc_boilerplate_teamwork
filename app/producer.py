@@ -14,5 +14,8 @@ def get_partition(key, all, available):
     return 0
 
 
-producer = KafkaProducer(bootstrap_servers=['localhost:9092'], value_serializer=json_serializer, partitioner=get_partition)
-
+producer = KafkaProducer(
+    bootstrap_servers=["localhost:9092"],
+    value_serializer=json_serializer,
+    partitioner=get_partition,
+)

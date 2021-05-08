@@ -1,14 +1,16 @@
-import json
-
 import pinject
 from flask import Blueprint, jsonify, request
 from app.controllers.user_controller import UserController
-from app.definitions.exceptions.app_exceptions import AppException
 from app.definitions.service_result import handle_result
 from app.models.user import User
 from app.repositories.user_repository import UserRepository
-from app.schema.user_schema import UserCreate, UserLogin, AccessToken, User \
-    as UserSchema, RefreshToken
+from app.schema.user_schema import (
+    UserCreate,
+    UserLogin,
+    AccessToken,
+    User as UserSchema,
+    RefreshToken,
+)
 from app.services.keycloak_service import AuthService
 from app.utils.validator import validator
 
@@ -24,8 +26,7 @@ user_controller = obj_graph.provide(UserController)
 @user.route("/")
 def index():
     users = User.query.all()
-    return jsonify(
-        {"users": users, "status": "Success", "message": "users retrieved"})
+    return jsonify({"users": users, "status": "Success", "message": "users retrieved"})
 
 
 # @user.route("/", methods=["POST"])
@@ -68,7 +69,7 @@ def register_user():
             "first_name": data["first_name"],
             "last_name": data["last_name"],
             "email": data["email"],
-            "password": data["password"]
+            "password": data["password"],
         }
     )
 
@@ -111,7 +112,7 @@ def login_user():
     return handle_result(result, schema=AccessToken())
 
 
-@user.route("/refresh_token", methods=['POST'])
+@user.route("/refresh_token", methods=["POST"])
 @validator(schema=RefreshToken())
 def refresh_token():
     """
@@ -135,9 +136,6 @@ def refresh_token():
 
     data = request.json
 
-    result = user_controller.refresh_token(
-        refresh_token=data["refresh_token"]
-    )
+    result = user_controller.refresh_token(refresh_token=data["refresh_token"])
 
     return handle_result(result, schema=AccessToken())
-
