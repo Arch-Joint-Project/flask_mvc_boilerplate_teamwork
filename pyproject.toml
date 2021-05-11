@@ -22,6 +22,8 @@ flask-swagger-ui = "^3.36.0"
 pinject = "^0.14.1"
 apispec = "^4.4.0"
 apispec-webframeworks = "^0.5.2"
+flask-mongoengine = "^1.0.0"
+redis = "^3.5.3"
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.2.3"

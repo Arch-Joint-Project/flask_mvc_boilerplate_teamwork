@@ -20,7 +20,7 @@ services:
       KEYCLOAK_ADMIN_USER: ${KEYCLOAK_ADMIN_USER}
       KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
       KAFKA_BOOTSTRAP_SERVERS: ${KAFKA_BOOTSTRAP_SERVERS}
-      KAFKA_CONSUMER_GROUP_ID: $[KAFKA_CONSUMER_GROUP_ID}
+      KAFKA_CONSUMER_GROUP_ID: ${KAFKA_CONSUMER_GROUP_ID}
       KAFKA_SUBSCRIPTIONS: ${KAFKA_SUBSCRIPTIONS}
 
     command: 'flask run --host=0.0.0.0 --port=5000'
@@ -35,9 +35,17 @@ services:
       context: .
       dockerfile: Dockerfile
     command: 'python -u /app/consumer.py'
-    restart: always
+#    restart: always
     depends_on:
       - db
+  redis:
+    image: 'redis:4-alpine'
+    container_name: redis
+    command: redis-server --requirepass ${REDIS_PASSWORD}
+    environment:
+      - REDIS_REPLICATION_MODE=master
+    ports:
+      - '6379:6379'
 
   db:
     image: postgres:12
@@ -47,6 +55,6 @@ services:
       POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_DB: ${DB_NAME}
     volumes:
-      - .dbdata:/var/lib/postgres
+      - $PWD/.dbdata:/var/lib/postgres
     ports:
       - 5430:5432

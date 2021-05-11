@@ -1,7 +1,7 @@
 from abc import ABC
 
-from .base.crud_repository_interface import CRUDRepository
+from .base.crud_repository_interface import CRUDRepositoryInterface
 
 
-class UserRepositoryInterface(CRUDRepository, ABC):
+class UserRepositoryInterfaceInterface(CRUDRepositoryInterface, ABC):
     pass

@@ -1,5 +1,6 @@
+from app.definitions.exceptions.app_exceptions import AppException
 from app.definitions.repository_interfaces.user_repository_interface import (
-    UserRepositoryInterface,
+    UserRepositoryInterfaceInterface,
 )
 from app.definitions.result import Result
 from app.definitions.service_interfaces.auth_service_interface import (
@@ -11,8 +12,8 @@ from app.definitions.service_result import ServiceResult
 class UserController:
     def __init__(
         self,
-        user_repository: UserRepositoryInterface,
-        auth_service: AuthServiceInterface,
+        user_repository: UserRepositoryInterfaceInterface,
+        auth_service: AuthServiceInterface
     ):
         self.user_repository = user_repository
         self.auth_service = auth_service

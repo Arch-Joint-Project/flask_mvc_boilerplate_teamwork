@@ -11,13 +11,19 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 
 class Config:
     """Set Flask configuration vars from .env file."""
+    DB_ENGINE = "postgres"  # also this can be change from postgres to mongodb
 
+    # SQL database
+    DB_SERVER = ""
     DB_USER = os.getenv("DB_USER")
     DB_NAME = os.getenv("DB_NAME")
     DB_PASSWORD = os.getenv("DB_PASSWORD")
     FLASK_ENV = os.getenv("FLASK_ENV")
 
-    DB_SERVER = ""
+    # MONGO database
+    MONGO_DB = DB_NAME
+    MONGODB_PORT = os.getenv("DB_PORT", default=27017)
+    MONGODB_USERNAME = DB_USER
 
     # General
     DEBUG = False
@@ -28,6 +34,10 @@ class Config:
     LOGFILE = "log.log"
 
     # Database
+    @property
+    def MONGODB_HOST(self):  # noqa
+        return self.DB_SERVER
+
     @property
     def SQLALCHEMY_DATABASE_URI(self):  # noqa
         if self.FLASK_ENV == "testing":

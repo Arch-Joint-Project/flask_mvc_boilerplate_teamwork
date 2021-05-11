@@ -1,7 +1,7 @@
 import abc
 
 
-class CRUDRepository(metaclass=abc.ABCMeta):
+class CRUDRepositoryInterface(metaclass=abc.ABCMeta):
     @classmethod
     def __subclasshook__(cls, subclass):
         return (

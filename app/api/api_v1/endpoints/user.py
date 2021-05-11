@@ -29,18 +29,19 @@ def index():
     return jsonify({"users": users, "status": "Success", "message": "users retrieved"})
 
 
-# @user.route("/", methods=["POST"])
+@user.route("/", methods=["POST"])
 def create():
     data = request.json
+    first_name = data["first_name"]
+    last_name = data["last_name"]
     email = data["email"]
-    name = data["name"]
 
-    result = user_controller.create_user({"email": email, "name": name})
+    result = user_controller.create_user({"first_name": first_name, "last_name": last_name, "email": email})
 
     return handle_result(result)
 
 
-@user.route("/", methods=["POST"])
+# @user.route("/", methods=["POST"])
 @validator(schema=UserCreate())
 def register_user():
     """

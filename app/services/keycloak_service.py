@@ -32,6 +32,7 @@ class AuthService(AuthServiceInterface):
                 context={"message": "Error in username or password"},
                 status_code=response.status_code,
             )
+
         tokens_data = response.json()
         result = {
             "access_token": tokens_data["access_token"],

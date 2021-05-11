@@ -5,7 +5,9 @@ from flask import Flask, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_marshmallow import Marshmallow
+from flask_mongoengine import MongoEngine
 from sqlalchemy.exc import DBAPIError
+from mongoengine.errors import DoesNotExist
 
 from flask_swagger_ui import get_swaggerui_blueprint
 from werkzeug.exceptions import HTTPException
@@ -69,13 +71,21 @@ def create_app():
     app.logger.addHandler(InterceptHandler())
     register_blueprints(app)
     register_swagger_definitions(app)
+    print(app.config)
     return app
 
 
 def register_extensions(app):
     """Register Flask extensions."""
-    db.init_app(app)
-    migrate.init_app(app, db)
+
+    if app.config["DB_ENGINE"] == "mongodb":
+        me = MongoEngine()
+        me.init_app(app)
+    elif app.config["DB_ENGINE"] == "postgres":
+        db.init_app(app)
+        migrate.init_app(app, db)
+        with app.app_context():
+            db.create_all()
     ma.init_app(app)
 
     @app.errorhandler(HTTPException)
@@ -90,8 +100,6 @@ def register_extensions(app):
     def handle_app_exceptions(e):
         return app_exception_handler(e)
 
-    with app.app_context():
-        db.create_all()
     return None
 
 
