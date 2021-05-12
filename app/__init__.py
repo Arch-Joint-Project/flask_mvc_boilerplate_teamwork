@@ -7,7 +7,6 @@ from flask_migrate import Migrate
 from flask_marshmallow import Marshmallow
 from flask_mongoengine import MongoEngine
 from sqlalchemy.exc import DBAPIError
-from mongoengine.errors import DoesNotExist
 
 from flask_swagger_ui import get_swaggerui_blueprint
 from werkzeug.exceptions import HTTPException
@@ -71,7 +70,6 @@ def create_app():
     app.logger.addHandler(InterceptHandler())
     register_blueprints(app)
     register_swagger_definitions(app)
-    print(app.config)
     return app
 
 

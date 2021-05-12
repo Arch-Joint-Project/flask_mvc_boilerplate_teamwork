@@ -6,10 +6,11 @@ from apispec.ext.marshmallow import MarshmallowPlugin
 from apispec_webframeworks.flask import FlaskPlugin
 
 # Create an APISpec
-from app.schema.user_schema import UserCreate, User, UserLogin, AccessToken, RefreshToken
+from app.schema import Product
+from app.schema import UserCreate, User, UserLogin, AccessToken, RefreshToken
 
 spec = APISpec(
-    title="My App",
+    title="Boilerplate project",
     version="1.0.0",
     openapi_version="3.0.2",
     plugins=[FlaskPlugin(), MarshmallowPlugin()],
@@ -21,6 +22,8 @@ spec.components.schema("User", schema=User)
 spec.components.schema("AccessToken", schema=AccessToken)
 spec.components.schema("UserLogin", schema=UserLogin)
 spec.components.schema("RefreshToken", schema=RefreshToken)
+spec.components.schema("Product", schema=Product)
+
 # add swagger tags that are used for endpoint annotation
 tags = [
     {"name": "Authentication", "description": "For user authentication."},

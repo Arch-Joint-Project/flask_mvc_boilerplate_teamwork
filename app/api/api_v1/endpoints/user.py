@@ -23,7 +23,7 @@ obj_graph = pinject.new_object_graph(
 user_controller = obj_graph.provide(UserController)
 
 
-@user.route("/")
+# @user.route("/")
 def index():
     users = User.query.all()
     return jsonify({"users": users, "status": "Success", "message": "users retrieved"})
@@ -41,7 +41,7 @@ def create():
     return handle_result(result)
 
 
-# @user.route("/", methods=["POST"])
+@user.route("/", methods=["POST"])
 @validator(schema=UserCreate())
 def register_user():
     """
@@ -54,7 +54,7 @@ def register_user():
             application/json:
                 schema: UserCreate
       responses:
-        '204':
+        '201':
           description: call successful
           content:
             application/json:

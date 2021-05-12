@@ -1,11 +1,10 @@
-from app.definitions.repository_interfaces.user_repository_interface import (
+from app.definitions.repository.user_repository_interface import (
     UserRepositoryInterfaceInterface,
 )
 from app.models.user import User
-from .base import SQLBaseRepositoryInterface
+from app.definitions.repository.base import SQLBaseRepository
 
 
-class UserRepository(SQLBaseRepositoryInterface,
+class UserRepository(SQLBaseRepository,
                      UserRepositoryInterfaceInterface):
-    def __init__(self):
-        super(UserRepository, self).__init__(model=User)
+    model = User

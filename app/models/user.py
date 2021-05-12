@@ -15,6 +15,7 @@ class User(db.Model):
     name = db.Column(db.String(60), nullable=False)
 
 
+
 class Product(me.Document):
     name = me.StringField(max_length=60, required=True)
     price = me.IntField(required=True)

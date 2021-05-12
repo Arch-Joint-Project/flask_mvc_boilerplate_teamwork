@@ -35,7 +35,7 @@ services:
       context: .
       dockerfile: Dockerfile
     command: 'python -u /app/consumer.py'
-#    restart: always
+    restart: always
     depends_on:
       - db
   redis:

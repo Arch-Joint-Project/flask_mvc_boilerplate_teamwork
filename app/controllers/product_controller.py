@@ -1,4 +1,4 @@
-from app.definitions.repository_interfaces.client_repository_interface import \
+from app.definitions.repository.product_repository_interface import \
     ProductRepositoryInterfaceInterface
 from app.definitions.result import Result
 from app.definitions.service_result import ServiceResult

@@ -1,5 +1,5 @@
 from app.definitions.exceptions.app_exceptions import AppException
-from app.definitions.repository_interfaces.user_repository_interface import (
+from app.definitions.repository.user_repository_interface import (
     UserRepositoryInterfaceInterface,
 )
 from app.definitions.result import Result

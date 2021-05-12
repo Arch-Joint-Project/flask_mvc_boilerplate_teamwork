@@ -1,17 +1,19 @@
+from flask_sqlalchemy import SQLAlchemy, declarative_base
 from mongoengine import DoesNotExist
 
 from app import db
+
 from app.definitions.exceptions.HTTPException import HTTPException
 from app.definitions.exceptions.app_exceptions import AppException
-from app.definitions.repository_interfaces.base.crud_repository_interface \
+from app.definitions.repository.base.crud_repository_interface \
     import (CRUDRepositoryInterface)
-from app.definitions.repository_interfaces.base.mongo_crud_repository_interface \
-    import MongoCRUDRepositoryInterfaceInterface
 import mongoengine
 
 
-class SQLBaseRepositoryInterface(CRUDRepositoryInterface):
-    def __init__(self, model):
+class SQLBaseRepository(CRUDRepositoryInterface):
+    model: db.Model
+
+    def __init__(self):
         """
         Base class to be inherited by all repositories. This class comes with
         base crud functionalities attached
@@ -20,7 +22,6 @@ class SQLBaseRepositoryInterface(CRUDRepositoryInterface):
         """
 
         self.db = db
-        self.model = model
 
     def index(self):
         """
@@ -28,6 +29,7 @@ class SQLBaseRepositoryInterface(CRUDRepositoryInterface):
         :return: {list} returns a list of objects of type model
         """
         data = self.model.query.all()
+
         return data
 
     def create(self, obj_in):
@@ -83,10 +85,8 @@ class SQLBaseRepositoryInterface(CRUDRepositoryInterface):
         db.session.commit()
 
 
-class MongoBaseRepositoryInterface(MongoCRUDRepositoryInterfaceInterface):
-
-    def __init__(self, model: mongoengine):
-        self.model = model
+class MongoBaseRepository(CRUDRepositoryInterface):
+    model: mongoengine
 
     def index(self):
         return self.model.objects()
