@@ -1,5 +1,6 @@
 import logging
 import os
+
 from loguru import logger
 from flask import Flask, jsonify
 from flask_sqlalchemy import SQLAlchemy
@@ -75,7 +76,7 @@ def create_app():
 
 def register_extensions(app):
     """Register Flask extensions."""
-
+    from app.definitions.factory import factory
     if app.config["DB_ENGINE"] == "mongodb":
         me = MongoEngine()
         me.init_app(app)
@@ -84,6 +85,7 @@ def register_extensions(app):
         migrate.init_app(app, db)
         with app.app_context():
             db.create_all()
+    factory.init_app(app, db)
     ma.init_app(app)
 
     @app.errorhandler(HTTPException)
@@ -125,3 +127,6 @@ def register_swagger_definitions(app):
         Swagger API definition.
         """
         return jsonify(spec.to_dict())
+
+
+

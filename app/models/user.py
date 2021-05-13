@@ -6,7 +6,7 @@ from app import db
 
 @dataclass
 class User(db.Model):
-    _id: int
+    id: int
     email: str
     name: str
     __tablename__ = "user"
@@ -15,10 +15,12 @@ class User(db.Model):
     name = db.Column(db.String(60), nullable=False)
 
 
-
 class Product(me.Document):
     name = me.StringField(max_length=60, required=True)
     price = me.IntField(required=True)
     seller = me.StringField(required=True)
 
 
+class Client(me.Document):
+    name = me.StringField(max_length=60, required=True)
+    age = me.IntField(required=True)

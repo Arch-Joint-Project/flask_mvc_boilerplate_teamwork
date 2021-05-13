@@ -11,7 +11,7 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 
 class Config:
     """Set Flask configuration vars from .env file."""
-    DB_ENGINE = "mongodb"  # also this can be change from postgres to mongodb
+    DB_ENGINE = "postgres"  # also this can be change from postgres to mongodb
 
     # SQL database
     DB_SERVER = ""

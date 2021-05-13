@@ -182,6 +182,18 @@ dnspython = ">=1.15.0"
 idna = ">=2.0.0"
 
 [[package]]
+name = "faker"
+version = "8.1.3"
+description = "Faker is a Python package that generates fake data for you."
+category = "main"
+optional = false
+python-versions = ">=3.6"
+
+[package.dependencies]
+python-dateutil = ">=2.4"
+text-unidecode = "1.3"
+
+[[package]]
 name = "filelock"
 version = "3.0.12"
 description = "A platform independent file lock."
@@ -762,6 +774,14 @@ pymysql = ["pymysql (<1)", "pymysql"]
 sqlcipher = ["sqlcipher3-binary"]
 
 [[package]]
+name = "text-unidecode"
+version = "1.3"
+description = "The most basic Text::Unidecode port"
+category = "main"
+optional = false
+python-versions = "*"
+
+[[package]]
 name = "toml"
 version = "0.10.2"
 description = "Python Library for Tom's Obvious, Minimal Language"
@@ -843,7 +863,7 @@ locale = ["Babel (>=1.3)"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8"
-content-hash = "b791d72988b2979e29b79e113d727e9d9ee6d6643da6c8a454e282c187272a99"
+content-hash = "0e9083c4d22530b5d25650baf4650bb3fa2c8150bf0f550e8b3ecdcb5bac47c6"
 
 [metadata.files]
 alembic = [
@@ -909,6 +929,10 @@ dnspython = [
 email-validator = [
     {file = "email-validator-1.1.2.tar.gz", hash = "sha256:1a13bd6050d1db4475f13e444e169b6fe872434922d38968c67cea9568cce2f0"},
     {file = "email_validator-1.1.2-py2.py3-none-any.whl", hash = "sha256:094b1d1c60d790649989d38d34f69e1ef07792366277a2cf88684d03495d018f"},
+]
+faker = [
+    {file = "Faker-8.1.3-py3-none-any.whl", hash = "sha256:34cb72da6eaeaa6e7d2d651e5e216a50d8dcd141f6ac75c14154d3bee95c1eda"},
+    {file = "Faker-8.1.3.tar.gz", hash = "sha256:b9259dd6153ef035ca9220b8110c402b836f864764d284885cc0841f6495784c"},
 ]
 filelock = [
     {file = "filelock-3.0.12-py3-none-any.whl", hash = "sha256:929b7d63ec5b7d6b71b0fa5ac14e030b3f70b75747cef1b10da9b879fef15836"},
@@ -1408,6 +1432,10 @@ sqlalchemy = [
     {file = "SQLAlchemy-1.4.11-cp39-cp39-win32.whl", hash = "sha256:e7d76312e904aa4ea221a92c0bc2e299ad46e4580e2d72ca1f7e6d31dce5bfab"},
     {file = "SQLAlchemy-1.4.11-cp39-cp39-win_amd64.whl", hash = "sha256:4a2e7f037d3ca818d6d0490e3323fd451545f580df30d62b698da2f247015a34"},
     {file = "SQLAlchemy-1.4.11.tar.gz", hash = "sha256:4ad4044eb86fbcbdff2106e44f479fbdac703d77860b3e19988c8a8786e73061"},
+]
+text-unidecode = [
+    {file = "text-unidecode-1.3.tar.gz", hash = "sha256:bad6603bb14d279193107714b288be206cac565dfa49aa5b105294dd5c4aab93"},
+    {file = "text_unidecode-1.3-py2.py3-none-any.whl", hash = "sha256:1311f10e8b895935241623731c2ba64f4c455287888b18189350b67134a822e8"},
 ]
 toml = [
     {file = "toml-0.10.2-py2.py3-none-any.whl", hash = "sha256:806143ae5bfb6a3c6e736a764057db0e6a0e05e338b5630894a5f779cabb4f9b"},
