@@ -1,4 +1,3 @@
-import os
 from flask_testing import TestCase
 
 from app import create_app, db
@@ -10,9 +9,9 @@ class BaseTestCase(TestCase):
 
         app = create_app()
         app.config.from_object("config.TestingConfig")
-        app.config.update(
-            SQLALCHEMY_DATABASE_URI="sqlite:///" + os.path.join(basedir, "test.sqlite")
-        )
+        # app.config.update(
+        #     SQLALCHEMY_DATABASE_URI="sqlite:///" + os.path.join(basedir, "test.sqlite")
+        # )
 
         return app
 
