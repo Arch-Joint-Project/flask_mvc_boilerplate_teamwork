@@ -11,6 +11,7 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 
 class Config:
     """Set Flask configuration vars from .env file."""
+
     DB_ENGINE = "postgres"  # also this can be change from postgres to mongodb
 
     # SQL database
@@ -25,6 +26,9 @@ class Config:
     MONGODB_PORT = os.getenv("DB_PORT", default=27017)
     MONGODB_USERNAME = DB_USER
 
+    # REDIS
+    REDIS_SERVER = os.getenv("REDIS_SERVER")
+    REDIS_PASSWORD = os.getenv("REDIS_PASSWORD")
     # General
     DEBUG = False
     DEVELOPMENT = False
@@ -70,9 +74,11 @@ class ProductionConfig(Config):
 
 
 class TestingConfig(Config):
+    DB_NAME = os.getenv("TEST_DB_NAME")
     TESTING = True
     DEBUG = True
     DEVELOPMENT = True
     LOG_BACKTRACE = True
     LOG_LEVEL = "DEBUG"
-    # SQL_ALCHEMY_DATABASE_URI = "sqlite:///:memory:"
+
+    SQLALCHEMY_DATABASE_URI = "sqlite:///" + os.path.join(basedir, DB_NAME)
