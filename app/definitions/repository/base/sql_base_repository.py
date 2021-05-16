@@ -52,9 +52,11 @@ class SQLBaseRepository(CRUDRepositoryInterface):
                 "error": f"Resource of id {obj_id} does not exist"
             })
         for field in obj_in:
-            if field in db_obj:
+            if hasattr(db_obj, field):
                 setattr(db_obj, field, obj_in[field])
+        self.db.session.add(db_obj)
         self.db.session.commit()
+        return db_obj
 
     def find_by_id(self, obj_id: int):
         """
@@ -62,7 +64,7 @@ class SQLBaseRepository(CRUDRepositoryInterface):
         :param obj_id: int - id of the user
         :return: model_object - Returns an instance object of the model passed
         """
-        db_obj = self.db.query(self.model).get(obj_id)
+        db_obj = self.model.query.get(obj_id)
         return db_obj
 
     def delete(self, obj_id):
@@ -79,4 +81,7 @@ class SQLBaseRepository(CRUDRepositoryInterface):
                                 description="Resource does not exist")
         db.session.delete(db_obj)
         db.session.commit()
+<<<<<<< HEAD:app/definitions/repository/base/sql_base_repository.py
 
+=======
+>>>>>>> seed:app/definitions/repository/base/base.py
