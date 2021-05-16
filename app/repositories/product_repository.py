@@ -1,7 +1,7 @@
+from app.definitions.repository.base import MongoBaseRepository
 from app.definitions.repository.product_repository_interface import \
     ProductRepositoryInterfaceInterface
 from app.models.user import Product
-from app.definitions.repository.base import MongoBaseRepository
 from app.services.redis_service import RedisService
 
 
