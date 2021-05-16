@@ -81,7 +81,3 @@ class SQLBaseRepository(CRUDRepositoryInterface):
                                 description="Resource does not exist")
         db.session.delete(db_obj)
         db.session.commit()
-<<<<<<< HEAD:app/definitions/repository/base/sql_base_repository.py
-
-=======
->>>>>>> seed:app/definitions/repository/base/base.py
