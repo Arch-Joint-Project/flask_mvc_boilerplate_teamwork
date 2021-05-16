@@ -44,15 +44,12 @@ class Config:
 
     @property
     def SQLALCHEMY_DATABASE_URI(self):  # noqa
-        if self.FLASK_ENV == "testing":
-            return "sqlite:///" + os.path.join(basedir, "test.sqlite")
-        else:
-            return "postgresql+psycopg2://{user}:{pw}@{url}/{db}".format(
-                user=self.DB_USER,
-                pw=self.DB_PASSWORD,
-                url=self.DB_SERVER,
-                db=self.DB_NAME,
-            )
+        return "postgresql+psycopg2://{user}:{pw}@{url}/{db}".format(
+            user=self.DB_USER,
+            pw=self.DB_PASSWORD,
+            url=self.DB_SERVER,
+            db=self.DB_NAME,
+        )
 
     SQLALCHEMY_TRACK_MODIFICATIONS = True
 
@@ -80,5 +77,5 @@ class TestingConfig(Config):
     DEVELOPMENT = True
     LOG_BACKTRACE = True
     LOG_LEVEL = "DEBUG"
-
-    SQLALCHEMY_DATABASE_URI = "sqlite:///" + os.path.join(basedir, DB_NAME)
+    SQLALCHEMY_DATABASE_URI = \
+        "sqlite:///" + os.path.join(basedir, DB_NAME) + ".sqlite3"
