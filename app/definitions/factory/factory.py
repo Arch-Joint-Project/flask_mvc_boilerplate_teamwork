@@ -2,6 +2,9 @@ import click
 from flask import Flask
 from faker import Faker
 from . import Seeder
+from app import factory
+
+__all__ = ("factory",)
 
 
 def init_app(app: Flask, db):
