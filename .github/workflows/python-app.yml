@@ -5,9 +5,17 @@ name: Python application
 
 on:
   push:
-    branches: [ master ]
+    branches: 
+      - master
+      - develop
+      - staging
+      - main 
   pull_request:
-    branches: [ master ]
+    branches:
+      - master
+      - develop
+      - staging
+      - main 
 
 jobs:
   build:
