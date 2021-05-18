@@ -15,6 +15,7 @@ spec = APISpec(
 )
 
 # register schemas with spec
+# example
 # spec.components.schema("UserCreate", schema=UserCreate)
 
 
