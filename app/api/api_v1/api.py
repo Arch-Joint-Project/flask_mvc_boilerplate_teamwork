@@ -1,4 +1,3 @@
-
 def init_app(app):
     """
     Register app blueprints over here
@@ -6,4 +5,3 @@ def init_app(app):
     :param app:
     :return:
     """
-    pass

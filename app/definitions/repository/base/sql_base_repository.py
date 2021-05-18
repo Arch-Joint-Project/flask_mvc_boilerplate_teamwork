@@ -2,8 +2,9 @@ from app import db
 
 from app.definitions.exceptions.HTTPException import HTTPException
 from app.definitions.exceptions.app_exceptions import AppException
-from app.definitions.repository.base.crud_repository_interface \
-    import (CRUDRepositoryInterface)
+from app.definitions.repository.base.crud_repository_interface import (
+    CRUDRepositoryInterface,
+)
 
 
 class SQLBaseRepository(CRUDRepositoryInterface):
@@ -48,9 +49,9 @@ class SQLBaseRepository(CRUDRepositoryInterface):
         """
         db_obj = self.find_by_id(obj_id)
         if not db_obj:
-            raise AppException.ResourceDoesNotExist({
-                "error": f"Resource of id {obj_id} does not exist"
-            })
+            raise AppException.ResourceDoesNotExist(
+                {"error": f"Resource of id {obj_id} does not exist"}
+            )
         for field in obj_in:
             if hasattr(db_obj, field):
                 setattr(db_obj, field, obj_in[field])
@@ -77,7 +78,6 @@ class SQLBaseRepository(CRUDRepositoryInterface):
 
         db_obj = self.find_by_id(obj_id)
         if not db_obj:
-            raise HTTPException(status_code=400,
-                                description="Resource does not exist")
+            raise HTTPException(status_code=400, description="Resource does not exist")
         db.session.delete(db_obj)
         db.session.commit()

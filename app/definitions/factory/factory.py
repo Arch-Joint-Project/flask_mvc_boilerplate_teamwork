@@ -5,9 +5,9 @@ from . import Seeder
 
 
 def init_app(app: Flask, db):
-    @app.cli.command('db_seed')
-    @click.option('--model', '-m', 'model')
-    @click.option('--cycle', '-c', 'cycle')
+    @app.cli.command("db_seed")
+    @click.option("--model", "-m", "model")
+    @click.option("--cycle", "-c", "cycle")
     def db_seed(model, cycle):
         count = 1
         if cycle:

@@ -27,10 +27,7 @@ def app_exception_handler(exc: AppExceptionCase):
         )
     if isinstance(exc, HTTPException):
         return Response(
-            json.dumps(
-                {"app_exception": "HTTP Error",
-                 "errorMessage": exc.description}
-            ),
+            json.dumps({"app_exception": "HTTP Error", "errorMessage": exc.description}),
             status=exc.code,
         )
 

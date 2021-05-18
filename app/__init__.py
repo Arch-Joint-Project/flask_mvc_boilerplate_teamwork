@@ -77,6 +77,7 @@ def create_app():
 def register_extensions(app):
     """Register Flask extensions."""
     from app.definitions.factory import factory
+
     if app.config["DB_ENGINE"] == "mongodb":
         me = MongoEngine()
         me.init_app(app)
@@ -127,6 +128,3 @@ def register_swagger_definitions(app):
         Swagger API definition.
         """
         return jsonify(spec.to_dict())
-
-
-

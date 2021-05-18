@@ -1,6 +1,5 @@
 import os
 
-from flask import current_app
 from flask_sqlalchemy import SQLAlchemy as sq
 import mongoengine as me
 from app.utils import JSONEncoder
@@ -12,12 +11,7 @@ REDIS_PASSWORD = os.getenv("REDIS_PASSWORD")
 
 
 class RedisService:
-    redis_conn = redis.Redis(
-        host=REDIS_SERVER,
-        port=6379,
-        db=0,
-        password=REDIS_PASSWORD
-    )
+    redis_conn = redis.Redis(host=REDIS_SERVER, port=6379, db=0, password=REDIS_PASSWORD)
 
     def set(self, name, data):
         """
