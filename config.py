@@ -25,6 +25,7 @@ class Config:
     MONGO_DB = DB_NAME
     MONGODB_PORT = os.getenv("DB_PORT", default=27017)
     MONGODB_USERNAME = DB_USER
+    MONGODB_PASSWORD = DB_PASSWORD
 
     # REDIS
     REDIS_SERVER = os.getenv("REDIS_SERVER")

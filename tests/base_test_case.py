@@ -1,6 +1,6 @@
 from flask_testing import TestCase
 
-from app import create_app, db
+from app import create_app
 
 
 class BaseTestCase(TestCase):
@@ -15,12 +15,7 @@ class BaseTestCase(TestCase):
         Will be called before every test
         """
 
-        db.create_all()
-
     def tearDown(self):
         """
         Will be called after every test
         """
-
-        db.session.remove()
-        db.drop_all()
