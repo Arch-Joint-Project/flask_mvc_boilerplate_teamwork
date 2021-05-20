@@ -36,8 +36,6 @@ SWAGGERUI_BLUEPRINT = get_swaggerui_blueprint(
     SWAGGER_URL, API_URL, config={"app_name": "Python-Flask-REST-Boilerplate"}
 )
 
-FLASK_ENV = os.getenv("FLASK_ENV") if os.getenv("FLASK_ENV") else "production"
-
 
 class InterceptHandler(logging.Handler):
     def emit(self, record):
@@ -45,16 +43,14 @@ class InterceptHandler(logging.Handler):
         logger_opt.log(record.levelno, record.getMessage())
 
 
-def create_app():
+def create_app(config="config.DevelopmentConfig"):
     """Construct the core application"""
     app = Flask(__name__, instance_relative_config=False)
-    cfg = None
-    if FLASK_ENV == "development":
-        cfg = import_string("config.DevelopmentConfig")()
-    elif FLASK_ENV == "production":
+    environment = os.getenv("FLASK_ENV")
+    cfg = import_string(config)()
+    if environment == "production":
         cfg = import_string("config.ProductionConfig")()
-    elif FLASK_ENV == "testing":
-        cfg = import_string("config.TestingConfig")()
+
     app.config.from_object(cfg)
 
     # add extensions

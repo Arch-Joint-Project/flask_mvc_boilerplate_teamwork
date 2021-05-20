@@ -73,6 +73,8 @@ class ProductionConfig(Config):
 
 class TestingConfig(Config):
     DB_NAME = os.getenv("TEST_DB_NAME")
+    MONGODB_HOST = "mongomock://localhost"
+    MONGODB_DB = os.getenv("MONGODB_DB")
     TESTING = True
     DEBUG = True
     DEVELOPMENT = True
