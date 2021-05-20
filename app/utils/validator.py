@@ -1,11 +1,10 @@
-import marshmallow
 from functools import wraps
 from flask import request
 
 from app.definitions.exceptions.app_exceptions import AppException
 
 
-def validator(schema: marshmallow.Schema):
+def validator(schema):
     def validate_data(func):
         """
         A wrapper to validate data using marshmallow schema
@@ -14,7 +13,7 @@ def validator(schema: marshmallow.Schema):
 
         @wraps(func)
         def view_wrapper(*args, **kwargs):
-            errors = schema.validate(request.json)
+            errors = schema().validate(request.json)
             if errors:
                 raise AppException.ValidationException(context=errors)
 
