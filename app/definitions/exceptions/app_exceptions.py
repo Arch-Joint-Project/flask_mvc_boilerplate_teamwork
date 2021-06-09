@@ -104,3 +104,13 @@ class AppException:
             """
             status_code = 400
             AppExceptionCase.__init__(self, status_code, context)
+
+    class ServerError(AppExceptionCase):
+        def __init__(self, context):
+            """
+            Bad Request
+
+            :param context:
+            """
+            status_code = 500
+            AppExceptionCase.__init__(self, status_code, context)

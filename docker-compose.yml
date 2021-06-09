@@ -47,14 +47,23 @@ services:
     ports:
       - '6379:6379'
 
+#  db:
+#    image: postgres:12
+#    restart: always
+#    environment:
+#      POSTGRES_USER: ${DB_USER}
+#      POSTGRES_PASSWORD: ${DB_PASSWORD}
+#      POSTGRES_DB: ${DB_NAME}
+#    volumes:
+#      - $PWD/.dbdata:/var/lib/postgres
+#    ports:
+#      - 5430:5432
   db:
-    image: postgres:12
-    restart: always
+    image: mongo
     environment:
-      POSTGRES_USER: ${DB_USER}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
-      POSTGRES_DB: ${DB_NAME}
-    volumes:
-      - $PWD/.dbdata:/var/lib/postgres
+      - MONGO_INITDB_ROOT_USERNAME=${MONGODB_USERNAME}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGODB_PASSWORD}
+    restart: on-failure
     ports:
-      - 5430:5432
+      - 27017:27017
+    command: mongod

@@ -12,7 +12,7 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 class Config:
     """Set Flask configuration vars from .env file."""
 
-    DB_ENGINE = "postgres"  # also this can be change from postgres to mongodb
+    DB_ENGINE = "mongodb"  # also this can be change from postgres to mongodb
 
     # SQL database
     DB_SERVER = ""
@@ -22,10 +22,12 @@ class Config:
     FLASK_ENV = os.getenv("FLASK_ENV")
 
     # MONGO database
-    MONGO_DB = DB_NAME
-    MONGODB_PORT = os.getenv("DB_PORT", default=27017)
-    MONGODB_USERNAME = DB_USER
-    MONGODB_PASSWORD = DB_PASSWORD
+    MONGODB_HOST = os.getenv("MONGODB_HOST")
+    MONGODB_DB = os.getenv("MONGODB_DB")
+    MONGODB_PORT = os.getenv("MONGODB_PORT", default=27017)
+    MONGODB_USERNAME = os.getenv("MONGODB_USER")
+    MONGODB_PASSWORD = os.getenv("MONGODB_PASSWORD")
+    MONGODB_CONNECT = False
 
     # REDIS
     REDIS_SERVER = os.getenv("REDIS_SERVER")
@@ -37,11 +39,6 @@ class Config:
     FLASK_RUN_PORT = 6000
     TESTING = False
     LOGFILE = "log.log"
-
-    # Database
-    @property
-    def MONGODB_HOST(self):  # noqa
-        return self.DB_SERVER
 
     @property
     def SQLALCHEMY_DATABASE_URI(self):  # noqa
@@ -72,7 +69,6 @@ class ProductionConfig(Config):
 
 
 class TestingConfig(Config):
-    DB_NAME = os.getenv("TEST_DB_NAME")
     MONGODB_HOST = "mongomock://localhost"
     MONGODB_DB = os.getenv("MONGODB_DB")
     TESTING = True
@@ -80,4 +76,3 @@ class TestingConfig(Config):
     DEVELOPMENT = True
     LOG_BACKTRACE = True
     LOG_LEVEL = "DEBUG"
-    SQLALCHEMY_DATABASE_URI = "sqlite:///" + os.path.join(basedir, DB_NAME) + ".sqlite3"
