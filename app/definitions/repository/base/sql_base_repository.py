@@ -1,3 +1,4 @@
+from sqlalchemy.exc import IntegrityError, DBAPIError
 from app import db
 
 from app.definitions.exceptions.HTTPException import HTTPException
@@ -12,7 +13,7 @@ class SQLBaseRepository(CRUDRepositoryInterface):
 
     def __init__(self):
         """
-        Base class to be inherited by all repositories. This class comes with
+        Base class to be inherited by all SQL repositories. This class comes with
         base crud functionalities attached
 
         :param model: base model of the class to be used for queries
@@ -35,11 +36,16 @@ class SQLBaseRepository(CRUDRepositoryInterface):
         :param obj_in: the data you want to use to create the model
         :return: {object} - Returns an instance object of the model passed
         """
-        obj_data = dict(obj_in)
-        db_obj = self.model(**obj_data)
-        self.db.session.add(db_obj)
-        self.db.session.commit()
-        return db_obj
+        assert obj_in, "Missing data to be saved"
+
+        try:
+            obj_data = dict(obj_in)
+            db_obj = self.model(**obj_data)
+            self.db.session.add(db_obj)
+            self.db.session.commit()
+            return db_obj
+        except IntegrityError as e:
+            raise AppException.OperationError(context=e.orig.args[0])
 
     def update_by_id(self, obj_id, obj_in):
         """
@@ -47,6 +53,9 @@ class SQLBaseRepository(CRUDRepositoryInterface):
         :param obj_in: {dict}
         :return: model_object - Returns an instance object of the model passed
         """
+        assert obj_id, "Missing object id to update"
+        assert obj_in, "No new data to update with"
+
         db_obj = self.find_by_id(obj_id)
         if not db_obj:
             raise AppException.ResourceDoesNotExist(
@@ -65,8 +74,16 @@ class SQLBaseRepository(CRUDRepositoryInterface):
         :param obj_id: int - id of the user
         :return: model_object - Returns an instance object of the model passed
         """
-        db_obj = self.model.query.get(obj_id)
-        return db_obj
+
+        assert obj_id, "Missing object id to find"
+
+        try:
+            db_obj = self.model.query.get(obj_id)
+            if db_obj is None:
+                raise AppException.ResourceDoesNotExist
+            return db_obj
+        except DBAPIError:
+            raise AppException.OperationError(context="Error querying database")
 
     def delete(self, obj_id):
 
@@ -76,8 +93,15 @@ class SQLBaseRepository(CRUDRepositoryInterface):
         :return:
         """
 
+        assert obj_id, "Missing object id to delete"
+
         db_obj = self.find_by_id(obj_id)
-        if not db_obj:
-            raise HTTPException(status_code=400, description="Resource does not exist")
-        db.session.delete(db_obj)
-        db.session.commit()
+        try:
+            if not db_obj:
+                raise HTTPException(
+                    status_code=400, description="Resource does not exist"
+                )
+            db.session.delete(db_obj)
+            db.session.commit()
+        except DBAPIError:
+            raise AppException.OperationError(context="Error deleting from database")

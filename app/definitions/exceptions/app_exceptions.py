@@ -5,7 +5,7 @@ from werkzeug.exceptions import HTTPException
 
 
 class AppExceptionCase(Exception):
-    def __init__(self, status_code: int, context: dict):
+    def __init__(self, status_code: int, context):
         self.exception_case = self.__class__.__name__
         self.status_code = status_code
         self.context = context
@@ -18,6 +18,11 @@ class AppExceptionCase(Exception):
 
 
 def app_exception_handler(exc: AppExceptionCase):
+    if isinstance(exc, AssertionError):
+        return Response(
+            json.dumps({"app_exception": "AssertionError", "errorMessage": exc}),
+            status=500,
+        )
     if isinstance(exc, DBAPIError):
         return Response(
             json.dumps(
@@ -39,9 +44,19 @@ def app_exception_handler(exc: AppExceptionCase):
 
 
 class AppException:
-    class ResourceCreationFailed(AppExceptionCase):
+    class OperationError(AppExceptionCase):
         """
-        Resource Creation Failed Exception
+        Generic Exception to catch failed operations
+        """
+
+        def __init__(self, context):
+
+            status_code = 500
+            AppExceptionCase.__init__(self, status_code, context)
+
+    class InternalServerError(AppExceptionCase):
+        """
+        Generic Exception to catch failed operations
         """
 
         def __init__(self, context):
@@ -60,25 +75,26 @@ class AppException:
             AppExceptionCase.__init__(self, status_code, context)
 
     class ResourceDoesNotExist(AppExceptionCase):
-        def __init__(self, context: dict = None):
-            """
-            Resource does not exist
-            """
+        """
+        Resource does not exist
+        """
+
+        def __init__(self, context=None):
             status_code = 404
             AppExceptionCase.__init__(self, status_code, context)
 
     class Unauthorized(AppExceptionCase):
-        def __init__(self, context: dict = None):
-            """
-            Unauthorized
-            :param context: extra dictionary object to give the error more context
-            """
+        """
+        Unauthorized: Not authorized to perform an operation
+        """
+
+        def __init__(self, context=None):
             status_code = 401
             AppExceptionCase.__init__(self, status_code, context)
 
     class ValidationException(AppExceptionCase):
         """
-        Resource Creation Failed Exception
+        ValidationException: Data does not conform to what is required by server
         """
 
         def __init__(self, context):
@@ -87,30 +103,19 @@ class AppException:
             AppExceptionCase.__init__(self, status_code, context)
 
     class KeyCloakAdminException(AppExceptionCase):
-        def __init__(self, context: dict = None, status_code=400):
-            """
-            Key Cloak Error. Error with regards to Keycloak authentication
-            :param context: extra dictionary object to give the error more context
-            """
+        """
+                Key Cloak Error. Error with regards to Keycloak authentication
+        ≈"""
 
+        def __init__(self, context=None, status_code=400):
             AppExceptionCase.__init__(self, status_code, context)
 
     class BadRequest(AppExceptionCase):
-        def __init__(self, context: dict = None):
-            """
-            Bad Request
+        """
+        Bad Request exception to indicate that that the server cannot or
+        will not process the request
+        """
 
-            :param context:
-            """
+        def __init__(self, context=None):
             status_code = 400
-            AppExceptionCase.__init__(self, status_code, context)
-
-    class ServerError(AppExceptionCase):
-        def __init__(self, context):
-            """
-            Bad Request
-
-            :param context:
-            """
-            status_code = 500
             AppExceptionCase.__init__(self, status_code, context)
