@@ -14,6 +14,12 @@ spec = APISpec(
     plugins=[FlaskPlugin(), MarshmallowPlugin()],
 )
 
+# Security
+api_key_scheme = {"type": "apiKey", "in": "header", "name": "X-API-Key"}
+bearer_scheme = {"type": "http", "scheme": "bearer", "bearerFormat": "JWT"}
+spec.components.security_scheme("ApiKeyAuth", api_key_scheme)
+spec.components.security_scheme("bearerAuth", bearer_scheme)
+
 # register schemas with spec
 # example
 # spec.components.schema("UserCreate", schema=UserCreate)

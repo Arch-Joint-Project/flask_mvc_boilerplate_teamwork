@@ -3,11 +3,9 @@ import os
 
 from loguru import logger
 from flask import Flask, jsonify
-from flask_sqlalchemy import SQLAlchemy
-from flask_migrate import Migrate
-from flask_marshmallow import Marshmallow
 from flask_mongoengine import MongoEngine
 from sqlalchemy.exc import DBAPIError
+from app.extensions import db, migrate, ma
 
 from flask_swagger_ui import get_swaggerui_blueprint
 from werkzeug.exceptions import HTTPException
@@ -20,13 +18,9 @@ from app.definitions.exceptions.app_exceptions import (
     AppExceptionCase,
 )
 
+
 APP_ROOT = os.path.join(os.path.dirname(__file__), "..")  # refers to application_top
 dotenv_path = os.path.join(APP_ROOT, ".env")
-
-db = SQLAlchemy()
-migrate = Migrate()
-ma = Marshmallow()
-
 
 # SWAGGER
 SWAGGER_URL = "/api/docs"
@@ -46,38 +40,29 @@ class InterceptHandler(logging.Handler):
 def create_app(config="config.DevelopmentConfig"):
     """Construct the core application"""
     app = Flask(__name__, instance_relative_config=False)
-    environment = os.getenv("FLASK_ENV")
-    cfg = import_string(config)()
-    if environment == "production":
-        cfg = import_string("config.ProductionConfig")()
+    with app.app_context():
+        environment = os.getenv("FLASK_ENV")
+        cfg = import_string(config)()
+        if environment == "production":
+            cfg = import_string("config.ProductionConfig")()
+        app.config.from_object(cfg)
 
-    app.config.from_object(cfg)
-
-    # add extensions
-    register_extensions(app)
-    logger.add(
-        app.config["LOGFILE"],
-        level=app.config["LOG_LEVEL"],
-        format="{time} {level} {message}",
-        backtrace=app.config["LOG_BACKTRACE"],
-        rotation="25 MB",
-    )
-
-    # register loguru as handler
-    app.logger.addHandler(InterceptHandler())
-    register_blueprints(app)
-    register_swagger_definitions(app)
-    return app
+        # add extensions
+        register_extensions(app)
+        app.logger.addHandler(InterceptHandler())
+        register_blueprints(app)
+        register_swagger_definitions(app)
+        return app
 
 
 def register_extensions(app):
     """Register Flask extensions."""
     from app.definitions.factory import factory
 
-    if app.config["DB_ENGINE"] == "mongodb":
+    if app.config["DB_ENGINE"] == "MONGODB":
         me = MongoEngine()
         me.init_app(app)
-    elif app.config["DB_ENGINE"] == "postgres":
+    elif app.config["DB_ENGINE"] == "POSTGRES":
         db.init_app(app)
         migrate.init_app(app, db)
         with app.app_context():

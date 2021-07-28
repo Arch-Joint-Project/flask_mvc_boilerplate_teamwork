@@ -17,12 +17,7 @@ class AppExceptionCase(Exception):
         )
 
 
-def app_exception_handler(exc: AppExceptionCase):
-    if isinstance(exc, AssertionError):
-        return Response(
-            json.dumps({"app_exception": "AssertionError", "errorMessage": exc}),
-            status=500,
-        )
+def app_exception_handler(exc):
     if isinstance(exc, DBAPIError):
         return Response(
             json.dumps(
@@ -74,27 +69,26 @@ class AppException:
             status_code = 400
             AppExceptionCase.__init__(self, status_code, context)
 
-    class ResourceDoesNotExist(AppExceptionCase):
-        """
-        Resource does not exist
-        """
-
-        def __init__(self, context=None):
+    class NotFoundException(AppExceptionCase):
+        def __init__(self, context="Resource does not exist"):
+            """
+            Resource does not exist
+            """
             status_code = 404
             AppExceptionCase.__init__(self, status_code, context)
 
     class Unauthorized(AppExceptionCase):
-        """
-        Unauthorized: Not authorized to perform an operation
-        """
-
-        def __init__(self, context=None):
+        def __init__(self, context="Unauthorized"):
+            """
+            Unauthorized
+            :param context: extra dictionary object to give the error more context
+            """
             status_code = 401
             AppExceptionCase.__init__(self, status_code, context)
 
     class ValidationException(AppExceptionCase):
         """
-        ValidationException: Data does not conform to what is required by server
+        Resource Creation Failed Exception
         """
 
         def __init__(self, context):
@@ -103,19 +97,30 @@ class AppException:
             AppExceptionCase.__init__(self, status_code, context)
 
     class KeyCloakAdminException(AppExceptionCase):
-        """
-                Key Cloak Error. Error with regards to Keycloak authentication
-        ≈"""
-
         def __init__(self, context=None, status_code=400):
+            """
+            Key Cloak Error. Error with regards to Keycloak authentication
+            :param context: extra data to give the error more context
+            """
+
             AppExceptionCase.__init__(self, status_code, context)
 
     class BadRequest(AppExceptionCase):
-        """
-        Bad Request exception to indicate that that the server cannot or
-        will not process the request
-        """
-
         def __init__(self, context=None):
+            """
+            Bad Request
+
+            :param context:
+            """
+            status_code = 400
+            AppExceptionCase.__init__(self, status_code, context)
+
+    class ExpiredTokenException(AppExceptionCase):
+        def __init__(self, context=None):
+            """
+            Expired Token
+            :param context:
+            """
+
             status_code = 400
             AppExceptionCase.__init__(self, status_code, context)

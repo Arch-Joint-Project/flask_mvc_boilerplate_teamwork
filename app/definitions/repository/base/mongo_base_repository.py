@@ -55,15 +55,39 @@ class MongoBaseRepository(CRUDRepositoryInterface):
             db_obj = self.model.objects.get(pk=obj_id)
             return db_obj
         except mongoengine.DoesNotExist:
-            raise AppException.ResourceDoesNotExist(
-                {"error": f"Resource of id {obj_id} does not exist"}
+            raise AppException.NotFoundException(
+                f"Resource of id {obj_id} does not exist"
             )
+
+    def find(self, filter_param):
+        """
+        returns an item that satisfies the data passed to it if it exists in
+        the database
+
+        :param filter_param: {dict}
+        :return: model_object - Returns an instance object of the model passed
+        """
+        try:
+            db_obj = self.model.objects.get(**filter_param)
+            return db_obj
+        except mongoengine.DoesNotExist:
+            raise AppException.NotFoundException("Resource does not exist")
+
+    def find_all(self, filter_param):
+        """
+        returns all items that satisfies the filter params passed to it
+
+        :param filter_param: {dict}
+        :return: model_object - Returns an instance object of the model passed
+        """
+        db_obj = self.model.objects(**filter_param)
+        return db_obj
 
     def delete(self, item_id):
 
         """
 
-        :param item_id:
+        :param item_id: id of the item that should be deleted
         :return:
         """
 

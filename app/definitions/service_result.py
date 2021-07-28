@@ -47,7 +47,6 @@ def handle_result(result, schema=None, many=False):
             logger.error(f"{exception} | caller={caller_info()}")
             raise exception
     with result as result:
-
         if schema:
             return Response(
                 schema(many=many).dumps(result.value),
