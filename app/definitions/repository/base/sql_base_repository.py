@@ -14,8 +14,6 @@ class SQLBaseRepository(CRUDRepositoryInterface):
         """
         Base class to be inherited by all repositories. This class comes with
         base crud functionalities attached
-
-        :param model: base model of the class to be used for queries
         """
 
         self.db = db
@@ -25,8 +23,10 @@ class SQLBaseRepository(CRUDRepositoryInterface):
 
         :return: {list} returns a list of objects of type model
         """
-        data = self.model.query.all()
-
+        try:
+            data = self.model.query.all()
+        except DBAPIError as e:
+            raise AppException.OperationError(context=e.orig.args[0])
         return data
 
     def create(self, obj_in):
@@ -65,10 +65,29 @@ class SQLBaseRepository(CRUDRepositoryInterface):
         except DBAPIError as e:
             raise AppException.OperationError(context=e.orig.args[0])
 
+    def update(self, query_info, obj_in):
+        """
+        :param query_info: {dict}
+        :param obj_in: {dict}
+        :return: model_object - Returns an instance object of the model passed
+        """
+        db_obj = self.find(query_info)
+        if not db_obj:
+            raise AppException.NotFoundException("Resource does not exist")
+        try:
+            for field in obj_in:
+                if hasattr(db_obj, field):
+                    setattr(db_obj, field, obj_in[field])
+            self.db.session.add(db_obj)
+            self.db.session.commit()
+            return db_obj
+        except DBAPIError as e:
+            raise AppException.OperationError(context=e.orig.args[0])
+
     def find_by_id(self, obj_id: int):
         """
-        returns a user if it exists in the database
-        :param obj_id: int - id of the user
+        returns a resource matching the specified id if it exists in the database
+        :param obj_id: int - id of the resource
         :return: model_object - Returns an instance object of the model passed
         """
         db_obj = self.model.query.get(obj_id)
@@ -76,24 +95,37 @@ class SQLBaseRepository(CRUDRepositoryInterface):
             raise AppException.NotFoundException()
         return db_obj
 
-    def find(self, data):
-        db_obj = self.model.query.filter_by(**data).first()
+    def find(self, query_params: dict):
+        """
+        returns a resource matching the query params if it exists in the database
+        :param query_params: dict - query parameters
+        :return: model_object - Returns an instance object of the model passed
+        """
+        db_obj = self.model.query.filter_by(**query_params).first()
+        if db_obj is None:
+            raise AppException.NotFoundException()
         return db_obj
 
     def find_all(self, data):
-        db_obj = self.model.query.filter_by(**data).all()
+        try:
+            db_obj = self.model.query.filter_by(**data).all()
+        except DBAPIError as e:
+            raise AppException.OperationError(context=e.orig.args[0])
         return db_obj
 
     def delete(self, obj_id):
 
         """
-
+        deletes a resource if it exists in the database
         :param obj_id:
-        :return:
+        :return: returns None
         """
 
         db_obj = self.find_by_id(obj_id)
         if not db_obj:
             raise AppException.NotFoundException()
-        db.session.delete(db_obj)
-        db.session.commit()
+        try:
+            db.session.delete(db_obj)
+            db.session.commit()
+        except DBAPIError as e:
+            raise AppException.OperationError(context=e.orig.args[0])
