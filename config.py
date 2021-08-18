@@ -12,21 +12,22 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 class Config:
     """Set Flask configuration vars from .env file."""
 
-    DB_ENGINE = "mongodb"  # also this can be change from postgres to mongodb
-
-    # SQL database
-    DB_SERVER = ""
-    DB_USER = os.getenv("DB_USER")
-    DB_NAME = os.getenv("DB_NAME")
-    DB_PASSWORD = os.getenv("DB_PASSWORD")
     FLASK_ENV = os.getenv("FLASK_ENV")
 
+    DB_ENGINE = os.getenv("DB_ENGINE", default="POSTGRES")
+
+    # SQL database
+    SQL_DB_USER = os.getenv("DB_USER")
+    SQL_DB_HOST = ""
+    SQL_DB_NAME = os.getenv("DB_NAME")
+    SQL_DB_PASSWORD = os.getenv("DB_PASSWORD")
+    SQL_DB_PORT = os.getenv("DB_PORT", default=5432)
+
     # MONGO database
-    MONGODB_HOST = os.getenv("MONGODB_HOST")
-    MONGODB_DB = os.getenv("MONGODB_DB")
-    MONGODB_PORT = os.getenv("MONGODB_PORT", default=27017)
-    MONGODB_USERNAME = os.getenv("MONGODB_USER")
-    MONGODB_PASSWORD = os.getenv("MONGODB_PASSWORD")
+    MONGODB_DB = os.getenv("DB_NAME")
+    MONGODB_PORT = int(os.getenv("DB_PORT", default=27017))
+    MONGODB_USERNAME = os.getenv("DB_USER")
+    MONGODB_PASSWORD = os.getenv("DB_PASSWORD")
     MONGODB_CONNECT = False
 
     # REDIS
@@ -42,11 +43,12 @@ class Config:
 
     @property
     def SQLALCHEMY_DATABASE_URI(self):  # noqa
-        return "postgresql+psycopg2://{user}:{pw}@{url}/{db}".format(
-            user=self.DB_USER,
-            pw=self.DB_PASSWORD,
-            url=self.DB_SERVER,
-            db=self.DB_NAME,
+        return "postgresql+psycopg2://{db_user}:{password}@{host}:{port}/{db_name}".format(  # noqa
+            db_user=self.SQL_DB_USER,
+            host=self.SQL_DB_HOST,
+            password=self.SQL_DB_PASSWORD,
+            port=self.SQL_DB_PORT,
+            db_name=self.SQL_DB_NAME,
         )
 
     SQLALCHEMY_TRACK_MODIFICATIONS = True
@@ -55,7 +57,8 @@ class Config:
 class DevelopmentConfig(Config):
     DEBUG = True
     DEVELOPMENT = True
-    DB_SERVER = os.getenv("DEV_DB_SERVER")
+    SQL_DB_HOST = os.getenv("DEV_DB_HOST", default="localhost")
+    MONGODB_HOST = os.getenv("DEV_DB_HOST", default="localhost")
     LOG_BACKTRACE = True
     LOG_LEVEL = "DEBUG"
 
@@ -63,16 +66,19 @@ class DevelopmentConfig(Config):
 class ProductionConfig(Config):
     DEBUG = False
     DEVELOPMENT = False
-    DB_SERVER = os.getenv("DB_SERVER")
+    SQL_DB_HOST = os.getenv("DB_HOST")
+    MONGODB_HOST = os.getenv("DB_HOST")
     LOG_BACKTRACE = False
     LOG_LEVEL = "INFO"
 
 
 class TestingConfig(Config):
-    MONGODB_HOST = "mongomock://localhost"
-    MONGODB_DB = os.getenv("MONGODB_DB")
+    DB_NAME = "test"
     TESTING = True
     DEBUG = True
     DEVELOPMENT = True
     LOG_BACKTRACE = True
     LOG_LEVEL = "DEBUG"
+    SQLALCHEMY_DATABASE_URI = (
+        "sqlite:///" + os.path.join(basedir, DB_NAME) + ".db?check_same_thread=False"
+    )
