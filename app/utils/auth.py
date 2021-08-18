@@ -9,7 +9,7 @@ from jwt.exceptions import (
     InvalidTokenError,
 )
 
-from app.definitions.exceptions import AppException
+from app.core.exceptions import AppException
 
 
 def auth_required(authorized_roles=None):

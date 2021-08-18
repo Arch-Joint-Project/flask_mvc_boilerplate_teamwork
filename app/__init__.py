@@ -13,7 +13,7 @@ from werkzeug.utils import import_string
 
 # load dotenv in the base root
 from app.api_spec import spec
-from app.definitions.exceptions.app_exceptions import (
+from app.core.exceptions.app_exceptions import (
     app_exception_handler,
     AppExceptionCase,
 )
@@ -57,7 +57,7 @@ def create_app(config="config.DevelopmentConfig"):
 
 def register_extensions(app):
     """Register Flask extensions."""
-    from app.definitions.factory import factory
+    from app.core.factory import factory
 
     if app.config["DB_ENGINE"] == "MONGODB":
         me = MongoEngine()

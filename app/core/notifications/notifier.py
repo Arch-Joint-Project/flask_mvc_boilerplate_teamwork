@@ -1,6 +1,6 @@
 from blinker import Namespace
 
-from app.definitions.notifications import NotificationHandler
+from app.core.notifications import NotificationHandler
 
 
 class Notifier:

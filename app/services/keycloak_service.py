@@ -1,7 +1,7 @@
 import os
 import requests
-from app.definitions.exceptions.app_exceptions import AppException
-from app.definitions.service_interfaces.auth_service_interface import (
+from app.core.exceptions.app_exceptions import AppException
+from app.core.service_interfaces.auth_service_interface import (
     AuthServiceInterface,
 )
 

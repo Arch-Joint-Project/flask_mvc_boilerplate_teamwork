@@ -1,7 +1,7 @@
 from functools import wraps
 from flask import request
 
-from app.definitions.exceptions.app_exceptions import AppException
+from app.core.exceptions.app_exceptions import AppException
 
 
 def validator(schema):

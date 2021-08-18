@@ -3,8 +3,8 @@ import json
 import redis
 from redis.exceptions import RedisError
 
-from app.definitions.exceptions import HTTPException
-from app.definitions.service_interfaces import CacheServiceInterface
+from app.core.exceptions import HTTPException
+from app.core.service_interfaces import CacheServiceInterface
 
 
 REDIS_SERVER = os.getenv("REDIS_SERVER")

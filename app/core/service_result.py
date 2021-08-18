@@ -2,7 +2,7 @@ import inspect
 
 from flask import Response, json
 from loguru import logger
-from app.definitions.exceptions.app_exceptions import AppExceptionCase
+from app.core.exceptions.app_exceptions import AppExceptionCase
 
 
 class ServiceResult(object):
