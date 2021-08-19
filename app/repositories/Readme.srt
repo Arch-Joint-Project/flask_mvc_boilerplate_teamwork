@@ -1,0 +1,2 @@
+This directory contains operations or functions specific to a particular
+entitty
