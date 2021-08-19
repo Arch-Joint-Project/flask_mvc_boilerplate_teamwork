@@ -24,7 +24,6 @@ bill_controller = obj_graph.provide(BillController)
 
 @bill.route("/", methods=["POST"])
 def create():
-    print('i am creating')
     data = request.json
     bill_data = bill_controller.create(data)
     response = json.dumps(dataclasses.asdict(bill_data))
