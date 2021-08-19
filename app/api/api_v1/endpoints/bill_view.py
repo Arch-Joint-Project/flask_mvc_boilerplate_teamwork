@@ -2,6 +2,10 @@
 import dataclasses
 import json
 
+from app.definitions.service_result import handle_result
+from app.schema import UserUpdateSchema, UserCreateSchema, UserSchema
+from app.utils import validator
+
 # third party imports
 import pinject
 from flask import Blueprint, request, make_response, jsonify, Response
@@ -10,6 +14,8 @@ from flask import Blueprint, request, make_response, jsonify, Response
 from app.controllers import BillController
 from app.repositories import BillRepository
 from app.models import BillableHourSchema
+from app.utils.auth import auth_required
+
 bill = Blueprint("bill", __name__)
 
 obj_graph = pinject.new_object_graph(modules=None,
@@ -23,6 +29,7 @@ bill_controller = obj_graph.provide(BillController)
 
 
 @bill.route("/", methods=["POST"])
+@validator(schema=UserCreateSchema)
 def create():
     data = request.json
     bill_data = bill_controller.create(data)
@@ -33,11 +40,7 @@ def create():
 @bill.route("/", methods=["GET"])
 def index():
     data = bill_controller.index()
-    bill_schema = BillableHourSchema()
-    bill_data = bill_schema.dump(data, many=True)
-    # response = json.dumps(dataclasses.asdict(data))
-    # return Response(response, mimetype="application/json", status=200)
-    return make_response(jsonify(bill_data))
+    return handle_result(data, schema=BillableHourSchema, many=True)
 
 
 @bill.route("/<int:emp_id>/<company>", methods=["GET"])
@@ -62,9 +65,9 @@ def delete(emp_id, company):
 
 
 @bill.route('/', methods=["PUT"])
+@validator(UserUpdateSchema)
 def update():
     query_info = request.args.to_dict()
-    print(query_info)
     obj_in = request.json
     data = bill_controller.update(query_info, obj_in)
     return make_response(jsonify(data))

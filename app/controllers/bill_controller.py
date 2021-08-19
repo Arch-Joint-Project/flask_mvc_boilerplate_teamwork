@@ -1,3 +1,5 @@
+from app.definitions.result import Result
+from app.definitions.service_result import ServiceResult
 from app.repositories import BillRepository
 
 
@@ -7,7 +9,7 @@ class BillController:
 
     def index(self):
         bill = self.repository.index()
-        return bill
+        return ServiceResult(Result(bill, 200))
 
     def create(self, data):  # data is coming from the view
         bill = self.repository.create(data)
