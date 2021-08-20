@@ -1,8 +1,9 @@
 # local import
-from app import db, ma
+from app import db
 
 # builtin imports
 from dataclasses import dataclass
+from datetime import date, time
 
 
 @dataclass
@@ -13,39 +14,14 @@ class BillableHourModel(db.Model):
     id: int
     billable_rate: int
     company: str
-    date: str
-    start_time: str
-    end_time: str
+    date: date
+    start_time: time
+    end_time: time
 
     __tablename__ = 'billing_db'
-    id = db.Column('Employee ID', db.Integer, primary_key=True)
+    id = db.Column('Employee ID', db.Integer, primary_key=True, nullable=False)
     billable_rate = db.Column('Billable Rate (per hour)', db.Integer, nullable=False)
-    company = db.Column('Company', db.String(60), primary_key=True)
-    # date = db.Column('Date', db.Date())
-    # start_time = db.Column('Start Time', db.Time())
-    # end_time = db.Column('End Time', db.Time())
-    date = db.Column('Date', db.String)
-    start_time = db.Column('Start Time', db.String)
-    end_time = db.Column('End Time', db.String)
-
-    # def __init__(self, employee_id, billable_rate, company, date, start_time, end_time):
-    #     self.id = employee_id
-    #     self.billable_rate = billable_rate
-    #     self.company = company
-    #     self.date = date
-    #     self.start_time = start_time
-    #     self.end_time = end_time
-
-    # def __repr__(self):
-    #     return f"<Company {self.company}>"
-
-
-class BillableHourSchema(ma.Schema):
-    """
-    Marshmallow schema for serialization
-    """
-    class Meta:
-        """
-        Fields to expose
-        """
-        fields = ('id', 'company', 'billable_rate', 'date', 'start_time', 'end_time')
+    company = db.Column('Company', db.String(60), primary_key=True, nullable=False)
+    date = db.Column('Date', db.Date, nullable=False)
+    start_time = db.Column('Start Time', db.Time, nullable=False)
+    end_time = db.Column('End Time', db.Time, nullable=False)
