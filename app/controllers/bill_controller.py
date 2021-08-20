@@ -34,3 +34,7 @@ class BillController:
     def update_by_id(self, obj_id, obj_in):
         bill = self.repository.update_by_id(obj_id, obj_in)
         return ServiceResult(Result(bill, 200))
+
+    def generate_invoice(self,company_name):
+     invoice = self.repository.find_all(company_name)
+     return invoice
