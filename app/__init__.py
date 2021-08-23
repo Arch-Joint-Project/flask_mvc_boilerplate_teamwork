@@ -37,22 +37,6 @@ class InterceptHandler(logging.Handler):
         logger_opt.log(record.levelno, record.getMessage())
 
 
-# sub implementation of reading from a config directory of python files.
-# read config development from file
-# cleans psycopg2 operationalError exception.
-def create_app(config_type="dev"): # dev, test, prod.
-    app = Flask(__name__)
-    configuration = os.path.join(os.getcwd(),'config', config_type +'.py')
-    print(configuration) # be sure of the configuration path
-    app.config.from_pyfile(configuration)
-    # add extensions
-    register_extensions(app)
-    app.logger.addHandler(InterceptHandler())
-    register_blueprints(app)
-    register_swagger_definitions(app)
-    return app
-
-'''
 # reading from .env throwing connection error.
 def create_app(config="config.DevelopmentConfig"):
     """Construct the core application"""
@@ -71,7 +55,7 @@ def create_app(config="config.DevelopmentConfig"):
         register_swagger_definitions(app)
         return app
 
-'''
+
 def register_extensions(app):
     """Register Flask extensions."""
     from app.definitions.factory import factory
