@@ -145,3 +145,6 @@ cython_debug/
 
 # Containers
 .devcontainer
+
+# .env
+.env
