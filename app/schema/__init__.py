@@ -6,5 +6,5 @@ from .user_schema import (
 from .bill_schema import (
     BillSchema, BillCreateSchema,
     BillReadSchema, BillUpdateSchema,
-    BillDeleteSchema
+    BillDeleteSchema, InvoiceSchema
 )

@@ -33,3 +33,9 @@ class BillReadSchema(BillSchema):
 
 class BillDeleteSchema(BillSchema):
     pass
+
+
+class InvoiceSchema(BillSchema):
+    class Meta:
+        fields = ["id", "billable_rate", "company", "start_time",
+                  "end_time"]
