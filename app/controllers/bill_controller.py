@@ -38,7 +38,6 @@ class BillController:
         bill = self.repository.update_by_id(obj_id, obj_in)
         return ServiceResult(Result(bill, 200))
 
-<<<<<<< HEAD
     def generate_invoice(self, company):
         data = self.repository.find_all(company)
         if data:
@@ -72,8 +71,3 @@ class BillController:
             return ServiceResult(Result(company_bills, 200))
         else:
             return ServiceResult(Result(data, 200))
-=======
-    def generate_invoice(self,company_name):
-     invoice = self.repository.find_all(company_name)
-     return invoice
->>>>>>> 059b2449458db24959e640a006ee52ccd48aeb2f

@@ -72,10 +72,3 @@ def update_by_id(emp_id, company):
     new_data = bill_controller.update_by_id((emp_id, company), data)
     return handle_result(new_data, schema=BillUpdateSchema)
 
-@bill.route('/generate-invoice', methods=['GET'])
-def generate_invoice():
-    company = request.args.getall() # @@TODO: handle request as dictionary to pass to wrapper filter_by()
-    print(company)
-    the_company_record = bill_controller.generate_invoice(company)
-    print(the_company_record)
-    return ""
