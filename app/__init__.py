@@ -55,30 +55,30 @@ def create_app(config="config.DevelopmentConfig"):
         return app
 
 
-def register_extensions(app):
+def register_extensions(flask_app):
     """Register Flask extensions."""
     from app.core.factory import factory
 
-    if app.config["DB_ENGINE"] == "MONGODB":
+    if flask_app.config["DB_ENGINE"] == "MONGODB":
         me = MongoEngine()
-        me.init_app(app)
-    elif app.config["DB_ENGINE"] == "POSTGRES":
-        db.init_app(app)
-        migrate.init_app(app, db)
-        with app.app_context():
+        me.init_app(flask_app)
+    elif flask_app.config["DB_ENGINE"] == "POSTGRES":
+        db.init_app(flask_app)
+        migrate.init_app(flask_app, db)
+        with flask_app.app_context():
             db.create_all()
-    factory.init_app(app, db)
-    ma.init_app(app)
+    factory.init_app(flask_app, db)
+    ma.init_app(flask_app)
 
-    @app.errorhandler(HTTPException)
+    @flask_app.errorhandler(HTTPException)
     def handle_http_exception(e):
         return app_exception_handler(e)
 
-    @app.errorhandler(DBAPIError)
+    @flask_app.errorhandler(DBAPIError)
     def handle_db_exception(e):
         return app_exception_handler(e)
 
-    @app.errorhandler(AppExceptionCase)
+    @flask_app.errorhandler(AppExceptionCase)
     def handle_app_exceptions(e):
         return app_exception_handler(e)
 
