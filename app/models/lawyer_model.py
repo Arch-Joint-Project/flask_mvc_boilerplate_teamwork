@@ -1,13 +1,11 @@
 # local import
 from app import db
-from app.models import AdminModel
+# from .bill_model import BillModel
 # builtin imports
 from dataclasses import dataclass
 from datetime import date, time
 
-admin_model = AdminModel()
-
-fk = admin_model.__tablename__ + ".id"
+ bill_model = BillModel()
 
 @dataclass
 class LawyerModel(db.Model):
@@ -20,11 +18,17 @@ class LawyerModel(db.Model):
     username: str
     email: str
     password: str
+    # bill: db.Model
 
     __tablename__ = 'lawyers'
-    id = db.Column('Employee ID', db.Integer, primary_key=True, nullable=False)
-    admin_id = db.Column('Admin ID', db.ForeignKey(admin_model), nullable=False)
-    name = db.Column('Name', db.String(60), primary_key=True, nullable=False)
-    username = db.Column('Username', db.String, nullable=False)
-    email = db.Column('Email', db.String, nullable=False)
+    id = db.Column(db.Integer, primary_key=True)
+    # foreign key to link this table to the admin table
+    # using the admin id
+    admin_id = db.Column('Admin ID', db.ForeignKey('admins.id'), nullable=False, index=True)
+    name = db.Column('Name', db.String, nullable=False)
+    username = db.Column('Username', db.String, nullable=False, unique=True, index=True)
+    email = db.Column('Email', db.String, nullable=False, unique=True, index=True)
     password = db.Column('Password', db.String, nullable=False)
+    # forming relationship with the bill table
+    # through the bill model
+    bill = db.relationship(bill_model, backref='lawyer', lazy='dynamic')

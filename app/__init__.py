@@ -64,6 +64,7 @@ def register_extensions(flask_app):
         me.init_app(flask_app)
     elif flask_app.config["DB_ENGINE"] == "POSTGRES":
         db.init_app(flask_app)
+        from app import models
         migrate.init_app(flask_app, db)
         with flask_app.app_context():
             db.create_all()
