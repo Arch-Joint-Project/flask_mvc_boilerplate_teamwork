@@ -1,2 +1,3 @@
-from .user_schema import User, UserLogin, UserCreate, AccessToken, RefreshToken
-from .product_schema import Product
+from .admin_schema import AdminCreateSchema, AdminReadSchema
+from .lawyer_schema import LawyerCreateSchema, LawyerReadSchema
+from .bill_schema import BillCreateSchema, BillReadSchema

@@ -19,11 +19,10 @@ class AdminModel(db.Model):
     username: str
     email: str
     password: str
-    lawyer: db.Model
 
     __tablename__ = 'admins'
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column('Name', db.Integer, nullable=False)
+    name = db.Column('Name', db.String, nullable=False)
     username = db.Column('username', db.String, nullable=False, unique=True)
     email = db.Column('Email', db.String, nullable=False, unique=True)
     password = db.Column('Password', db.String, nullable=False)
