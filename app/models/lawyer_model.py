@@ -1,11 +1,13 @@
 # local import
 from app import db
-# from .bill_model import BillModel
+from .bill_model import BillModel
 # builtin imports
 from dataclasses import dataclass
 from datetime import date, time
 
- bill_model = BillModel()
+bill_model = BillModel()
+bill_obj = bill_model.__class__.__name__
+
 
 @dataclass
 class LawyerModel(db.Model):
@@ -18,7 +20,7 @@ class LawyerModel(db.Model):
     username: str
     email: str
     password: str
-    # bill: db.Model
+    bill: db.Model
 
     __tablename__ = 'lawyers'
     id = db.Column(db.Integer, primary_key=True)
@@ -31,4 +33,4 @@ class LawyerModel(db.Model):
     password = db.Column('Password', db.String, nullable=False)
     # forming relationship with the bill table
     # through the bill model
-    bill = db.relationship(bill_model, backref='lawyer', lazy='dynamic')
+    bill = db.relationship(bill_obj, backref='lawyer', lazy='dynamic')

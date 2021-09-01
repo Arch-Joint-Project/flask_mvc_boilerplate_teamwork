@@ -3,9 +3,10 @@ from app import db
 from .lawyer_model import LawyerModel
 # builtin imports
 from dataclasses import dataclass
-from datetime import date, time
+
 
 lawyer_model = LawyerModel()
+lawyer_obj = lawyer_model.__class__.__name__
 
 
 @dataclass
@@ -28,5 +29,5 @@ class AdminModel(db.Model):
     password = db.Column('Password', db.String, nullable=False)
     # forming relationship with the lawyer table using
     # through the lawyer model
-    lawyer = db.relationship(lawyer_model, backref='admin', lazy='dynamic')
+    lawyer = db.relationship(lawyer_obj, backref='admin', lazy='dynamic')
 
