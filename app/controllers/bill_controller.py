@@ -15,21 +15,26 @@ class BillController:
         bill = self.bill_repository.create(data)
         return ServiceResult(Result(bill, 201))
 
-    # def find_by_id(self, bill_id):
-    #     bill = self.repository.find_by_id(bill_id)
-    #     return ServiceResult(Result(bill, 200))
-    #
-    # def find_all(self, bill_id):
-    #     bill = self.repository.find_all(bill_id)
-    #     return ServiceResult(Result(bill, 200))
-    #
-    # def delete(self, bill_id):
-    #     bill = self.repository.delete(bill_id)
-    #     return ServiceResult(Result(bill, 204))
-    #
-    # def update(self, query_info, obj_in):
-    #     bill = self.repository.update(query_info, obj_in)
-    #     return ServiceResult(Result(bill, 200))
+    def find(self, obj_id):
+        bill = self.bill_repository.find(obj_id)
+        lawyer = bill.lawyer.name
+        print(lawyer)
+        return ServiceResult(Result(bill, 200))
+
+    def find_all(self, obj_id):
+        bill = self.bill_repository.find_all(obj_id)
+        return ServiceResult(Result(bill, 200))
+
+    def delete(self, query_params):
+        bill_info = self.bill_repository.find(query_params)
+        print(bill_info.id)
+        obj_id = bill_info.id
+        bill = self.bill_repository.delete(obj_id)
+        return ServiceResult(Result(bill, 204))
+
+    def update(self, query_info, obj_in):
+        bill = self.bill_repository.update(query_info, obj_in)
+        return ServiceResult(Result(bill, 200))
     #
     # def update_by_id(self, obj_id, obj_in):
     #     bill = self.repository.update_by_id(obj_id, obj_in)

@@ -18,12 +18,14 @@ class BillCreateSchema(BillSchema):
     class Meta:
         fields = ["id", "lawyer_id", "billable_rate", "company", "date", "start_time",
                   "end_time"]
+        exclude = ["id"]
 
 
 class BillUpdateSchema(BillSchema):
     class Meta:
         fields = ["id", "lawyer_id", "billable_rate", "company", "date", "start_time",
                   "end_time"]
+        exclude = ["id", "lawyer_id", "company"]
 
 
 class BillReadSchema(BillSchema):

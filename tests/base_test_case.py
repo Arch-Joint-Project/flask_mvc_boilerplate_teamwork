@@ -1,5 +1,7 @@
 from flask_testing import TestCase
-from app import create_app
+from app import create_app, db
+from app.models import AdminModel, LawyerModel, BillModel
+from datetime import datetime, date, time
 
 
 class BaseTestCase(TestCase):
@@ -11,8 +13,37 @@ class BaseTestCase(TestCase):
         """
         Will be called before every test
         """
+        db.create_all()
+        admin = AdminModel(
+            name="test_admin",
+            username="test_admin_username",
+            email="test_admin_email",
+            password="test_admin_password"
+        )
+        print(admin)
+        lawyer = LawyerModel(
+            admin_id=1,
+            name="test_Lawyer",
+            username="test_lawyer_username",
+            email="test_lawyer_email",
+            password="test_lawyer_password"
+        )
+        bill = BillModel(
+            lawyer_id=1,
+            billable_rate=300,
+            company="test_bill_company",
+            date=date.today(),
+            start_time=datetime.now().strftime("%H:%M:%S"),
+            end_time=datetime.now().strftime("%H:%M:%S")
+        )
+        db.session.add(admin)
+        db.session.add(lawyer)
+        db.session.add(bill)
+        db.session.commit()
 
     def tearDown(self):
         """
         Will be called after every test
         """
+        db.session.remove()
+        db.drop_all()
