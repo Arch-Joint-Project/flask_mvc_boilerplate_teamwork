@@ -21,3 +21,9 @@ class AdminCreateSchema(AdminSchema):
 class AdminReadSchema(AdminSchema):
     class Meta:
         fields = ["id", "name", "username", "email", "password"]
+
+
+class AdminSigninSchema(AdminSchema):
+    class Meta:
+        fields = ["id", "name", "username", "email", "password"]
+        exclude = ["id", "name", "email"]

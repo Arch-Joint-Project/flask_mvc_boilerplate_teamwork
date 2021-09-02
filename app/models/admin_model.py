@@ -1,9 +1,8 @@
 # local import
-from app import db
+from app import db, jw, create_app
 from .lawyer_model import LawyerModel
 # builtin imports
 from dataclasses import dataclass
-
 
 lawyer_model = LawyerModel()
 lawyer_obj = lawyer_model.__class__.__name__
@@ -29,4 +28,6 @@ class AdminModel(db.Model):
     # forming relationship with the lawyer table using
     # through the lawyer model
     lawyer = db.relationship(lawyer_obj, backref='admin', lazy='dynamic')
+
+
 

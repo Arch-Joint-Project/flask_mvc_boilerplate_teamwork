@@ -7,10 +7,14 @@ from app.schema import (
 from app.controllers import BillController
 from app.repositories import BillRepository
 from app.utils import validator
+from app.models import AdminModel
 
 # third party imports
 import pinject
-from flask import Blueprint, request
+from flask import Blueprint, request, jsonify
+from flask_jwt_extended import (
+    jwt_required, current_user
+)
 
 bill = Blueprint("bill", __name__)
 
@@ -19,42 +23,53 @@ obj_graph = pinject.new_object_graph(modules=None,
                                               BillRepository])
 
 bill_controller = obj_graph.provide(BillController)
+admin_id_list = [admin.id for admin in AdminModel.query.all()]
 
 
 @bill.route("/", methods=["POST"])
 @validator(schema=BillCreateSchema)
+@jwt_required()
 def create():
+    print(current_user)
     data = request.json
+    data["lawyer_id"] = current_user.id
     lawyer_data = bill_controller.create(data)
     return handle_result(lawyer_data, schema=BillReadSchema)
 
 
 @bill.route("/", methods=["GET"])
+@jwt_required()
 def index():
+    if current_user.id not in admin_id_list:
+        print(f'this is {current_user}')
+        return jsonify({'status': 'error', 'error': 'operation unauthorized'})
     data = bill_controller.index()
     return handle_result(data, schema=BillReadSchema, many=True)
 
 
-@bill.route("/<int:lawyer_id>/<company>", methods=["GET"])
-def find_bill(lawyer_id, company):
+@bill.route("/home/<company>", methods=["GET"])
+@jwt_required()
+def find_bill(company):
     param = {
-        "lawyer_id": lawyer_id,
+        "lawyer_id": current_user.id,
         "company": company
     }
     data = bill_controller.find(param)
     return handle_result(data, schema=BillReadSchema)
 
 
-@bill.route("/<int:lawyer_id>", methods=["GET"])
-def find_lawyer_bill(lawyer_id):
-    data = bill_controller.find_all({"lawyer_id": lawyer_id})
+@bill.route("/home", methods=["GET"])
+@jwt_required()
+def find_lawyer_bill():
+    data = bill_controller.find_all({"lawyer_id": current_user.id})
     return handle_result(data, schema=BillReadSchema, many=True)
 
 
-@bill.route("/<int:lawyer_id>/<company>", methods=["DELETE"])
-def delete(lawyer_id, company):
+@bill.route("/home/<company>", methods=["DELETE"])
+@jwt_required()
+def delete(company):
     param = {
-        "lawyer_id": lawyer_id,
+        "lawyer_id": current_user.id,
         "company": company
     }
     data = bill_controller.delete(param)
@@ -63,16 +78,23 @@ def delete(lawyer_id, company):
 
 @bill.route('/', methods=["PUT"])
 @validator(BillUpdateSchema)
+@jwt_required()
 def update():
     query_info = request.args.to_dict()
+    query_info["lawyer_id"] = current_user.id
+
+    print(query_info)
+
     obj_in = request.json
     data = bill_controller.update(query_info, obj_in)
     return handle_result(data, schema=BillReadSchema)
-#
-#
-# @bill.route('/<int:emp_id>/<company>', methods=["PUT"])
-# @validator(BillUpdateSchema)
-# def update_by_id(emp_id, company):
-#     data = request.json
-#     new_data = bill_controller.update_by_id((emp_id, company), data)
-#     return handle_result(new_data, schema=BillUpdateSchema)
+
+
+@bill.route("/invoice/<company>", methods=["GET"])
+@jwt_required()
+def invoice(company):
+    if current_user.id not in admin_id_list:
+        print(f'this is {current_user}')
+        return jsonify({'status': 'error', 'error': 'operation unauthorized'})
+    data = bill_controller.generate_invoice({"company": company})
+    return handle_result(data)

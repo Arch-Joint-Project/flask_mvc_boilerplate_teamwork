@@ -1,3 +1,3 @@
-from .admin_schema import AdminCreateSchema, AdminReadSchema
-from .lawyer_schema import LawyerCreateSchema, LawyerReadSchema
+from .admin_schema import AdminCreateSchema, AdminReadSchema, AdminSigninSchema
+from .lawyer_schema import LawyerCreateSchema, LawyerReadSchema, LawyerSigninSchema
 from .bill_schema import BillCreateSchema, BillReadSchema, BillDeleteSchema, BillUpdateSchema

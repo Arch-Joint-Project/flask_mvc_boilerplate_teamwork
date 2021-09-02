@@ -23,7 +23,7 @@ class BaseTestCase(TestCase):
         print(admin)
         lawyer = LawyerModel(
             admin_id=1,
-            name="test_Lawyer",
+            name="test_lawyer",
             username="test_lawyer_username",
             email="test_lawyer_email",
             password="test_lawyer_password"
@@ -32,9 +32,9 @@ class BaseTestCase(TestCase):
             lawyer_id=1,
             billable_rate=300,
             company="test_bill_company",
-            date=date.today(),
-            start_time=datetime.now().strftime("%H:%M:%S"),
-            end_time=datetime.now().strftime("%H:%M:%S")
+            date=date(2020, 1, 4),
+            start_time=time(8, 0),
+            end_time=time(20, 0)
         )
         db.session.add(admin)
         db.session.add(lawyer)
