@@ -3,7 +3,7 @@ from app.core.service_result import ServiceResult
 from app.repositories import LawyerRepository
 from werkzeug.security import check_password_hash
 from flask import jsonify, make_response
-from app.services.lawyer_auth import AuthService
+from app.services import AuthService
 authentication = AuthService()
 
 
@@ -19,7 +19,7 @@ class LawyerController:
         lawyer = self.lawyer_repository.create(data)
         return ServiceResult(Result(lawyer, 201))
 
-    def signin(self, auth):
+    def sign_in(self, auth):
         if not auth or not auth["username"] or not auth["password"]:
             return jsonify(
                 {
@@ -31,8 +31,10 @@ class LawyerController:
                 {'WWW-Authenticate': 'Basic realm="Login required!"'}
             )
         lawyer_user = self.lawyer_repository.find({"username": auth["username"]})
+        print("this is the lawyer user ", lawyer_user)
         if check_password_hash(lawyer_user.password, auth["password"]):
-            return authentication.create_token(lawyer_user)
+            # return authentication.verify_user(lawyer_user)
+            return lawyer_user
         return make_response(
             {
                 "status": "error",
@@ -45,6 +47,18 @@ class LawyerController:
             }
         )
 
+    def find(self, query_param):
+        lawyer = self.lawyer_repository.find(query_param)
+        return ServiceResult(Result(lawyer, 200))
+
+    def find_all(self, query_param):
+        lawyer = self.lawyer_repository.find_all(query_param)
+        return ServiceResult(Result(lawyer, 200))
+
     def find_by_id(self, obj_id):
         lawyer = self.lawyer_repository.find_by_id(obj_id)
+        return ServiceResult(Result(lawyer, 200))
+
+    def delete(self, obj_id):
+        lawyer = self.lawyer_repository.delete(obj_id)
         return ServiceResult(Result(lawyer, 200))

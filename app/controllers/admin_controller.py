@@ -3,7 +3,7 @@ from app.core.service_result import ServiceResult
 from app.repositories import AdminRepository
 from flask import make_response, jsonify
 from werkzeug.security import check_password_hash
-from app.services.admin_auth import AuthService
+from app.services import AuthService
 authentication = AuthService()
 
 
@@ -19,7 +19,8 @@ class AdminController:
         admin = self.admin_repository.create(data)
         return ServiceResult(Result(admin, 201))
 
-    def signin(self, auth):
+    # basic authentication using username and password in request
+    def sign_in(self, auth):
         if not auth or not auth["username"] or not auth["password"]:
             return jsonify(
                 {
@@ -31,17 +32,16 @@ class AdminController:
                 {'WWW-Authenticate': 'Basic realm="Login required!"'}
             )
         admin_user = self.admin_repository.find({"username": auth["username"]})
-        print(admin_user)
         if check_password_hash(admin_user.password, auth["password"]):
-            return authentication.create_token(admin_user)
+            return admin_user
         return make_response(
             {
                 "status": "error",
                 "error": "verification failure",
                 "msg": "could not verify user"
             },
-            401,
             {
                 'WWW-Authenticate': 'Basic realm="Login required!"'
             }
         )
+

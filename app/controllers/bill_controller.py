@@ -1,7 +1,8 @@
 from app.core.result import Result
-from app.core.service_result import ServiceResult, handle_result
+from app.core.service_result import ServiceResult
 from app.repositories import BillRepository
 from collections import defaultdict
+
 
 class BillController:
     def __init__(self, bill_repository: BillRepository):
