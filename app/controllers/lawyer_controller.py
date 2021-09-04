@@ -29,7 +29,6 @@ class LawyerController:
                 {'WWW-Authenticate': 'Basic realm="Login required!"'}
             )
         lawyer_user = self.lawyer_repository.find({"username": auth["username"]})
-        print("this is the lawyer user ", lawyer_user)
         if check_password_hash(lawyer_user.password, auth["password"]):
             # return authentication.verify_user(lawyer_user)
             return lawyer_user

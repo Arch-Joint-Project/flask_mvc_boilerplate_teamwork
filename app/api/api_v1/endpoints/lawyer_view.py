@@ -53,7 +53,7 @@ def view_all_bills():
 def view_company_bills(company):
     lawyer_data = lawyer_controller.sign_in(request.authorization)
     if isinstance(lawyer_data, LawyerModel):
-        bill_data = bill_controller.find_all({"company": company})
+        bill_data = bill_controller.find_all({"lawyer_id": lawyer_data.id, "company": company})
         return handle_result(bill_data, schema=BillReadSchema, many=True)
     return lawyer_data
 
@@ -97,7 +97,6 @@ def update():
     if isinstance(lawyer_data, LawyerModel):
         query_info = request.args.to_dict()
         query_info["lawyer_id"] = lawyer_data.id
-        print(query_info)
         obj_in = request.json
         data = bill_controller.update(query_info, obj_in)
         return handle_result(data, schema=BillReadSchema)

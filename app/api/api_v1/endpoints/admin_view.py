@@ -133,7 +133,6 @@ def get_lawyer_bills(lawyer_username):
 # param: company name
 @admin.route("/bill/company/<company>", methods=["GET"])
 def get_company_bills(company):
-    print('i am herer')
     admin_data = admin_controller.sign_in(request.authorization)
     if isinstance(admin_data, AdminModel):
         bill_data = bill_controller.find_all({"company": company})
