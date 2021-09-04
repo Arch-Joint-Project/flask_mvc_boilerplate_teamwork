@@ -3,8 +3,6 @@ from app.core.service_result import ServiceResult
 from app.repositories import LawyerRepository
 from werkzeug.security import check_password_hash
 from flask import jsonify, make_response
-from app.services import AuthService
-authentication = AuthService()
 
 
 class LawyerController:
