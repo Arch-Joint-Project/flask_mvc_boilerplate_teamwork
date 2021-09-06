@@ -2,6 +2,7 @@ from flask_testing import TestCase
 from app import create_app, db
 from app.models import AdminModel, LawyerModel, BillModel
 from datetime import datetime, date, time
+from werkzeug.security import generate_password_hash
 
 
 class BaseTestCase(TestCase):
@@ -18,7 +19,7 @@ class BaseTestCase(TestCase):
             name="test_admin",
             username="test_admin_username",
             email="test_admin_email",
-            password="test_admin_password"
+            password=generate_password_hash("test_admin_password", method="sha256")
         )
         print(admin)
         lawyer = LawyerModel(
@@ -26,7 +27,7 @@ class BaseTestCase(TestCase):
             name="test_lawyer",
             username="test_lawyer_username",
             email="test_lawyer_email",
-            password="test_lawyer_password"
+            password=generate_password_hash("test_lawyer_password", method="sha256")
         )
         bill = BillModel(
             lawyer_id=1,
