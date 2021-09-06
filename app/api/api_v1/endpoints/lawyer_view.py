@@ -31,10 +31,15 @@ bill_controller = obj_graph_2.provide(BillController)
 # view login in lawyer info
 @lawyer.route("/home", methods=["GET"])
 def home():
+    # get authentication information
     lawyer_data = lawyer_controller.sign_in(request.authorization)
+    # check if user is a lawyer
     if isinstance(lawyer_data, LawyerModel):
+        # get info of logged in users based on the id
         lawyer_data = lawyer_controller.find({"id": lawyer_data.id})
+        # return info
         return handle_result(lawyer_data, schema=LawyerReadSchema)
+    # return error info
     return lawyer_data
 
 
@@ -43,7 +48,9 @@ def home():
 def view_all_bills():
     lawyer_data = lawyer_controller.sign_in(request.authorization)
     if isinstance(lawyer_data, LawyerModel):
+        # query all bills of logged in user based on the id
         bill_data = bill_controller.find_all({"lawyer_id": lawyer_data.id})
+        # return bills
         return handle_result(bill_data, schema=BillReadSchema, many=True)
     return lawyer_data
 
@@ -53,27 +60,38 @@ def view_all_bills():
 def view_company_bills(company):
     lawyer_data = lawyer_controller.sign_in(request.authorization)
     if isinstance(lawyer_data, LawyerModel):
+        # query company bills of the logged in users
         bill_data = bill_controller.find_all({"lawyer_id": lawyer_data.id, "company": company})
+        # return bills
         return handle_result(bill_data, schema=BillReadSchema, many=True)
     return lawyer_data
 
 
 # create new bill
 @lawyer.route("/bill", methods=["POST"])
+# validate incoming data
 @validator(schema=BillCreateSchema)
 def create_bill():
     lawyer_data = lawyer_controller.sign_in(request.authorization)
     if isinstance(lawyer_data, LawyerModel):
         data = request.json
+        # set lawyer_id of bill using the id of the current logged in user
         data["lawyer_id"] = lawyer_data.id
+        # query all bills in database
         query_bill = bill_controller.index()
         bills = handle_result(query_bill, schema=BillReadSchema, many=True)
         for bill in bills.json:
+            # remove id from bills data return
             bill_id = bill.pop("id")
+            # compare incoming bill data to bills data within the database
             if data == bill:
+                # bill is already available, set bill id to id already available
                 data["id"] = bill_id
                 continue
+                # insert data with id available with the database
+                # this helps to throw duplicate key error
         bill_data = bill_controller.create(data)
+        # return response
         return handle_result(bill_data, schema=BillReadSchema)
     return lawyer_data
 
@@ -83,6 +101,7 @@ def create_bill():
 def delete_bill(company):
     lawyer_data = lawyer_controller.sign_in(request.authorization)
     if isinstance(lawyer_data, LawyerModel):
+        # delete company bill created by logged in user
         delete_bill_info = bill_controller.delete({"lawyer_id": lawyer_data.id, "company": company})
         return handle_result(delete_bill_info, schema=BillReadSchema,
                              many=True)
@@ -96,7 +115,9 @@ def update():
     lawyer_data = lawyer_controller.sign_in(request.authorization)
     if isinstance(lawyer_data, LawyerModel):
         query_info = request.args.to_dict()
+        # set lawyer_id of bill to logged in user id
         query_info["lawyer_id"] = lawyer_data.id
         obj_in = request.json
+        # update bill info
         data = bill_controller.update(query_info, obj_in)
         return handle_result(data, schema=BillReadSchema)

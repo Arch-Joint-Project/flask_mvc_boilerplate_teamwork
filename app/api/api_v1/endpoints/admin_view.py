@@ -37,6 +37,7 @@ bill_controller = obj_graph_bill.provide(BillController)
 
 # create new admin
 @admin.route("/", methods=["POST"])
+# validate incoming data
 @validator(schema=AdminCreateSchema)
 def create_admin():
     data = request.json
@@ -49,10 +50,15 @@ def create_admin():
 # view all admins in db
 @admin.route("/", methods=["GET"])
 def view_all_admins():
+    # get authentication info (basic authentication) and sign in user
     admin_data = admin_controller.sign_in(request.authorization)
+    # check if user is an admin or not
     if isinstance(admin_data, AdminModel):
+        # get all admins within database
         admin_data = admin_controller.index()
+        # return all admins
         return handle_result(admin_data, schema=AdminReadSchema, many=True)
+    # return error information
     return admin_data
 
 
@@ -63,11 +69,16 @@ def create_lawyer():
     admin_data = admin_controller.sign_in(request.authorization)
     if isinstance(admin_data, AdminModel):
         data = request.json
+        # set admin_id to id of the currently logged in admin's id
         data["admin_id"] = admin_data.id
+        # hash incoming password into database
         data["password"] = generate_password_hash(data["password"],
                                                   method="sha256")
+        # create lawyer in database
         lawyer_data = lawyer_controller.create(data)
+        # return created lawyer to user
         return handle_result(lawyer_data, schema=LawyerReadSchema)
+    # return error information
     return admin_data
 
 
@@ -87,7 +98,9 @@ def view_all_lawyers():
 def view_lawyer(username):
     admin_data = admin_controller.sign_in(request.authorization)
     if isinstance(admin_data, AdminModel):
+        # query lawyer using username provided
         lawyer_data = lawyer_controller.find({"username": username})
+        # return query lawyer to user
         return handle_result(lawyer_data, schema=LawyerReadSchema)
     return admin_data
 
@@ -108,10 +121,13 @@ def get_bills():
 def get_bill(lawyer_username, company):
     admin_data = admin_controller.sign_in(request.authorization)
     if isinstance(admin_data, AdminModel):
+        # query lawyer information from username provided
         lawyer_data = lawyer_controller.find({"username": lawyer_username})
         lawyer = handle_result(lawyer_data, schema=LawyerReadSchema)
+        # query bill based on lawyer_id and company name
         bill_data = bill_controller.find(
             {"lawyer_id": lawyer.json["id"], "company": company})
+        # return result
         return handle_result(bill_data, schema=BillReadSchema)
     return admin_data
 
@@ -122,9 +138,12 @@ def get_bill(lawyer_username, company):
 def get_lawyer_bills(lawyer_username):
     admin_data = admin_controller.sign_in(request.authorization)
     if isinstance(admin_data, AdminModel):
+        # query lawyer info from username provided
         lawyer_data = lawyer_controller.find({"username": lawyer_username})
         lawyer = handle_result(lawyer_data, schema=LawyerReadSchema)
+        # query bills based on id of queried lawyer
         bill_data = bill_controller.find_all({"lawyer_id": lawyer.json["id"]})
+        # return bills
         return handle_result(bill_data, schema=BillReadSchema, many=True)
     return admin_data
 
@@ -135,8 +154,11 @@ def get_lawyer_bills(lawyer_username):
 def get_company_bills(company):
     admin_data = admin_controller.sign_in(request.authorization)
     if isinstance(admin_data, AdminModel):
+        # query bill based on company name provided
         bill_data = bill_controller.find_all({"company": company})
+        # return result
         return handle_result(bill_data, schema=BillReadSchema, many=True)
+    # if not return error info
     return admin_data
 
 
@@ -144,7 +166,6 @@ def get_company_bills(company):
 # param: company name
 @admin.route("/bill/invoice/<company>", methods=["GET"])
 def get_company_invoice(company):
-    print('i am invoice')
     admin_data = admin_controller.sign_in(request.authorization)
     if isinstance(admin_data, AdminModel):
         bill_data = bill_controller.generate_invoice({"company": company})
