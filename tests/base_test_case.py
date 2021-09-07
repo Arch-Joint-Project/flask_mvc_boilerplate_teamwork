@@ -21,7 +21,6 @@ class BaseTestCase(TestCase):
             email="test_admin_email",
             password=generate_password_hash("test_admin_password", method="sha256")
         )
-        print(admin)
         lawyer = LawyerModel(
             admin_id=1,
             name="test_lawyer",

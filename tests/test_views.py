@@ -1,10 +1,20 @@
+import json
+
 from .base_test_case import BaseTestCase
 from app.models import AdminModel, LawyerModel, BillModel
 import unittest
 import pytest
 from base64 import b64encode
 from datetime import date, time, datetime
+from bson import json_util
+from json import JSONEncoder
 
+
+class DateTimeEncoder(JSONEncoder):
+    # Override the default method
+    def default(self, obj):
+        if isinstance(obj, (date, datetime, time)):
+            return obj.isoformat()
 
 class TestAdminViews(BaseTestCase):
     @pytest.mark.admin
@@ -88,30 +98,6 @@ class TestLawyerViews(BaseTestCase):
                                    headers=headers)
         assert "test_lawyer" in response.json.values()
         assert response.json["id"] == 1
-
-    # @pytest.mark.lawyer
-    # def test_lawyer_bill_post(self):
-    #     data = {
-    #         "billable_rate": 300,
-    #         "company": "test_company",
-    #         "date": date(2020, 1, 4),
-    #         "start_time": time(8, 0),
-    #         "end_time": time(20, 0)
-    #     }
-    #     response = self.client.post("http://localhost:5000/lawyer/bill",
-    #                                 json=data)
-    #     print(response.json)
-    #     assert response.status_code == 200
-    #     # assert "authentication required" in response.json[0].values()
-    #     # # print(f'this {response.json}')
-    #     # headers = {'Authorization': 'Basic %s' % b64encode(
-    #     #     b"test_lawyer_username:test_lawyer_password").decode("ascii")}
-    #     # response = self.client.post("http://localhost:5000/lawyer/bill",
-    #     #                             headers=headers, json=data)
-    #     # print(response.json)
-    #     # assert response.status_code == 201
-    #     # assert LawyerModel.query.count() == 2
-    #     # assert "new_username" in response.json.values()
 
     @pytest.mark.lawyer
     def test_lawyer_bill_view(self):
