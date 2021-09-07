@@ -3,12 +3,17 @@ from app import create_app, db
 from app.models import AdminModel, LawyerModel, BillModel
 from datetime import datetime, date, time
 from werkzeug.security import generate_password_hash
-
+from base64 import b64encode
 
 class BaseTestCase(TestCase):
     def create_app(self):
         app = create_app("config.TestingConfig")
         return app
+
+    def auth(self, username, password):
+        headers = {'Authorization': 'Basic %s' % b64encode(
+            bytes(username + ':' + password, "utf-8")).decode("ascii")}
+        return headers
 
     def setUp(self):
         """

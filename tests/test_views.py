@@ -1,13 +1,13 @@
 import json
 
-from .base_test_case import BaseTestCase
-from app.models import AdminModel, LawyerModel, BillModel
+from tests import BaseTestCase
+from app.models import AdminModel, LawyerModel
 import unittest
 import pytest
-from base64 import b64encode
 from datetime import date, time, datetime
-from bson import json_util
 from json import JSONEncoder
+
+base_test = BaseTestCase()
 
 
 class DateTimeEncoder(JSONEncoder):
@@ -16,14 +16,14 @@ class DateTimeEncoder(JSONEncoder):
         if isinstance(obj, (date, datetime, time)):
             return obj.isoformat()
 
+
 class TestAdminViews(BaseTestCase):
     @pytest.mark.admin
     def test_admin_view(self):
         response = self.client.get("http://localhost:5000/admin/")
         assert response.status_code == 200
         assert "authentication required" in response.json[0].values()
-        headers = {'Authorization': 'Basic %s' % b64encode(
-            b"test_admin_username:test_admin_password").decode("ascii")}
+        headers = base_test.auth("test_admin_username", "test_admin_password")
         response = self.client.get("http://localhost:5000/admin/",
                                    headers=headers)
         assert len(response.json) == 1
@@ -54,8 +54,7 @@ class TestAdminViews(BaseTestCase):
                                     json=data)
         assert response.status_code == 200
         assert "authentication required" in response.json[0].values()
-        headers = {'Authorization': 'Basic %s' % b64encode(
-            b"test_admin_username:test_admin_password").decode("ascii")}
+        headers = base_test.auth("test_admin_username", "test_admin_password")
         response = self.client.post("http://localhost:5000/admin/lawyer",
                                     headers=headers, json=data)
         assert response.status_code == 201
@@ -67,8 +66,7 @@ class TestAdminViews(BaseTestCase):
         response = self.client.get("http://localhost:5000/admin/lawyer")
         assert response.status_code == 200
         assert "authentication required" in response.json[0].values()
-        headers = {'Authorization': 'Basic %s' % b64encode(
-            b"test_admin_username:test_admin_password").decode("ascii")}
+        headers = base_test.auth("test_admin_username", "test_admin_password")
         response = self.client.get("http://localhost:5000/admin/lawyer",
                                    headers=headers)
         assert len(response.json) == 1
@@ -78,8 +76,7 @@ class TestAdminViews(BaseTestCase):
     def test_admin_bill_view(self):
         response = self.client.get("http://localhost:5000/admin/bill")
         assert "authentication required" in response.json[0].values()
-        headers = {'Authorization': 'Basic %s' % b64encode(
-            b"test_admin_username:test_admin_password").decode("ascii")}
+        headers = base_test.auth("test_admin_username", "test_admin_password")
         response = self.client.get("http://localhost:5000/admin/bill",
                                    headers=headers)
         assert len(response.json) == 1
@@ -92,8 +89,7 @@ class TestLawyerViews(BaseTestCase):
         response = self.client.get("http://localhost:5000/lawyer/home")
         assert response.status_code == 200
         assert "authentication required" in response.json[0].values()
-        headers = {'Authorization': 'Basic %s' % b64encode(
-            b"test_lawyer_username:test_lawyer_password").decode("ascii")}
+        headers = base_test.auth("test_lawyer_username", "test_lawyer_password")
         response = self.client.get("http://localhost:5000/lawyer/home",
                                    headers=headers)
         assert "test_lawyer" in response.json.values()
@@ -104,8 +100,7 @@ class TestLawyerViews(BaseTestCase):
         response = self.client.get("http://localhost:5000/lawyer/bill")
         assert response.status_code == 200
         assert "authentication required" in response.json[0].values()
-        headers = {'Authorization': 'Basic %s' % b64encode(
-            b"test_lawyer_username:test_lawyer_password").decode("ascii")}
+        headers = base_test.auth("test_lawyer_username", "test_lawyer_password")
         response = self.client.get("http://localhost:5000/lawyer/bill",
                                    headers=headers)
         assert response.status_code == 200
@@ -118,8 +113,7 @@ class TestLawyerViews(BaseTestCase):
             "http://localhost:5000/lawyer/bill/company/test_bill_company")
         assert response.status_code == 200
         assert "authentication required" in response.json[0].values()
-        headers = {'Authorization': 'Basic %s' % b64encode(
-            b"test_lawyer_username:test_lawyer_password").decode("ascii")}
+        headers = base_test.auth("test_lawyer_username", "test_lawyer_password")
         response = self.client.get("http://localhost:5000/lawyer/bill",
                                    headers=headers)
         assert response.status_code == 200
@@ -132,8 +126,7 @@ class TestLawyerViews(BaseTestCase):
             "http://localhost:5000/lawyer/bill/test_bill_company")
         assert response.status_code == 200
         assert "authentication required" in response.json[0].values()
-        headers = {'Authorization': 'Basic %s' % b64encode(
-            b"test_lawyer_username:test_lawyer_password").decode("ascii")}
+        headers = base_test.auth("test_lawyer_username", "test_lawyer_password")
         response = self.client.delete("http://localhost:5000/lawyer/bill/test_bill_company",
                                       headers=headers)
         assert response.status_code == 204

@@ -1,4 +1,4 @@
-from .base_test_case import BaseTestCase
+from tests import BaseTestCase
 from app.models import AdminModel, LawyerModel, BillModel
 import unittest
 from datetime import date, time
