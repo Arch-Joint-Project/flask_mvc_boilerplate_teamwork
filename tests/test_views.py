@@ -1,20 +1,9 @@
-import json
-
 from tests import BaseTestCase
 from app.models import AdminModel, LawyerModel
 import unittest
 import pytest
-from datetime import date, time, datetime
-from json import JSONEncoder
 
 base_test = BaseTestCase()
-
-
-class DateTimeEncoder(JSONEncoder):
-    # Override the default method
-    def default(self, obj):
-        if isinstance(obj, (date, datetime, time)):
-            return obj.isoformat()
 
 
 class TestAdminViews(BaseTestCase):
