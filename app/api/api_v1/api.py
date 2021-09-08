@@ -9,5 +9,5 @@ def init_app(app):
     :param app:
     :return:
     """
-    app.register_blueprint(admin, url_prefix="/admin")
-    app.register_blueprint(lawyer, url_prefix="/lawyer")
+    app.register_blueprint(admin, url_prefix="/api/admin")
+    app.register_blueprint(lawyer, url_prefix="/api/lawyer")
