@@ -10,9 +10,9 @@ class TestAdminViews(BaseTestCase):
     @pytest.mark.admin
     def test_admin_view(self):
         response = self.client.get("http://localhost:5000/api/admin/")
-        assert response.status_code == 200
-        assert "authentication required" in response.json[0].values()
-        headers = base_test.auth("test_admin_username", "test_admin_password")
+        assert response.status_code == 401
+        assert "" in response.json[0].values()
+        #headers = base_test.auth("test_admin_username", "test_admin_password")
         response = self.client.get("http://localhost:5000/api/admin/",
                                    headers=headers)
         assert len(response.json) == 1
