@@ -2,16 +2,19 @@
 from app.core.service_result import handle_result
 from app.schema import (
     LawyerReadSchema, BillReadSchema,
-    BillCreateSchema, BillUpdateSchema
+    BillCreateSchema, BillUpdateSchema,
+    LawyerSigninSchema
 )
 
 from app.controllers import LawyerController, BillController
 from app.repositories import LawyerRepository, BillRepository
+from app.services.auth import token_required
 from app.utils import validator
-
+from werkzeug.security import check_password_hash
+from app.services import decode_token, create_token
 # third party imports
 import pinject
-from flask import Blueprint, request
+from flask import Blueprint, request, jsonify, make_response
 from app.models import LawyerModel
 
 lawyer = Blueprint("lawyer", __name__)
@@ -28,96 +31,116 @@ lawyer_controller = obj_graph_1.provide(LawyerController)
 bill_controller = obj_graph_2.provide(BillController)
 
 
+# signin lawyer
+@lawyer.route("/signin", methods=["POST"])
+# validate incoming data
+@validator(schema=LawyerSigninSchema)
+def signin_lawyer():
+    auth = request.json
+    if not auth or not auth["username"] or not auth["password"]:
+        return jsonify(
+            {
+                "status": "error",
+                "error": "authentication required",
+                "msg": "no authentication information provided"
+            },
+            401,
+            {'WWW-Authenticate': 'Basic realm="Login required!"'}
+        )
+    query_response = lawyer_controller.find({"username": auth["username"]})
+    lawyer_info = handle_result(query_response, schema=LawyerReadSchema).json
+    print(lawyer_info)
+    if check_password_hash(lawyer_info["password"], auth["password"]):
+        token = create_token(lawyer_info)
+        return make_response(jsonify({'token': token}), 200)
+    return make_response(
+        {
+            "status": "error",
+            "error": "verification failure",
+            "msg": "could not verify user"
+        },
+        {
+            'WWW-Authenticate': 'Basic realm="Login required!"'
+        }
+    )
+
+
 # view login in lawyer info
-@lawyer.route("/home", methods=["GET"])
-def home():
-    # get authentication information
-    lawyer_data = lawyer_controller.sign_in(request.authorization)
-    # check if user is a lawyer
-    if isinstance(lawyer_data, LawyerModel):
-        # get info of logged in users based on the id
-        lawyer_data = lawyer_controller.find({"id": lawyer_data.id})
-        # return info
-        return handle_result(lawyer_data, schema=LawyerReadSchema)
-    # return error info
-    return lawyer_data
+@lawyer.route("/", methods=["GET"])
+@token_required(model=LawyerModel)
+def index(current_user):
+    # get info of logged in users based on the id
+    lawyer_data = lawyer_controller.find({"id": current_user.id})
+    # return info
+    return handle_result(lawyer_data, schema=LawyerReadSchema)
 
 
 # view bills created by logged in user
 @lawyer.route("/bill", methods=["GET"])
-def view_all_bills():
-    lawyer_data = lawyer_controller.sign_in(request.authorization)
-    if isinstance(lawyer_data, LawyerModel):
-        # query all bills of logged in user based on the id
-        bill_data = bill_controller.find_all({"lawyer_id": lawyer_data.id})
-        # return bills
-        return handle_result(bill_data, schema=BillReadSchema, many=True)
-    return lawyer_data
+@token_required(model=LawyerModel)
+def view_all_bills(current_user):
+    # query all bills of logged in user based on the id
+    bill_data = bill_controller.find_all({"lawyer_id": current_user.id})
+    # return bills
+    return handle_result(bill_data, schema=BillReadSchema, many=True)
 
 
 # view bills for specific company created by logged in user
 @lawyer.route("/bill/company/<company>", methods=["GET"])
-def view_company_bills(company):
-    lawyer_data = lawyer_controller.sign_in(request.authorization)
-    if isinstance(lawyer_data, LawyerModel):
-        # query company bills of the logged in users
-        bill_data = bill_controller.find_all({"lawyer_id": lawyer_data.id, "company": company})
-        # return bills
-        return handle_result(bill_data, schema=BillReadSchema, many=True)
-    return lawyer_data
+@token_required(model=LawyerModel)
+def view_company_bills(current_user, company):
+    # query company bills of the logged in users
+    bill_data = bill_controller.find_all(
+        {"lawyer_id": current_user.id, "company": company})
+    # return bills
+    return handle_result(bill_data, schema=BillReadSchema, many=True)
 
 
 # create new bill
 @lawyer.route("/bill", methods=["POST"])
-# validate incoming data
+@token_required(model=LawyerModel)
 @validator(schema=BillCreateSchema)
-def create_bill():
-    lawyer_data = lawyer_controller.sign_in(request.authorization)
-    if isinstance(lawyer_data, LawyerModel):
-        data = request.json
-        # set lawyer_id of bill using the id of the current logged in user
-        data["lawyer_id"] = lawyer_data.id
-        # query all bills in database
-        query_bill = bill_controller.index()
-        bills = handle_result(query_bill, schema=BillReadSchema, many=True)
-        for bill in bills.json:
-            # remove id from bills data return
-            bill_id = bill.pop("id")
-            # compare incoming bill data to bills data within the database
-            if data == bill:
-                # bill is already available, set bill id to id already available
-                data["id"] = bill_id
-                continue
-                # insert data with id available with the database
-                # this helps to throw duplicate key error
-        bill_data = bill_controller.create(data)
-        # return response
-        return handle_result(bill_data, schema=BillReadSchema)
-    return lawyer_data
+def create_bill(current_user):
+    data = request.json
+    data["lawyer_id"] = current_user.id
+    # query all bills in database
+    query_bill = bill_controller.index()
+    bills = handle_result(query_bill, schema=BillReadSchema, many=True)
+    for bill in bills.json:
+        # remove id from bills data return
+        bill_id = bill.pop("id")
+        # compare incoming bill data to bills data within the database
+        if data == bill:
+            # bill is already available, set bill id to id already available
+            data["id"] = bill_id
+            continue
+            # insert data with id available with the database
+            # this helps to throw duplicate key error
+    bill_data = bill_controller.create(data)
+    # return response
+    return handle_result(bill_data, schema=BillReadSchema)
 
 
 # delete bill created by logged in user for specific company
 @lawyer.route("/bill/<company>", methods=["DELETE"])
-def delete_bill(company):
-    lawyer_data = lawyer_controller.sign_in(request.authorization)
-    if isinstance(lawyer_data, LawyerModel):
-        # delete company bill created by logged in user
-        delete_bill_info = bill_controller.delete({"lawyer_id": lawyer_data.id, "company": company})
-        return handle_result(delete_bill_info, schema=BillReadSchema,
-                             many=True)
-    return lawyer_data
+@token_required(model=LawyerModel)
+def delete_bill(current_user, company):
+    # delete company bill created by logged in user
+    delete_bill_info = bill_controller.delete(
+        {"lawyer_id": current_user.id, "company": company})
+    return handle_result(delete_bill_info, schema=BillReadSchema,
+                         many=True)
 
 
 # update bill created by logged in user
 @lawyer.route("/bill", methods=["PUT"])
+@token_required(model=LawyerModel)
 @validator(schema=BillUpdateSchema)
-def update():
-    lawyer_data = lawyer_controller.sign_in(request.authorization)
-    if isinstance(lawyer_data, LawyerModel):
-        query_info = request.args.to_dict()
-        # set lawyer_id of bill to logged in user id
-        query_info["lawyer_id"] = lawyer_data.id
-        obj_in = request.json
-        # update bill info
-        data = bill_controller.update(query_info, obj_in)
-        return handle_result(data, schema=BillReadSchema)
+def update(current_user):
+    query_info = request.args.to_dict()
+    # set lawyer_id of bill to logged in user id
+    query_info["lawyer_id"] = current_user.id
+    obj_in = request.json
+    # update bill info
+    data = bill_controller.update(query_info, obj_in)
+    return handle_result(data, schema=BillReadSchema)

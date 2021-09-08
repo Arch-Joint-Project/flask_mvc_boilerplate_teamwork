@@ -1,9 +1,12 @@
 from flask_testing import TestCase
 from app import create_app, db
 from app.models import AdminModel, LawyerModel, BillModel
-from datetime import datetime, date, time
+from datetime import datetime, date, time, timedelta
 from werkzeug.security import generate_password_hash
 from base64 import b64encode
+import jwt
+import os
+
 
 class BaseTestCase(TestCase):
     def create_app(self):
@@ -14,6 +17,7 @@ class BaseTestCase(TestCase):
         headers = {'Authorization': 'Basic %s' % b64encode(
             bytes(username + ':' + password, "utf-8")).decode("ascii")}
         return headers
+
 
     def setUp(self):
         """

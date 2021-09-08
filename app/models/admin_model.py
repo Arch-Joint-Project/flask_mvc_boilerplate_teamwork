@@ -1,8 +1,11 @@
 # local import
-from app import db, jw, create_app
+from app import db, create_app
 from .lawyer_model import LawyerModel
 # builtin imports
 from dataclasses import dataclass
+from flask import request, jsonify
+from functools import wraps
+import jwt
 
 lawyer_model = LawyerModel()
 lawyer_obj = lawyer_model.__class__.__name__
@@ -28,6 +31,9 @@ class AdminModel(db.Model):
     # forming relationship with the lawyer table using
     # through the lawyer model
     lawyer = db.relationship(lawyer_obj, backref='admin', lazy='dynamic')
+
+
+
 
 
 

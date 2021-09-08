@@ -22,7 +22,7 @@ class LawyerCreateSchema(LawyerSchema):
 class LawyerReadSchema(LawyerSchema):
     class Meta:
         fields = ["id", "admin_id", "name", "username", "email", "password"]
-        exclude = ["password"]
+        # exclude = ["password"]
 
 
 class LawyerSigninSchema(LawyerSchema):

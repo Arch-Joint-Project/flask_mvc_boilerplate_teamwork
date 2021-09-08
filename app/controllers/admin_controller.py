@@ -17,6 +17,10 @@ class AdminController:
         admin = self.admin_repository.create(data)
         return ServiceResult(Result(admin, 201))
 
+    def find(self, query_param):
+        lawyer = self.admin_repository.find(query_param)
+        return ServiceResult(Result(lawyer, 200))
+
     # basic authentication using username and password in request
     def sign_in(self, auth):
         if not auth or not auth["username"] or not auth["password"]:

@@ -5,7 +5,8 @@ from loguru import logger
 from flask import Flask, jsonify
 from flask_mongoengine import MongoEngine
 from sqlalchemy.exc import DBAPIError
-from app.extensions import db, migrate, ma, jw
+from app.extensions import db, migrate, ma
+import jwt
 
 from flask_swagger_ui import get_swaggerui_blueprint
 from werkzeug.exceptions import HTTPException
@@ -64,7 +65,6 @@ def register_extensions(flask_app):
         me.init_app(flask_app)
     elif flask_app.config["DB_ENGINE"] == "POSTGRES":
         db.init_app(flask_app)
-        jw.init_app(flask_app)
         from app import models
         migrate.init_app(flask_app, db)
         with flask_app.app_context():
