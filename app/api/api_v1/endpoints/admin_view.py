@@ -86,7 +86,6 @@ def signin_admin():
 @admin.route("/", methods=["GET"])
 @token_required(model=AdminModel)
 def view_all_admins(current_user):
-    print('this is the current user ', current_user)
     # get all admins within database
     admin_data = admin_controller.index()
     # return all admins

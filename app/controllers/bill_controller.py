@@ -1,7 +1,10 @@
+import datetime
+
 from app.core.result import Result
 from app.core.service_result import ServiceResult
 from app.repositories import BillRepository
 from collections import defaultdict
+from app.utils import create_time_object, create_date_object
 
 
 class BillController:
@@ -13,6 +16,9 @@ class BillController:
         return ServiceResult(Result(bill, 200))
 
     def create(self, data):
+        data["date"] = create_date_object(data["date"])
+        data["start_time"] = create_time_object(data["start_time"])
+        data["end_time"] = create_time_object(data["end_time"])
         bill = self.bill_repository.create(data)
         return ServiceResult(Result(bill, 201))
 
@@ -34,6 +40,9 @@ class BillController:
         return ServiceResult(Result(bill, 204))
 
     def update(self, query_info, obj_in):
+        obj_in["date"] = create_date_object(obj_in["date"])
+        obj_in["start_time"] = create_time_object(obj_in["start_time"])
+        obj_in["end_time"] = create_time_object(obj_in["end_time"])
         bill = self.bill_repository.update(query_info, obj_in)
         return ServiceResult(Result(bill, 200))
 

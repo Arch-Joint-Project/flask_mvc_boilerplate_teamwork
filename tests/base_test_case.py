@@ -18,6 +18,15 @@ class BaseTestCase(TestCase):
             bytes(username + ':' + password, "utf-8")).decode("ascii")}
         return headers
 
+    def create_token(self, id):
+        token = jwt.encode({
+            'id': id,
+            'exp': datetime.utcnow() + timedelta(minutes=30)
+        },
+            os.getenv("SECRET_KEY"),
+            algorithm="HS256"
+        )
+        return token
 
     def setUp(self):
         """
