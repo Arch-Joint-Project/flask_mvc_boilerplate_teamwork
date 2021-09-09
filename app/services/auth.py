@@ -35,8 +35,10 @@ def token_required(model: db.Model):
         def decorated(*args, **kwargs):
             token = None
             # jwt is passed in the request header
-            if 'x-access-token' in request.headers:
-                token = request.headers['x-access-token']
+            # if 'x-access-token' in request.headers:
+            if 'Authorization' in request.headers:
+                authorization_info = request.headers.get("Authorization")
+                token = authorization_info.split(" ")[1]
             # return 401 if token is not passed
             if not token:
                 return jsonify({'message': 'Token is missing !!'}), 401
