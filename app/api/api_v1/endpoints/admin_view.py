@@ -73,15 +73,14 @@ def view_all_admins(current_user):
 @token_required(model=AdminModel)
 @validator(schema=LawyerCreateSchema)
 def create_lawyer(current_user):
-    if current_user:
-        data = request.json
-        data["admin_id"] = current_user.id
-        # hash incoming password into database
-        data["password"] = generate_password_hash(data["password"],
-                                                  method="sha256")
-        # create lawyer in database
-        lawyer_data = lawyer_controller.create(data)
-        return handle_result(lawyer_data, schema=LawyerReadSchema)
+    data = request.json
+    data["admin_id"] = current_user.id
+    # hash incoming password into database
+    data["password"] = generate_password_hash(data["password"],
+                                              method="sha256")
+    # create lawyer in database
+    lawyer_data = lawyer_controller.create(data)
+    return handle_result(lawyer_data, schema=LawyerReadSchema)
 
 
 # view all lawyers in db

@@ -42,7 +42,6 @@ def signin_lawyer():
     return signin_response
 
 
-
 # view login in lawyer info
 @lawyer.route("/", methods=["GET"])
 @token_required(model=LawyerModel)
