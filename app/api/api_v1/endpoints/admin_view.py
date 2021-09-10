@@ -7,15 +7,14 @@ from app.schema import (
 )
 from app.controllers import AdminController, LawyerController, BillController
 from app.repositories import AdminRepository, LawyerRepository, BillRepository
-from app.services.auth import token_required
+from app.services.auth import token_required, sign_in
 from app.utils import validator
 from app.models import AdminModel
-from app.services import create_token, decode_token
 
 # third party imports
-from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.security import generate_password_hash
 import pinject
-from flask import Blueprint, request, jsonify, make_response
+from flask import Blueprint, request
 
 admin = Blueprint("admin", __name__)
 
@@ -55,31 +54,8 @@ def create_admin():
 @validator(schema=AdminSigninSchema)
 def signin_admin():
     auth = request.json
-    if not auth or not auth["username"] or not auth["password"]:
-        return jsonify(
-            {
-                "status": "error",
-                "error": "authentication required",
-                "msg": "no authentication information provided"
-            },
-            401,
-            {'WWW-Authenticate': 'Basic realm="Login required!"'}
-        )
-    admin_user = admin_controller.find({"username": auth["username"]})
-    admin_data = handle_result(admin_user, schema=AdminReadSchema).json
-    if check_password_hash(admin_data["password"], auth["password"]):
-        token = create_token(admin_data)
-        return make_response(jsonify({'token': token}), 200)
-    return make_response(
-        {
-            "status": "error",
-            "error": "verification failure",
-            "msg": "could not verify user"
-        },
-        {
-            'WWW-Authenticate': 'Basic realm="Login required!"'
-        }
-    )
+    signin_response = sign_in(auth, AdminModel)
+    return signin_response
 
 
 # view all admins in db
@@ -97,14 +73,15 @@ def view_all_admins(current_user):
 @token_required(model=AdminModel)
 @validator(schema=LawyerCreateSchema)
 def create_lawyer(current_user):
-    data = request.json
-    data["admin_id"] = current_user.id
-    # hash incoming password into database
-    data["password"] = generate_password_hash(data["password"],
-                                              method="sha256")
-    # create lawyer in database
-    lawyer_data = lawyer_controller.create(data)
-    return handle_result(lawyer_data, schema=LawyerReadSchema)
+    if current_user:
+        data = request.json
+        data["admin_id"] = current_user.id
+        # hash incoming password into database
+        data["password"] = generate_password_hash(data["password"],
+                                                  method="sha256")
+        # create lawyer in database
+        lawyer_data = lawyer_controller.create(data)
+        return handle_result(lawyer_data, schema=LawyerReadSchema)
 
 
 # view all lawyers in db
