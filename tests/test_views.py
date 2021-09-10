@@ -109,25 +109,25 @@ class TestAdminViews(BaseTestCase):
         assert response.json[0]["lawyer_id"] == 1
 
     #Test Case: #1 - Test that admin cannot access invoice generation route without token.
-    @pytest.mark.invoice_route_no_token
+    @pytest.mark.invoice
     def test_admin_access_get_company_invoice_no_token(self):
         #1.  admin logs into system
         baseUrl = "http://localhost:5000/api/admin/" # the base url.
-        testRoute = "bill/invoice<company>" # test route
-        forHeaders = {"Authorization": "Bearer " + None}  #No token passed.
+        testRoute = "bill/invoice/test_company_bill" # test route
+        forHeaders = {"Authorization": "Bearer " + ""}  #No token passed.
         response = self.client.get(baseUrl + testRoute,headers =forHeaders)
          # the response(GET) from the server should assert to 401 since no token provided.
         assert response.status_code == 401
 
     #Test Case #2: - Test that admin cannot access invoice generation route with invalid token.
-    @pytest.mark.invoice_route_invalid_token
+    @pytest.mark.invoice
     def test_admin_access_get_company_invoice_invalid_token(self):
         #1. admin logs into system
         baseUrl = "http://localhost:5000/api/admin/"  # the base url.
-        testRoute = "bill/invoice<company>"  # test route
+        testRoute = "bill/invoice/test_company_bill"  # test route
         buffer = "abcdefghijklmnopqrstuvwxyz" + "123456789"
         t = ''.join(choice(buffer) for i in range(len(buffer))) # generate some random strings.
-        invalidToken = base_test.create_token(1) + t # entry of more or less token ==> invalid.
+        invalidToken = create_token(1, "test_admin_username", "test_admin_email") + t # entry of more or less token ==> invalid.
         forHeaders = {"Authorization": "Bearer " + invalidToken}  # headers.
         response = self.client.get(
             baseUrl + testRoute,headers=forHeaders)  # @NOTE: headers where not passed.
@@ -135,12 +135,12 @@ class TestAdminViews(BaseTestCase):
         assert response.status_code == 401
 
     #Test Case: #3 - Confirm that admin can access invoice generation route with the valid token provided.
-    @pytest.mark.invoice_route_valid_token
+    @pytest.mark.invoice
     def test_admin_can_access_get_company_invoice_with_token_provided(self):
         # 1. admin logs into system.
          baseUrl = "http://localhost:5000/api/admin/" # the base url
-         testRoute = "bill/invoice<company>"  # test route
-         validToken = base_test.create_token(1)
+         testRoute = "bill/invoice/test_company_bill"  # test route
+         validToken = create_token(1, "test_admin_username", "test_admin_email")
          forHeaders = {"Authorization":"Bearer " + validToken} # headers.
          # 2. admin's token get passed.
          response = self.client.get(baseUrl + testRoute,headers=forHeaders)
@@ -148,22 +148,18 @@ class TestAdminViews(BaseTestCase):
          assert response.status_code == 200 or 201
 
     #Test Case: #4 - Confirm that admin can generate invoice
-    @pytest.mark.invoice_route_generate_invoice
+    @pytest.mark.invoice
     def test_admin_can_generate_invoice(self):
         #1. admin logs into system.
         baseUrl = "http://localhost:5000/api/admin/"  # the base url
-        testRoute = "bill/invoice<company>"  # test route
-        validToken = base_test.create_token(1)
+        testRoute = "bill/invoice/test_company_bill"  # test route
+        validToken = create_token(1, "test_admin_username", "test_admin_email")
         forHeaders = {"Authorization": "Bearer " + validToken}  # headers.
 
         # 2. admin's token get passed.
         response = self.client.get(baseUrl + testRoute, headers=forHeaders,)
         # the response from the server should be successfully since tokens are passed.
         assert response.status_code == 200 or 201
-
-        # print the invoice generated.
-        return response.json.values()
-
 
 
 
