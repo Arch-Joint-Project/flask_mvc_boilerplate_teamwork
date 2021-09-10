@@ -17,33 +17,6 @@ class LawyerController:
         lawyer = self.lawyer_repository.create(data)
         return ServiceResult(Result(lawyer, 201))
 
-    def sign_in(self, auth):
-        if not auth or not auth["username"] or not auth["password"]:
-            return jsonify(
-                {
-                    "status": "error",
-                    "error": "authentication required",
-                    "msg": "no authentication information provided"
-                },
-                401,
-                {'WWW-Authenticate': 'Basic realm="Login required!"'}
-            )
-        lawyer_user = self.lawyer_repository.find({"username": auth["username"]})
-        if check_password_hash(lawyer_user.password, auth["password"]):
-            # return authentication.verify_user(lawyer_user)
-            return lawyer_user
-        return make_response(
-            {
-                "status": "error",
-                "error": "verification failure",
-                "msg": "could not verify user"
-            },
-            401,
-            {
-                'WWW-Authenticate': 'Basic realm="Login required!"'
-            }
-        )
-
     def find(self, query_param):
         lawyer = self.lawyer_repository.find(query_param)
         return ServiceResult(Result(lawyer, 200))

@@ -1,11 +1,8 @@
 from flask_testing import TestCase
 from app import create_app, db
 from app.models import AdminModel, LawyerModel, BillModel
-from datetime import datetime, date, time, timedelta
+from datetime import date, time
 from werkzeug.security import generate_password_hash
-from base64 import b64encode
-import jwt
-import os
 
 
 class BaseTestCase(TestCase):
@@ -13,20 +10,13 @@ class BaseTestCase(TestCase):
         app = create_app("config.TestingConfig")
         return app
 
-    def auth(self, username, password):
-        headers = {'Authorization': 'Basic %s' % b64encode(
-            bytes(username + ':' + password, "utf-8")).decode("ascii")}
-        return headers
-
-    def create_token(self, id):
-        token = jwt.encode({
-            'id': id,
-            'exp': datetime.utcnow() + timedelta(minutes=30)
-        },
-            os.getenv("SECRET_KEY"),
-            algorithm="HS256"
-        )
-        return token
+    def sign_in(self, url, username, password):
+        data = {
+            "username": username,
+            "password": password
+        }
+        response = self.client.get(url, json=data)
+        return response
 
     def setUp(self):
         """

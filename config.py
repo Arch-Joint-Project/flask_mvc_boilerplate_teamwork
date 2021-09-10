@@ -38,7 +38,7 @@ class Config:
     # General
     DEBUG = False
     DEVELOPMENT = False
-    SECRET_KEY = "SECRET"
+    SECRET_KEY = os.getenv("SECRET_KEY")
     FLASK_RUN_PORT = 6000
     TESTING = False
     LOGFILE = "log.log"
