@@ -71,6 +71,7 @@ def create_admin():
 @validator(schema=AdminSigninSchema)
 def signin_admin():
     auth = request.json
+    print(auth)
     signin_response = sign_in(auth, AdminModel)
     return signin_response
 
