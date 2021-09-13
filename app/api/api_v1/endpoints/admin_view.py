@@ -179,8 +179,11 @@ def get_lawyer_bills(current_user, lawyer_username):
     # query lawyer info from username provided
     query_response = lawyer_controller.find({"username": lawyer_username})
     lawyer = handle_result(query_response, schema=LawyerReadSchema).json
+
+
     # query bills based on id of queried lawyer
     bill_data = bill_controller.find_all({"lawyer_id": lawyer["id"]})
+
     return handle_result(bill_data, schema=BillReadSchema, many=True)
 
 
