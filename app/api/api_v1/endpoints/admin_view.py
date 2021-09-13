@@ -10,8 +10,14 @@ from app.schema import (
     LawyerReadSchema, LawyerCreateSchema,
     BillReadSchema, AdminSigninSchema
 )
-from app.controllers import AdminController, LawyerController, BillController
-from app.repositories import AdminRepository, LawyerRepository, BillRepository
+from app.controllers import (
+    AdminController, LawyerController,
+    BillController, AdminRedisController
+)
+from app.repositories import (
+    AdminRepository, LawyerRepository,
+    BillRepository, AdminRedisRepository
+)
 from app.services.auth import token_required, sign_in
 from app.utils import validator
 from app.models import AdminModel
@@ -19,7 +25,7 @@ from app.models import AdminModel
 # third party imports
 from werkzeug.security import generate_password_hash
 import pinject
-from flask import Blueprint, request
+from flask import Blueprint, request, jsonify
 
 admin = Blueprint("admin", __name__)
 
@@ -41,15 +47,21 @@ obj_graph_bill = pinject.new_object_graph(modules=None,
 bill_controller = obj_graph_bill.provide(BillController)
 
 # lawyer redis dependency injection
-obj_graph_bill = pinject.new_object_graph(modules=None,
+obj_graph_lawyer_redis = pinject.new_object_graph(modules=None,
                                           classes=[LawyerRedisController,
                                                    LawyerRedisRepository])
 
 
 # lawyer redis.
-lawyer_redis_service_controller = obj_graph_bill.provide(LawyerRedisController)
+lawyer_redis_service_controller = obj_graph_lawyer_redis.provide(LawyerRedisController)
 
 
+
+obj_graph_admin_redis = pinject.new_object_graph(modules=None,
+                                          classes=[AdminRedisController,
+                                                   AdminRedisRepository])
+
+admin_redis_controller = obj_graph_admin_redis.provide(AdminRedisController)
 
 
 # create new admin
@@ -61,7 +73,9 @@ def create_admin():
     data["password"] = generate_password_hash(data["password"],
                                               method="sha256")
     admin_data = admin_controller.create(data)
-     # as we go into
+    # cache admin data
+    # add 'admin' to the key to serve as a pattern for retrieving all records
+    admin_redis_controller.set("admin_" + data["username"], json.dumps(data))
     return handle_result(admin_data, schema=AdminReadSchema)
 
 
@@ -79,11 +93,13 @@ def signin_admin():
 @admin.route("/", methods=["GET"])
 @token_required(model=AdminModel)
 def view_all_admins(current_user):
-    # get all admins within database
-    admin_data = admin_controller.index()
-    # return all admins
-     # return from redis server.
-
+    # retrieve all admins using the 'admin' as a pattern
+    admin_data = admin_redis_controller.get_all("admin_*")
+    check_result = handle_result(admin_data)
+    # check if data exist in cache
+    if len(check_result.json) == 0:
+        # if not contact server
+        admin_data = admin_controller.index()
     return handle_result(admin_data, schema=AdminReadSchema, many=True)
 
 
@@ -97,14 +113,10 @@ def create_lawyer(current_user):
     # hash incoming password into database
     data["password"] = generate_password_hash(data["password"],
                                               method="sha256")
-    # create lawyer in database
     lawyer_data = lawyer_controller.create(data)
-
-    # backup data or cache in redis server.
-    for_redis_name = data["username"]
-    for_redis_data = json.dumps(data)
-    lawyer_redis_service_controller.set(for_redis_name,for_redis_data)
-
+    # cache data
+    # add 'lawyer' to the key to serve as a pattern for retrieving all records
+    lawyer_redis_service_controller.set("lawyer_" + data["username"], json.dumps(data))
     return handle_result(lawyer_data, schema=LawyerReadSchema)
 
 
@@ -112,7 +124,13 @@ def create_lawyer(current_user):
 @admin.route("/lawyer", methods=["GET"])
 @token_required(model=AdminModel)
 def view_all_lawyers(current_user):
-    lawyer_data = lawyer_controller.index()
+    # retrieve all lawyers using 'lawyer' as a pattern
+    lawyer_data = lawyer_redis_service_controller.get_all("lawyer_*")
+    check_result = handle_result(lawyer_data)
+    # check if data exist in cache
+    if len(check_result.json) == 0:
+        # if not contact server
+        lawyer_data = lawyer_controller.index()
     return handle_result(lawyer_data, schema=LawyerReadSchema, many=True)
 
 
@@ -122,7 +140,10 @@ def view_all_lawyers(current_user):
 @token_required(model=AdminModel)
 def view_lawyer(current_user, username):
     # query lawyer using username provided
-    lawyer_data = lawyer_controller.find({"username": username})
+    lawyer_data = lawyer_redis_service_controller.get("lawyer_" + username)
+    check_result = handle_result(lawyer_data)
+    if check_result.json is None:
+        lawyer_data = lawyer_controller.find({"username": username})
     # return query lawyer to user
     return handle_result(lawyer_data, schema=LawyerReadSchema)
 

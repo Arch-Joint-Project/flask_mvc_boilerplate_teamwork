@@ -41,6 +41,23 @@ class RedisService(CacheServiceInterface):
         except RedisError:
             raise HTTPException(status_code=500, description="Error getting from cache")
 
+    def get_all(self, pattern):
+        """
+
+        :param pattern: {string} key pattern to retrieve
+        :return: {Any}
+        """
+        try:
+            data = redis_conn.keys(pattern)
+            if data:
+                cached_data = []
+                for key in data:
+                    cached_data.append(self.get(key))
+                return cached_data
+            return data
+        except RedisError:
+            raise HTTPException(status_code=500, description="Error getting from cache")
+
     def delete(self, name):
         """
         :param name: {string} name of the object you want to delete
