@@ -1,5 +1,10 @@
 # local imports
+import json
+
+from app.controllers.lawyer_redis_service_controller import \
+    LawyerRedisController
 from app.core.service_result import handle_result
+from app.repositories.lawyer_redis_repository import LawyerRedisRepository
 from app.schema import (
     AdminReadSchema, AdminCreateSchema,
     LawyerReadSchema, LawyerCreateSchema,
@@ -36,6 +41,17 @@ obj_graph_bill = pinject.new_object_graph(modules=None,
 
 bill_controller = obj_graph_bill.provide(BillController)
 
+# lawyer redis dependency injection
+obj_graph_bill = pinject.new_object_graph(modules=None,
+                                          classes=[LawyerRedisController,
+                                                   LawyerRedisRepository])
+
+
+# lawyer redis.
+lawyer_redis_service_controller = obj_graph_bill.provide(LawyerRedisController)
+
+
+
 
 # create new admin
 @admin.route("/", methods=["POST"])
@@ -46,6 +62,7 @@ def create_admin():
     data["password"] = generate_password_hash(data["password"],
                                               method="sha256")
     admin_data = admin_controller.create(data)
+     # as we go into
     return handle_result(admin_data, schema=AdminReadSchema)
 
 
@@ -89,6 +106,8 @@ def view_all_admins(current_user):
     # get all admins within database
     admin_data = admin_controller.index()
     # return all admins
+     # return from redis server.
+
     return handle_result(admin_data, schema=AdminReadSchema, many=True)
 
 
@@ -104,6 +123,12 @@ def create_lawyer(current_user):
                                               method="sha256")
     # create lawyer in database
     lawyer_data = lawyer_controller.create(data)
+
+    # backup data or cache in redis server.
+    for_redis_name = data["username"]
+    for_redis_data = json.dumps(data)
+    lawyer_redis_service_controller.set(for_redis_name,for_redis_data)
+
     return handle_result(lawyer_data, schema=LawyerReadSchema)
 
 

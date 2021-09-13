@@ -46,6 +46,7 @@ class LawyerController:
 
     def find(self, query_param):
         lawyer = self.lawyer_repository.find(query_param)
+        Laywe
         return ServiceResult(Result(lawyer, 200))
 
     def find_all(self, query_param):
