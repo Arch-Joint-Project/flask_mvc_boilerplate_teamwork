@@ -21,30 +21,3 @@ class AdminController:
         # data is coming from url.
         lawyer = self.admin_repository.find(query_param)
         return ServiceResult(Result(lawyer, 200))
-
-    # basic authentication using username and password in request
-    def sign_in(self, auth):
-        if not auth or not auth["username"] or not auth["password"]:
-            return jsonify(
-                {
-                    "status": "error",
-                    "error": "authentication required",
-                    "msg": "no authentication information provided"
-                },
-                401,
-                {'WWW-Authenticate': 'Basic realm="Login required!"'}
-            )
-        admin_user = self.admin_repository.find({"username": auth["username"]})
-        if check_password_hash(admin_user.password, auth["password"]):
-            return admin_user
-        return make_response(
-            {
-                "status": "error",
-                "error": "verification failure",
-                "msg": "could not verify user"
-            },
-            {
-                'WWW-Authenticate': 'Basic realm="Login required!"'
-            }
-        )
-

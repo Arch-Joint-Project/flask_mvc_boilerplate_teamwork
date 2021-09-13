@@ -19,6 +19,7 @@ from app.services import decode_token, create_token
 import pinject
 from flask import Blueprint, request, jsonify, make_response
 from app.models import LawyerModel
+from app.services import sign_in
 
 lawyer = Blueprint("lawyer", __name__)
 
@@ -50,32 +51,8 @@ lawyer_redis_service_controller = obj_graph_bill.provide(LawyerRedisController)
 @validator(schema=LawyerSigninSchema)
 def signin_lawyer():
     auth = request.json
-    if not auth or not auth["username"] or not auth["password"]:
-        return jsonify(
-            {
-                "status": "error",
-                "error": "authentication required",
-                "msg": "no authentication information provided"
-            },
-            401,
-            {'WWW-Authenticate': 'Basic realm="Login required!"'}
-        )
-    query_response = lawyer_controller.find({"username": auth["username"]})
-    lawyer_info = handle_result(query_response, schema=LawyerReadSchema).json
-    print(lawyer_info)
-    if check_password_hash(lawyer_info["password"], auth["password"]):
-        token = create_token(lawyer_info)
-        return make_response(jsonify({'token': token}), 200)
-    return make_response(
-        {
-            "status": "error",
-            "error": "verification failure",
-            "msg": "could not verify user"
-        },
-        {
-            'WWW-Authenticate': 'Basic realm="Login required!"'
-        }
-    )
+    signin_response = sign_in(auth, LawyerModel)
+    return signin_response
 
 
 # view login in lawyer info

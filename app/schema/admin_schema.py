@@ -21,6 +21,7 @@ class AdminCreateSchema(AdminSchema):
 class AdminReadSchema(AdminSchema):
     class Meta:
         fields = ["id", "name", "username", "email", "password"]
+        load_only = ["password"]
 
 
 class AdminSigninSchema(AdminSchema):
