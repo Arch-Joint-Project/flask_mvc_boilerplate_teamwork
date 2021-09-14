@@ -32,8 +32,9 @@ admin = Blueprint("admin", __name__)
 
 obj_graph_admin = pinject.new_object_graph(modules=None,
                                            classes=[AdminController,
-                                                    AdminRepository])
-admin_controller = obj_graph_admin.provide(AdminController)
+                                                    AdminRepository,RedisService]) # Admin depends on RedisService type.
+
+admin_controller = obj_graph_admin.provide(AdminController) # admin controller created with all objects injected.
 
 obj_graph_lawyer = pinject.new_object_graph(modules=None,
                                             classes=[LawyerController,
@@ -48,6 +49,7 @@ obj_graph_bill = pinject.new_object_graph(modules=None,
 
 bill_controller = obj_graph_bill.provide(BillController)
 
+'''
 # lawyer redis dependency injection
 obj_graph_lawyer_redis = pinject.new_object_graph(modules=None,
                                           classes=[LawyerRedisController,
@@ -64,7 +66,7 @@ obj_graph_admin_redis = pinject.new_object_graph(modules=None,
                                                    AdminRedisRepository])
 
 admin_redis_controller = obj_graph_admin_redis.provide(AdminRedisController)
-
+'''
 
 # create new admin
 @admin.route("/", methods=["POST"])
@@ -74,13 +76,11 @@ def create_admin():
     data = request.json
     data["password"] = generate_password_hash(data["password"],
                                               method="sha256")
-    admin_data = admin_controller.create(data)
-    # cache admin data
-    # add 'admin' to the key to serve as a pattern for retrieving all records
-    admin_redis_controller.set("admin_" + data["username"], json.dumps(data))
+    admin_data = admin_controller.create(data) # create an admin. ->pass to CRUD then pass to Redis implemented internally.
     return handle_result(admin_data, schema=AdminReadSchema)
 
 
+'''
 # signin admin
 @admin.route("/signin", methods=["POST"])
 # validate incoming data
@@ -96,7 +96,7 @@ def signin_admin():
 @token_required(model=AdminModel)
 def view_all_admins(current_user):
     # retrieve all admins using the 'admin' as a pattern
-    admin_data = admin_redis_controller.get_all("admin_*")
+    admin_data = admin_controller
     check_result = handle_result(admin_data)
     # check if data exist in cache
     if len(check_result.json) == 0:
@@ -118,7 +118,7 @@ def create_lawyer(current_user):
     lawyer_data = lawyer_controller.create(data)
     # cache data
     # add 'lawyer' to the key to serve as a pattern for retrieving all records
-    lawyer_redis_service_controller.set("lawyer_" + data["username"], json.dumps(data))
+    #lawyer_redis_service_controller.set("lawyer_" + data["username"], json.dumps(data))
     return handle_result(lawyer_data, schema=LawyerReadSchema)
 
 
@@ -127,7 +127,7 @@ def create_lawyer(current_user):
 @token_required(model=AdminModel)
 def view_all_lawyers(current_user):
     # retrieve all lawyers using 'lawyer' as a pattern
-    lawyer_data = lawyer_redis_service_controller.get_all("lawyer_*")
+    #lawyer_data = lawyer_redis_service_controller.get_all("lawyer_*")
     check_result = handle_result(lawyer_data)
     # check if data exist in cache
     if len(check_result.json) == 0:
@@ -142,12 +142,12 @@ def view_all_lawyers(current_user):
 @token_required(model=AdminModel)
 def view_lawyer(current_user, username):
     # query lawyer using username provided
-    lawyer_data = lawyer_redis_service_controller.get(username)
+    #lawyer_data = lawyer_redis_service_controller.get(username)
     cache_result = handle_result(lawyer_data)
     if cache_result.json is None:
         lawyer_data = lawyer_controller.find({"username": username})
         cache_data = handle_result(lawyer_data, schema=LawyerReadSchema).json
-        lawyer_redis_service_controller.set(username, json.dumps(cache_data))
+        #lawyer_redis_service_controller.set(username, json.dumps(cache_data))
     # return query lawyer to user
     return handle_result(lawyer_data, schema=LawyerReadSchema)
 
@@ -205,3 +205,4 @@ def get_company_bills(current_user, company):
 def get_company_invoice(current_user, company):
     bill_data = bill_controller.generate_invoice({"company": company})
     return handle_result(bill_data)
+'''

@@ -21,3 +21,8 @@ class AdminController:
         # data is coming from url.
         lawyer = self.admin_repository.find(query_param)
         return ServiceResult(Result(lawyer, 200))
+
+    def find_by_id(self, obj_id:int): # find admin by id.
+        admin =self.admin_repository.find_by_id(obj_id)
+        return ServiceResult(Result(admin,200))
+

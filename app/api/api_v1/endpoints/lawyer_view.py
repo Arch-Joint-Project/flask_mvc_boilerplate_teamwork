@@ -20,12 +20,13 @@ import pinject
 from flask import Blueprint, request, jsonify, make_response
 from app.models import LawyerModel
 from app.services import sign_in
+from app.services import RedisService # import redis service
 
 lawyer = Blueprint("lawyer", __name__)
 
 obj_graph_1 = pinject.new_object_graph(modules=None,
                                        classes=[LawyerController,
-                                                LawyerRepository])
+                                                LawyerRepository,RedisService])
 
 obj_graph_2 = pinject.new_object_graph(modules=None,
                                        classes=[BillController,
@@ -41,10 +42,11 @@ obj_graph_bill = pinject.new_object_graph(modules=None,
 
 
 # lawyer redis.
-lawyer_redis_service_controller = obj_graph_bill.provide(LawyerRedisController)
+#lawyer_redis_service_controller = obj_graph_bill.provide(LawyerRedisController)
 
 
 
+'''
 # signin lawyer
 @lawyer.route("/signin", methods=["POST"])
 # validate incoming data
@@ -54,7 +56,7 @@ def signin_lawyer():
     signin_response = sign_in(auth, LawyerModel)
     return signin_response
 
-
+'''
 # view login in lawyer info
 @lawyer.route("/", methods=["GET"])
 @token_required(model=LawyerModel)
@@ -65,6 +67,7 @@ def index(current_user):
     return handle_result(lawyer_data, schema=LawyerReadSchema)
 
 
+'''
 # view bills created by logged in user
 @lawyer.route("/bill", methods=["GET"])
 @token_required(model=LawyerModel)
@@ -134,3 +137,4 @@ def update(current_user):
     # update bill info
     data = bill_controller.update(query_info, obj_in)
     return handle_result(data, schema=BillReadSchema)
+'''
