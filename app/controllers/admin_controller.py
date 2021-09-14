@@ -1,8 +1,6 @@
 from app.core.result import Result
 from app.core.service_result import ServiceResult
 from app.repositories import AdminRepository
-from flask import make_response, jsonify
-from werkzeug.security import check_password_hash
 
 
 class AdminController:

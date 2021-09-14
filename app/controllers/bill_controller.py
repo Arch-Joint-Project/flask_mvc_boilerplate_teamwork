@@ -33,10 +33,7 @@ class BillController:
         return ServiceResult(Result(bill, 200))
 
     def delete(self, query_params):
-        bill_info = self.bill_repository.find(query_params)
-        print(bill_info.id)
-        obj_id = bill_info.id
-        bill = self.bill_repository.delete(obj_id)
+        bill = self.bill_repository.delete(query_params)
         return ServiceResult(Result(bill, 204))
 
     def update(self, query_info, obj_in):
