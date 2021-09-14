@@ -1,10 +1,8 @@
 # local imports
 import json
 
-from app.controllers.lawyer_redis_service_controller import \
-    LawyerRedisController
+
 from app.core.service_result import handle_result
-from app.repositories.lawyer_redis_repository import LawyerRedisRepository
 from app.schema import (
     LawyerReadSchema, BillReadSchema,
     BillCreateSchema, BillUpdateSchema,
@@ -36,15 +34,6 @@ obj_graph_2 = pinject.new_object_graph(modules=None,
 
 lawyer_controller = obj_graph_1.provide(LawyerController)
 bill_controller = obj_graph_2.provide(BillController)
-
-# lawyer redis dependency injection
-obj_graph_bill = pinject.new_object_graph(modules=None,
-                                          classes=[LawyerRedisController,
-                                                   LawyerRedisRepository])
-
-
-# lawyer redis.
-#lawyer_redis_service_controller = obj_graph_bill.provide(LawyerRedisController)
 
 
 

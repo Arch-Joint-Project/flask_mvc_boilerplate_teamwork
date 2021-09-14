@@ -1,10 +1,7 @@
 # local imports
 import json
 
-from app.controllers.lawyer_redis_service_controller import \
-    LawyerRedisController
 from app.core.service_result import handle_result
-from app.repositories.lawyer_redis_repository import LawyerRedisRepository
 from app.schema import (
     AdminReadSchema, AdminCreateSchema,
     LawyerReadSchema, LawyerCreateSchema,
@@ -12,11 +9,11 @@ from app.schema import (
 )
 from app.controllers import (
     AdminController, LawyerController,
-    BillController, AdminRedisController
+    BillController
 )
 from app.repositories import (
     AdminRepository, LawyerRepository,
-    BillRepository, AdminRedisRepository
+    BillRepository
 )
 from app.services import RedisService
 from app.services.auth import token_required, sign_in

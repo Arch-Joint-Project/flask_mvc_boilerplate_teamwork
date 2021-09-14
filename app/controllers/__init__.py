@@ -1,5 +1,3 @@
 from .admin_controller import AdminController
 from .lawyer_controller import LawyerController
 from .bill_controller import BillController
-from .admin_redis_controller import AdminRedisController
-from .lawyer_redis_service_controller import LawyerRedisRepository
