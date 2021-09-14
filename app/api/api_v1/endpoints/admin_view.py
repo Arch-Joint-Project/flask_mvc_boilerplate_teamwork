@@ -140,10 +140,12 @@ def view_all_lawyers(current_user):
 @token_required(model=AdminModel)
 def view_lawyer(current_user, username):
     # query lawyer using username provided
-    lawyer_data = lawyer_redis_service_controller.get("lawyer_" + username)
-    check_result = handle_result(lawyer_data)
-    if check_result.json is None:
+    lawyer_data = lawyer_redis_service_controller.get(username)
+    cache_result = handle_result(lawyer_data)
+    if cache_result.json is None:
         lawyer_data = lawyer_controller.find({"username": username})
+        cache_data = handle_result(lawyer_data, schema=LawyerReadSchema).json
+        lawyer_redis_service_controller.set(username, json.dumps(cache_data))
     # return query lawyer to user
     return handle_result(lawyer_data, schema=LawyerReadSchema)
 

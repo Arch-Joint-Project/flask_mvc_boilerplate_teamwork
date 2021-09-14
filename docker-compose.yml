@@ -13,6 +13,7 @@ services:
       DB_PASSWORD: ${DB_PASSWORD}
       FLASK_ENV: ${FLASK_ENV}
       DEBUG: ${DEBUG}
+      REDIS_SERVER: ${REDIS_SERVER}
     command: 'flask run --host=0.0.0.0 --port=5000'
     ports:
       - 8000:5000
@@ -31,3 +32,8 @@ services:
       - $PWD/.dbdata:/var/lib/postgres
     ports:
       - 5430:5432
+  redis:
+      image: 'redis:4-alpine'
+      command: redis-server
+      ports:
+          - '6379:6379'
