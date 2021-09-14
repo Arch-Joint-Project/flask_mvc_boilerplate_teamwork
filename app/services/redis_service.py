@@ -18,7 +18,7 @@ class RedisService(CacheServiceInterface):
         """
 
         :param name: {string} name of the object you want to set
-        :param data: {Any} the object you want to set
+        :param data: {String} the object you want to set
         :return: {None}
         """
         try:
@@ -67,3 +67,27 @@ class RedisService(CacheServiceInterface):
             redis_conn.delete(name)
         except RedisError:
             raise HTTPException(status_code=500, description="Error deleting from cache")
+
+
+"/api/v1/lawyers"
+# check if the data exists in redis
+# retreive from database
+# save in redis
+
+# updates, deletes a lawyer
+# check if all lawyers exist in redis
+# find the lawyer
+# if delete, remove the lawyer from the list
+# if update, update the lawyer in list
+# save to redis again
+
+# get all lawyers from redis
+# append the new object to the list
+# save to redis
+
+
+# for a single lawyer instance
+# find if the instance exists
+# delete key in redis if exists
+# update in database
+# save to redis

@@ -1,0 +1,12 @@
+FLASK_ENV=development
+DB_USER=admin
+DB_NAME=dev
+#DEV_DB_HOST=db # host for running app in docker
+DEV_DB_HOST=localhost # host for running app locally
+DB_PASSWORD=admin
+DB_PORT=5432
+DB_ENGINE=POSTGRES
+SECRET_KEY=thisisthesecretkey
+REDIS_SERVER=localhost # host for running app locally
+#REDIS_SERVER=redis # host for running app in docker
+

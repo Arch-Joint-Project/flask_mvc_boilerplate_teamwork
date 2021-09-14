@@ -18,6 +18,7 @@ from app.repositories import (
     AdminRepository, LawyerRepository,
     BillRepository, AdminRedisRepository
 )
+from app.services import RedisService
 from app.services.auth import token_required, sign_in
 from app.utils import validator
 from app.models import AdminModel
@@ -36,7 +37,8 @@ admin_controller = obj_graph_admin.provide(AdminController)
 
 obj_graph_lawyer = pinject.new_object_graph(modules=None,
                                             classes=[LawyerController,
-                                                     LawyerRepository])
+                                                     LawyerRepository,
+                                                     RedisService])
 
 lawyer_controller = obj_graph_lawyer.provide(LawyerController)
 
