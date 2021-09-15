@@ -9,6 +9,8 @@ from app.services import RedisService
 class LawyerRepository(SQLBaseRepository):
     model = LawyerModel
 
+
+
     # def __init__(self, redis_service: RedisService):
     #     self.redis_service = redis_service
     #     super().__init__()
