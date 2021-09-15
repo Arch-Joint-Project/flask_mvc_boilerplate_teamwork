@@ -77,7 +77,7 @@ def create_admin():
     return handle_result(admin_data, schema=AdminReadSchema)
 
 
-'''
+
 # signin admin
 @admin.route("/signin", methods=["POST"])
 # validate incoming data
@@ -88,7 +88,7 @@ def signin_admin():
     signin_response = sign_in(auth, AdminModel)
     return signin_response
 
-
+'''
 # view all admins in db
 @admin.route("/", methods=["GET"])
 @token_required(model=AdminModel)
