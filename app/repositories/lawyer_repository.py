@@ -8,10 +8,10 @@ from app.schema import LawyerReadSchema
 
 lawyer_schema = LawyerReadSchema()
 
+
 class LawyerRepository(SQLBaseRepository):
     model = LawyerModel
 
-<<<<<<< HEAD
     def __init__(self, redis_service: RedisService):
         self.redis_service = redis_service
         super().__init__()

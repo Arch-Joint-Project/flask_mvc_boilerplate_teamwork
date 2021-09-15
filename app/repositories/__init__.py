@@ -1,5 +1,3 @@
 from .admin_repository import AdminRepository
 from .lawyer_repository import LawyerRepository
 from .bill_repository import BillRepository
-from .admin_redis_repository import AdminRedisRepository
-from .lawyer_redis_repository import LawyerRedisRepository

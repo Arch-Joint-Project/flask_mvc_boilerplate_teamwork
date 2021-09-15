@@ -10,6 +10,7 @@ from app.controllers import (
 from app.repositories import (
     AdminRepository
 )
+from app.services import RedisService
 from app.services.auth import token_required, sign_in
 from app.utils import validator
 from app.models import AdminModel
@@ -23,7 +24,7 @@ admin = Blueprint("admin", __name__)
 
 obj_graph_admin = pinject.new_object_graph(modules=None,
                                            classes=[AdminController,
-                                                    AdminRepository])
+                                                    AdminRepository, RedisService])
 admin_controller = obj_graph_admin.provide(AdminController)
 
 
@@ -59,7 +60,3 @@ def view_admins(current_user):
             "status": "error",
             "error": "operation unauthorized"
         })
-<<<<<<< HEAD
-=======
-
->>>>>>> e6d742ee430f316532269953faeca21a2833938d

@@ -16,12 +16,6 @@ class BillRepository(SQLBaseRepository):
         self.redis_service = redis_service
         super(BillRepository,self).__init__()
 
-    def index(self):
-        cache_data = []
-        result = super(BillRepository, self).index()
-        print(result)
-        return result
-
     def create(self, obj_in):
         result = super(BillRepository, self).create(obj_in)
         bill_info = bill_schema.dumps(result)

@@ -14,7 +14,7 @@ class AdminSchema(Schema):
 
 class AdminCreateSchema(AdminSchema):
     class Meta:
-        fields = ["id", "name", "username", "email", "password",t]
+        fields = ["id", "name", "username", "email", "password"]
         exclude = ["id"]
 
 

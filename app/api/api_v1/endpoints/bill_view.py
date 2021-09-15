@@ -31,12 +31,10 @@ def index(current_user):
     user = AdminModel.query.filter_by(**current_user).first()
     if user:
         bill_data = bill_controller.index()
-        return handle_result(bill_data, schema=BillReadSchema, many=True)
     else:
-        return jsonify({
-            "status": "error",
-            "error": "operation unauthorized"
-        })
+        bill_data = bill_controller.find_all(
+            {"lawyer_id": current_user["id"]})
+    return handle_result(bill_data, schema=BillReadSchema, many=True)
 
 
 # view all bills created in the system
@@ -45,14 +43,20 @@ def index(current_user):
 def view_bill(current_user):
     # check if current user is admin
     user = AdminModel.query.filter_by(**current_user).first()
+    query_param = request.args.to_dict()
     if user:
         # query all bills in table
-        bill_data = bill_controller.find(query_param)
+        if query_param:
+            bill_data = bill_controller.find(query_param)
+        else:
+            bill_data = bill_controller.index()
+            return handle_result(bill_data, schema=BillReadSchema, many=True)
     # current user is lawyer
     else:
+        query_param["lawyer_id"] = current_user["id"]
         # query bill table based on id
-        bill_data = bill_controller.find_all({"lawyer_id": current_user["id"]})
-    return handle_result(bill_data, schema=BillReadSchema, many=True)
+        bill_data = bill_controller.find(query_param)
+    return handle_result(bill_data, schema=BillReadSchema)
 
 
 @bill.route("/company/<company>", methods=["GET"])
