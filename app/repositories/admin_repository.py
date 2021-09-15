@@ -1,4 +1,5 @@
 # local imports
+import dataclasses
 import json
 
 from app.core.repository import SQLBaseRepository
@@ -16,7 +17,7 @@ class AdminRepository(SQLBaseRepository):
 
     def create(self, obj_in):
         result = super(AdminRepository, self).create(obj_in) # pass data to CRUD
-        data = json.dumps(result) # return pass data to json string
+        data = json.dumps(dataclasses.asdict(result)) # return pass data to json string
         self.redis_service.set(f"admin__{result.id}", data) # insert into redis
         return result
 

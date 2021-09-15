@@ -1,4 +1,5 @@
 # local imports
+import dataclasses
 import json
 
 from app.core.repository import SQLBaseRepository
@@ -18,7 +19,7 @@ class LawyerRepository(SQLBaseRepository):
 
     def create(self, obj_in):
         result = super(LawyerRepository, self).create(obj_in)
-        data = json.dumps(result)
+        data = json.dumps(dataclasses.asdict(result)) # return pass data to json string
         self.redis_service.set(f"lawyer__{result.id}", data)
         return result
 
