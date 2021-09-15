@@ -9,6 +9,7 @@ from app.controllers import LawyerController
 from app.repositories import LawyerRepository
 from app.services.auth import token_required
 from app.utils import validator
+from app.services import RedisService
 
 # third party imports
 import pinject
@@ -21,7 +22,7 @@ lawyer = Blueprint("lawyer", __name__)
 
 obj_graph = pinject.new_object_graph(modules=None,
                                      classes=[LawyerController,
-                                              LawyerRepository])
+                                              LawyerRepository, RedisService])
 
 lawyer_controller = obj_graph.provide(LawyerController)
 
@@ -64,6 +65,6 @@ def view_lawyers(current_user):
         lawyer_data = lawyer_controller.index()
         return handle_result(lawyer_data, schema=LawyerReadSchema, many=True)
     else:
-        lawyer_data = lawyer_controller.find({"id": current_user["id"]})
+        lawyer_data = lawyer_controller.find_by_id(current_user["id"])
         # return info
         return handle_result(lawyer_data, schema=LawyerReadSchema)

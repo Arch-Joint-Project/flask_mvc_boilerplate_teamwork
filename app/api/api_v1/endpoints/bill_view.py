@@ -7,6 +7,7 @@ from app.schema import (
 
 from app.controllers import BillController
 from app.repositories import BillRepository
+from app.services import RedisService
 from app.services.auth import token_required
 from app.utils import validator
 
@@ -19,19 +20,34 @@ bill = Blueprint("bill", __name__)
 
 obj_graph = pinject.new_object_graph(modules=None,
                                      classes=[BillController,
-                                              BillRepository])
+                                              BillRepository, RedisService])
 bill_controller = obj_graph.provide(BillController)
 
 
-# view all bills created in the system
 @bill.route("/", methods=["GET"])
 @token_required
-def view_bills(current_user):
+def index(current_user):
+    # check if current user is admin
+    user = AdminModel.query.filter_by(**current_user).first()
+    if user:
+        bill_data = bill_controller.index()
+        return handle_result(bill_data, schema=BillReadSchema, many=True)
+    else:
+        return jsonify({
+            "status": "error",
+            "error": "operation unauthorized"
+        })
+
+
+# view all bills created in the system
+@bill.route("/search", methods=["GET"])
+@token_required
+def view_bill(current_user):
     # check if current user is admin
     user = AdminModel.query.filter_by(**current_user).first()
     if user:
         # query all bills in table
-        bill_data = bill_controller.index()
+        bill_data = bill_controller.find(query_param)
     # current user is lawyer
     else:
         # query bill table based on id
@@ -94,6 +110,11 @@ def delete_bill(current_user, company):
     if user:
         delete_bill_info = bill_controller.delete(
             {"lawyer_id": current_user["id"], "company": company})
+        response = handle_result(delete_bill_info)
+        if response.status_code == 204:
+            return jsonify({
+                "status": "operation successful"
+            })
         return handle_result(delete_bill_info)
     else:
         return jsonify({
