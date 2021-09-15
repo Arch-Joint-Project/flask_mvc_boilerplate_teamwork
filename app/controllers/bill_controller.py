@@ -22,10 +22,12 @@ class BillController:
         bill = self.bill_repository.create(data)
         return ServiceResult(Result(bill, 201))
 
-    def find(self, obj_id):
-        bill = self.bill_repository.find(obj_id)
-        lawyer = bill.lawyer.name
-        print(lawyer)
+    def find(self, query_params):
+        bill = self.bill_repository.find(query_params)
+        return ServiceResult(Result(bill, 200))
+
+    def find_by_id(self, obj_id):
+        bill = self.bill_repository.find_by_id(obj_id)
         return ServiceResult(Result(bill, 200))
 
     def find_all(self, obj_id):

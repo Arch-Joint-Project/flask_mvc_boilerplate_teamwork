@@ -37,6 +37,13 @@ def index(current_user):
     return handle_result(bill_data, schema=BillReadSchema, many=True)
 
 
+@bill.route("/<int:id>", methods=["GET"])
+@token_required
+def view_bill_by_id(current_user, id):
+    bill_data = bill_controller.find_by_id(id)
+    return handle_result(bill_data, schema=BillReadSchema)
+
+
 # view all bills created in the system
 @bill.route("/search", methods=["GET"])
 @token_required

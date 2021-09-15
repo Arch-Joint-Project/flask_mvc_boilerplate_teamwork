@@ -23,7 +23,7 @@ class LawyerRepository(SQLBaseRepository):
         self.redis_service.set(f"lawyer__{result.id}", data)
         return result
 
-    def find_by_id(self, obj_id: int):
+    def find_by_id(self, obj_id):
         cached_data = self.redis_service.get(f"lawyer__{obj_id}")
         if cached_data:
             return json.loads(cached_data)

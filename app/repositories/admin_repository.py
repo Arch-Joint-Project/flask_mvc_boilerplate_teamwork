@@ -22,6 +22,7 @@ class AdminRepository(SQLBaseRepository):
         return result
 
 
+
 # def index(self):
 #     from_crud = super(AdminRepository,self).index()  # all entries from SQL Based Database saved as list.
 #     cached_data = []  #

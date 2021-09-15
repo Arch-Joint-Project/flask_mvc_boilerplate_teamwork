@@ -1,6 +1,7 @@
 # in-built imports
 from functools import wraps
 import os
+from datetime import datetime, timedelta
 
 # third party imports
 import jwt
@@ -15,19 +16,14 @@ def create_token(id, username, email):
     token = jwt.encode({
         'id': id,
         'username': username,
-        'email': email
-        # 'exp': datetime.utcnow() + timedelta(minutes=30)
+        'email': email,
+        'exp': datetime.utcnow() + timedelta(minutes=30)
     },
+        # {'exp': datetime.utcnow() + timedelta(minutes=30)},
         os.getenv("SECRET_KEY"),
         algorithm="HS256"
     )
     return token
-
-
-def decode_token(token):
-    decoded_token = jwt.decode(token, os.getenv("SECRET_KEY"),
-                               algorithms=["HS256"])
-    return decoded_token
 
 
 def sign_in(auth_info, model: db.Model):
@@ -78,6 +74,7 @@ def token_required(f):
         try:
             data = jwt.decode(token, os.getenv("SECRET_KEY"),
                               algorithms=["HS256"])
+            del data["exp"]
         except:
             return jsonify({
                 'message': 'Token is invalid !!'
