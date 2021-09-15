@@ -10,7 +10,7 @@ from app.core.service_interfaces import CacheServiceInterface
 REDIS_SERVER = os.getenv("REDIS_SERVER")
 REDIS_PASSWORD = os.getenv("REDIS_PASSWORD", None)
 
-redis_conn = redis.Redis(host=REDIS_SERVER, port=6379, db=0, password=REDIS_PASSWORD)
+redis_conn = redis.Redis(host=REDIS_SERVER, port=6379, db=0, password=REDIS_PASSWORD, decode_responses=True)
 
 
 class RedisService(CacheServiceInterface):

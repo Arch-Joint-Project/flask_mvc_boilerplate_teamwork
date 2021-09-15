@@ -22,8 +22,7 @@ class BillRepository(SQLBaseRepository):
     def create(self, obj_in):
         result = super(BillRepository, self).create(obj_in)
         bill_info = bill_schema.dumps(result)
-        data = json.dumps(bill_info)
-        self.redis_service.set(f"bill__{result.id}", data)
+        self.redis_service.set(f"bill__{result.id}", bill_info)
         return result
 
     def find_by_id(self, obj_id: int):
