@@ -11,15 +11,10 @@ lawyer_schema = LawyerReadSchema()
 class LawyerRepository(SQLBaseRepository):
     model = LawyerModel
 
+<<<<<<< HEAD
     def __init__(self, redis_service: RedisService):
         self.redis_service = redis_service
         super().__init__()
-
-    # def index(self):
-    #     cached_data = self.redis_service.get(f"lawyer__{obj_id}")
-    #     if cached_data:
-    #         return json.loads(cached_data)
-    #     return super(LawyerRepository, self).find_by_id(obj_id)
 
     def create(self, obj_in):
         result = super(LawyerRepository, self).create(obj_in)

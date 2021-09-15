@@ -59,3 +59,7 @@ def view_admins(current_user):
             "status": "error",
             "error": "operation unauthorized"
         })
+<<<<<<< HEAD
+=======
+
+>>>>>>> e6d742ee430f316532269953faeca21a2833938d
