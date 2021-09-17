@@ -35,17 +35,19 @@ class BillRepository(SQLBaseRepository):
         cache_data["date"] = create_date_object(cache_data["date"])
         cache_data["start_time"] = create_time_object(cache_data["start_time"])
         cache_data["end_time"] = create_time_object(cache_data["end_time"])
-        return cache_data
+        return self.model(**cache_data)
 
     def update(self, query_info, obj_in):
+        model_search = self.find(query_info)
+        if model_search:
+            self.redis_service.delete(model_search.id)
+
         result = super(BillRepository, self).update(query_info, obj_in)
-        self.redis_service.delete(result.id)
         bill_info = bill_schema.dumps(result)
         self.redis_service.set(f"bill__{result.id}", bill_info)
         return result
 
     def delete(self, query_params):
         bill_info = super(BillRepository, self).find(query_params)
-        result = super(BillRepository, self).delete(bill_info.id)
         self.redis_service.delete(f"bill__{bill_info.id}")
-        return result
+        return super(BillRepository, self).delete(bill_info.id)

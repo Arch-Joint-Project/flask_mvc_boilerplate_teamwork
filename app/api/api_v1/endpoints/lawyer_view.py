@@ -7,7 +7,6 @@ from app.schema import (
 
 from app.controllers import LawyerController
 from app.repositories import LawyerRepository
-from app.services.auth import token_required
 from app.utils import validator
 from app.services import RedisService
 
@@ -16,7 +15,7 @@ import pinject
 from flask import Blueprint, request, jsonify
 from werkzeug.security import generate_password_hash
 from app.models import LawyerModel, AdminModel
-from app.services import sign_in
+from app.utils.token_auth import token_required
 
 lawyer = Blueprint("lawyer", __name__)
 
@@ -30,7 +29,7 @@ lawyer_controller = obj_graph.provide(LawyerController)
 # create new lawyer
 @lawyer.route("/", methods=["POST"])
 @validator(schema=LawyerCreateSchema)
-@token_required
+@token_required(role="lawyer")
 def create_lawyer(current_user):
     user = AdminModel.query.filter_by(**current_user).first()
     if user:
@@ -52,12 +51,12 @@ def create_lawyer(current_user):
 @validator(schema=LawyerSigninSchema)
 def signin_lawyer():
     auth = request.json
-    signin_response = sign_in(auth, LawyerModel)
-    return signin_response
+    # signin_response = sign_in(auth, LawyerModel)
+    return "lkfda"
 
 
 @lawyer.route("/", methods=["GET"])
-@token_required
+@token_required(role="lawyer")
 def view_lawyers(current_user):
     # get info of logged in users based on the id
     user = AdminModel.query.filter_by(**current_user).first()

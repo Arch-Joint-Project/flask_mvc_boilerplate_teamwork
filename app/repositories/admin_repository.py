@@ -5,6 +5,9 @@ import json
 from app.core.repository import SQLBaseRepository
 from app.models import AdminModel
 from app.services import RedisService
+from app.schema import AdminReadSchema
+
+admin_schema = AdminReadSchema()
 
 
 class AdminRepository(SQLBaseRepository):
@@ -15,28 +18,40 @@ class AdminRepository(SQLBaseRepository):
         super().__init__()
 
     def create(self, obj_in):
-        result = super(AdminRepository, self).create(
-            obj_in)  # pass data to CRUD
-        data = json.dumps(dataclasses.asdict(result))  # return pass data to json string
-        self.redis_service.set(f"admin__{result.id}", data)  # insert into redis
-        return result
+        server_create = super().create(obj_in)
+        cache_admin = admin_schema.dumps(server_create)
+        cache_all_admin = admin_schema.dumps(super().index(), many=True)
+        self.redis_service.set(f"admin__{server_create.id}", cache_admin)  # insert into redis
+        self.redis_service.set(f"all_admin", cache_all_admin)
+        return server_create
 
     def index(self):
-        from_crud = super(AdminRepository,self).index()  # all entries from SQL Based Database saved as list.
-        cached_data = []  #
-        print("outside recovery") # we are outside redis search.
-        if len(from_crud) is 0: # recovery options from REDIS FIRST.
-             count = 1 # count is 0
-             print("inside recovery") # are we inside redis search
-             try:
-                 while True:
-                        redis_key = "admin__" + str(count) # in redis, admin key + the id ==> redis insertion key.
-                        redis_data = self.redis_service.get(f"{redis_key}")
-                        cached_data.append(redis_data) # then get from REDIS and append in cached data list.
-                        count = count + 1 # increase count by one.
-                        if redis_data is None:
-                           return cached_data  # exit as list of admins -> REDIS Cache database
-             except TypeError:
-                 return cached_data
-        # default to CRUD as usual.
-        return from_crud # exit as a list of admins -> SQL Based Database.
+        all_admin = self.redis_service.get("all_admin")
+        if all_admin:
+            return all_admin
+        return super().index()
+
+    def find_by_id(self, obj_id: int):
+        cache_data = self.redis_service.get(f"admin__{obj_id}")
+        if cache_data:
+            return cache_data
+        return super().find_by_id(obj_id)
+
+    def update_by_id(self, obj_id, obj_in):
+        cache_data = self.redis_service.get(f"admin__{obj_id}")
+        if cache_data:
+            self.redis_service.delete(f"admin__{obj_id}")
+        server_result = super().update_by_id(obj_id, obj_in)
+        self.redis_service.set(f"admin__{obj_id}", admin_schema.dumps(server_result))
+        self.redis_service.set("all_admin", admin_schema.dumps(super().index(), many=True))
+        return server_result
+
+    def delete(self, obj_id):
+        cache_data = self.redis_service.get(f"admin__{obj_id}")
+        if cache_data:
+            self.redis_service.delete(f"admin__{obj_id}")
+        delete = super().delete(obj_id)
+        self.redis_service.set("all_admin",
+                               admin_schema.dumps(super().index(), many=True))
+        return delete
+

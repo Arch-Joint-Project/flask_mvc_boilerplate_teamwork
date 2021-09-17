@@ -8,13 +8,13 @@ from app.schema import (
 from app.controllers import BillController
 from app.repositories import BillRepository
 from app.services import RedisService
-from app.services.auth import token_required
 from app.utils import validator
 
 # third party imports
 import pinject
 from flask import Blueprint, request, jsonify
 from app.models import LawyerModel, AdminModel
+from app.utils.token_auth import token_required
 
 bill = Blueprint("bill", __name__)
 
@@ -25,7 +25,7 @@ bill_controller = obj_graph.provide(BillController)
 
 
 @bill.route("/", methods=["GET"])
-@token_required
+@token_required(role="admin")
 def index(current_user):
     # check if current user is admin
     user = AdminModel.query.filter_by(**current_user).first()
@@ -38,7 +38,7 @@ def index(current_user):
 
 
 @bill.route("/<int:id>", methods=["GET"])
-@token_required
+@token_required(role="admin")
 def view_bill_by_id(current_user, id):
     bill_data = bill_controller.find_by_id(id)
     return handle_result(bill_data, schema=BillReadSchema)
@@ -46,7 +46,7 @@ def view_bill_by_id(current_user, id):
 
 # view all bills created in the system
 @bill.route("/search", methods=["GET"])
-@token_required
+@token_required(role="admin")
 def view_bill(current_user):
     # check if current user is admin
     user = AdminModel.query.filter_by(**current_user).first()
@@ -67,7 +67,7 @@ def view_bill(current_user):
 
 
 @bill.route("/company/<company>", methods=["GET"])
-@token_required
+@token_required(role="admin")
 def view_company_bills(current_user, company):
     user = AdminModel.query.filter_by(**current_user).first()
     if user:
@@ -83,7 +83,7 @@ def view_company_bills(current_user, company):
 # create new bill
 @bill.route("/", methods=["POST"])
 @validator(schema=BillCreateSchema)
-@token_required
+@token_required(role="admin")
 def create_bill(current_user):
     user = AdminModel.query.filter_by(**current_user).first()
     # admins are not supposed to create bills
@@ -115,7 +115,7 @@ def create_bill(current_user):
 
 # delete bill created by logged in user for specific company
 @bill.route("/<company>", methods=["DELETE"])
-@token_required
+@token_required(role="admin")
 def delete_bill(current_user, company):
     user = LawyerModel.query.filter_by(**current_user).first()
     if user:
@@ -137,7 +137,7 @@ def delete_bill(current_user, company):
 # update bill created by logged in user
 @bill.route("/", methods=["PUT"])
 @validator(schema=BillUpdateSchema)
-@token_required
+@token_required(role="admin")
 def update_bill(current_user):
     user = LawyerModel.query.filter_by(**current_user).first()
     if user:
@@ -158,7 +158,7 @@ def update_bill(current_user):
 # generate invoice for specific company
 # param: company name
 @bill.route("/invoice/<company>", methods=["GET"])
-@token_required
+@token_required(role="admin")
 def generate_company_invoice(current_user, company):
     user = AdminModel.query.filter_by(**current_user).first()
     if user:

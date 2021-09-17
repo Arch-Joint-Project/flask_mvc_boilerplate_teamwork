@@ -28,3 +28,9 @@ class AdminSigninSchema(AdminSchema):
     class Meta:
         fields = ["id", "name", "username", "email", "password"]
         exclude = ["id", "name", "email"]
+
+
+class AdminUpdateSchema(AdminSchema):
+    class Meta:
+        fields = ["id", "name", "username", "email", "password"]
+        exclude = ["id"]
