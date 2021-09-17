@@ -29,41 +29,42 @@ lawyer_controller = obj_graph.provide(LawyerController)
 # create new lawyer
 @lawyer.route("/", methods=["POST"])
 @validator(schema=LawyerCreateSchema)
-@token_required(role="lawyer")
+@token_required(role="admin")
 def create_lawyer(current_user):
-    user = AdminModel.query.filter_by(**current_user).first()
-    if user:
-        data = request.json
-        data["admin_id"] = current_user["id"]
-        # hash incoming password into database
-        data["password"] = generate_password_hash(data["password"],
-                                                  method="sha256")
-        lawyer_data = lawyer_controller.create(data)
-        return handle_result(lawyer_data, schema=LawyerReadSchema)
-    else:
-        return jsonify({
-            "status": "error",
-            "error": "operation unauthorized"
-        })
+    lawyer_data = lawyer_controller.create(request.json, current_user["id"])
+    return handle_result(lawyer_data, schema=LawyerReadSchema)
 
 
 @lawyer.route("/signin", methods=["POST"])
 @validator(schema=LawyerSigninSchema)
 def signin_lawyer():
-    auth = request.json
-    # signin_response = sign_in(auth, LawyerModel)
-    return "lkfda"
+    token = lawyer_controller.sign_in(request.json)
+    return jsonify({"token": token})
 
 
 @lawyer.route("/", methods=["GET"])
-@token_required(role="lawyer")
+@token_required(role="admin")
 def view_lawyers(current_user):
-    # get info of logged in users based on the id
-    user = AdminModel.query.filter_by(**current_user).first()
-    if user:
-        lawyer_data = lawyer_controller.index()
-        return handle_result(lawyer_data, schema=LawyerReadSchema, many=True)
-    else:
-        lawyer_data = lawyer_controller.find_by_id(current_user["id"])
-        # return info
-        return handle_result(lawyer_data, schema=LawyerReadSchema)
+    lawyer_data = lawyer_controller.index()
+    return handle_result(lawyer_data, schema=LawyerReadSchema, many=True)
+
+
+@lawyer.route("/<int:lawyer_id>", methods=["GET"])
+@token_required(role="admin")
+def view_lawyer(current_user, lawyer_id):
+    lawyer_data = lawyer_controller.find_by_id(lawyer_id)
+    return handle_result(lawyer_data, schema=LawyerReadSchema)
+
+
+@lawyer.route("/<int:lawyer_id>", methods=["PUT"])
+@token_required(role="admin")
+def update_lawyer(current_user, lawyer_id):
+    lawyer_data = lawyer_controller.update_by_id(lawyer_id, request.json)
+    return handle_result(lawyer_data, schema=LawyerReadSchema)
+
+
+@lawyer.route("/<int:lawyer_id>", methods=["DELETE"])
+@token_required(role="admin")
+def delete_lawyer(current_user, lawyer_id):
+    lawyer_data = lawyer_controller.delete(lawyer_id)
+    return handle_result(lawyer_data)

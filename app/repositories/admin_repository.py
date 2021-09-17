@@ -1,7 +1,4 @@
 # local imports
-import dataclasses
-import json
-
 from app.core.repository import SQLBaseRepository
 from app.models import AdminModel
 from app.services import RedisService
@@ -13,17 +10,17 @@ admin_schema = AdminReadSchema()
 class AdminRepository(SQLBaseRepository):
     model=AdminModel
 
-    def __init__(self, redis_service: RedisService):  # make use of redis service
+    def __init__(self, redis_service: RedisService):
         self.redis_service = redis_service
         super().__init__()
 
     def create(self, obj_in):
-        server_create = super().create(obj_in)
-        cache_admin = admin_schema.dumps(server_create)
+        server_data = super().create(obj_in)
+        cache_admin = admin_schema.dumps(server_data)
+        self.redis_service.set(f"admin__{server_data.id}", cache_admin)
         cache_all_admin = admin_schema.dumps(super().index(), many=True)
-        self.redis_service.set(f"admin__{server_create.id}", cache_admin)  # insert into redis
         self.redis_service.set(f"all_admin", cache_all_admin)
-        return server_create
+        return server_data
 
     def index(self):
         all_admin = self.redis_service.get("all_admin")

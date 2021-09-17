@@ -63,7 +63,7 @@ def view_admin(current_user, admin_id):
 @admin.route("/<int:admin_id>", methods=["PUT"])
 @token_required(role="admin")
 def update_admin(current_user, admin_id):
-    admin_data = admin_controller.update(admin_id, request.json)
+    admin_data = admin_controller.update_by_id(admin_id, request.json)
     return handle_result(admin_data, schema=AdminReadSchema)
 
 

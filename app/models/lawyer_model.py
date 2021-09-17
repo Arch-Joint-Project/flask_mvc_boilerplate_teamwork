@@ -1,9 +1,11 @@
 # local import
 from app import db
 from .bill_model import BillModel
+
 # builtin imports
 from dataclasses import dataclass
-from datetime import date, time
+from werkzeug.security import generate_password_hash, check_password_hash
+
 
 bill_model = BillModel()
 bill_obj = bill_model.__class__.__name__
@@ -19,7 +21,7 @@ class LawyerModel(db.Model):
     name: str
     username: str
     email: str
-    password: str
+    hash_password: str
     bill: db.Model
 
     __tablename__ = 'lawyers'
@@ -30,7 +32,18 @@ class LawyerModel(db.Model):
     name = db.Column('Name', db.String, nullable=False)
     username = db.Column('Username', db.String, nullable=False, unique=True, index=True)
     email = db.Column('Email', db.String, nullable=False, unique=True, index=True)
-    password = db.Column('Password', db.String, nullable=False)
+    hash_password = db.Column('Password', db.String, nullable=False)
     # forming relationship with the bill table
     # through the bill model
     bill = db.relationship(bill_obj, backref='lawyer', lazy='dynamic')
+
+    @property
+    def password(self):
+        raise AttributeError("password is inaccessible")
+
+    @password.setter
+    def password(self, password):
+        self.hash_password = generate_password_hash(password, method="sha256")
+
+    def verify_password(self, password):
+        return check_password_hash(self.hash_password, password)
