@@ -1,5 +1,3 @@
-import datetime
-
 from app.core.result import Result
 from app.core.service_result import ServiceResult
 from app.repositories import BillRepository
@@ -34,8 +32,11 @@ class BillController:
         bill = self.bill_repository.find_all(obj_id)
         return ServiceResult(Result(bill, 200))
 
-    def delete(self, query_params):
-        bill = self.bill_repository.delete(query_params)
+    def delete(self, obj_id, user_id):
+        bill_info = self.find({"id": obj_id, "lawyer_id": user_id})
+        print(bill_info.success)
+        if bill_info.success:
+            bill = self.bill_repository.delete(obj_id)
         return ServiceResult(Result(bill, 204))
 
     def update(self, query_info, obj_in):

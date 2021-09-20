@@ -18,12 +18,12 @@ class AdminRepository(SQLBaseRepository):
         server_data = super().create(obj_in)
         cache_admin = admin_schema.dumps(server_data)
         self.redis_service.set(f"admin__{server_data.id}", cache_admin)
-        cache_all_admin = admin_schema.dumps(super().index(), many=True)
-        self.redis_service.set(f"all_admin", cache_all_admin)
+        cache_all_admins = admin_schema.dumps(super().index(), many=True)
+        self.redis_service.set(f"all_admins", cache_all_admins)
         return server_data
 
     def index(self):
-        all_admin = self.redis_service.get("all_admin")
+        all_admin = self.redis_service.get("all_admins")
         if all_admin:
             return all_admin
         return super().index()
@@ -40,7 +40,7 @@ class AdminRepository(SQLBaseRepository):
             self.redis_service.delete(f"admin__{obj_id}")
         server_result = super().update_by_id(obj_id, obj_in)
         self.redis_service.set(f"admin__{obj_id}", admin_schema.dumps(server_result))
-        self.redis_service.set("all_admin", admin_schema.dumps(super().index(), many=True))
+        self.redis_service.set("all_admins", admin_schema.dumps(super().index(), many=True))
         return server_result
 
     def delete(self, obj_id):
@@ -48,7 +48,7 @@ class AdminRepository(SQLBaseRepository):
         if cache_data:
             self.redis_service.delete(f"admin__{obj_id}")
         delete = super().delete(obj_id)
-        self.redis_service.set("all_admin",
+        self.redis_service.set("all_admins",
                                admin_schema.dumps(super().index(), many=True))
         return delete
 

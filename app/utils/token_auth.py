@@ -17,7 +17,6 @@ def token_required(role="lawyer"):
             try:
                 data = jwt.decode(token, os.getenv("SECRET_KEY"),
                                   algorithms=["HS256"])
-                print(data)
             except:
                 return jsonify({
                     "message": "Token is invalid !!"

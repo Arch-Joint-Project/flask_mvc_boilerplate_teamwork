@@ -1,16 +1,13 @@
 # in-built imports
-from functools import wraps
 import os
 from datetime import datetime, timedelta
 
 # third party imports
 import jwt
-from flask import request, jsonify, make_response
-from werkzeug.security import check_password_hash
+from flask import jsonify
 
 # local imports
 from app import db
-from app.utils import auth
 
 
 class AuthService:
