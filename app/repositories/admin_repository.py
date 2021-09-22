@@ -8,7 +8,7 @@ admin_schema = AdminReadSchema()
 
 
 class AdminRepository(SQLBaseRepository):
-    model=AdminModel
+    model = AdminModel
 
     def __init__(self, redis_service: RedisService):
         self.redis_service = redis_service
@@ -19,7 +19,7 @@ class AdminRepository(SQLBaseRepository):
         cache_admin = admin_schema.dumps(server_data)
         self.redis_service.set(f"admin__{server_data.id}", cache_admin)
         cache_all_admins = admin_schema.dumps(super().index(), many=True)
-        self.redis_service.set(f"all_admins", cache_all_admins)
+        self.redis_service.set("all_admins", cache_all_admins)
         return server_data
 
     def index(self):
@@ -51,4 +51,3 @@ class AdminRepository(SQLBaseRepository):
         self.redis_service.set("all_admins",
                                admin_schema.dumps(super().index(), many=True))
         return delete
-

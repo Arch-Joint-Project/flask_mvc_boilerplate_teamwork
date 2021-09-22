@@ -1,5 +1,5 @@
 # local import
-from app import db, create_app
+from app import db
 from .lawyer_model import LawyerModel
 
 # builtin imports
@@ -45,10 +45,3 @@ class AdminModel(db.Model):
 
     def verify_password(self, password):
         return check_password_hash(self.hash_password, password)
-
-
-
-
-
-
-

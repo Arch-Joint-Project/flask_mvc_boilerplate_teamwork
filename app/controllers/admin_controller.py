@@ -1,5 +1,3 @@
-from flask import jsonify
-
 from app.core.result import Result
 from app.core.service_result import ServiceResult
 from app.repositories import AdminRepository

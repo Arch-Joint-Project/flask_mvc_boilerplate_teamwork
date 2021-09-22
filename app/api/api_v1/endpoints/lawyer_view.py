@@ -13,8 +13,6 @@ from app.services import RedisService
 # third party imports
 import pinject
 from flask import Blueprint, request, jsonify
-from werkzeug.security import generate_password_hash
-from app.models import LawyerModel, AdminModel
 from app.utils.token_auth import token_required
 
 lawyer = Blueprint("lawyer", __name__)
@@ -29,7 +27,7 @@ lawyer_controller = obj_graph.provide(LawyerController)
 # create new lawyer
 @lawyer.route("/", methods=["POST"])
 @validator(schema=LawyerCreateSchema)
-@token_required(role="admin")
+@token_required(role=["admin"])
 def create_lawyer(current_user):
     lawyer_data = lawyer_controller.create(request.json, current_user["id"])
     return handle_result(lawyer_data, schema=LawyerReadSchema)
@@ -43,28 +41,28 @@ def signin_lawyer():
 
 
 @lawyer.route("/", methods=["GET"])
-@token_required(role="admin")
+@token_required(role=["admin"])
 def view_lawyers(current_user):
     lawyer_data = lawyer_controller.index()
     return handle_result(lawyer_data, schema=LawyerReadSchema, many=True)
 
 
 @lawyer.route("/<int:lawyer_id>", methods=["GET"])
-@token_required(role="admin")
+@token_required(role=["admin"])
 def view_lawyer(current_user, lawyer_id):
     lawyer_data = lawyer_controller.find_by_id(lawyer_id)
     return handle_result(lawyer_data, schema=LawyerReadSchema)
 
 
 @lawyer.route("/<int:lawyer_id>", methods=["PUT"])
-@token_required(role="admin")
+@token_required(role=["admin"])
 def update_lawyer(current_user, lawyer_id):
     lawyer_data = lawyer_controller.update_by_id(lawyer_id, request.json)
     return handle_result(lawyer_data, schema=LawyerReadSchema)
 
 
 @lawyer.route("/<int:lawyer_id>", methods=["DELETE"])
-@token_required(role="admin")
+@token_required(role=["admin"])
 def delete_lawyer(current_user, lawyer_id):
     lawyer_data = lawyer_controller.delete(lawyer_id)
     return handle_result(lawyer_data)

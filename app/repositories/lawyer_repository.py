@@ -1,6 +1,4 @@
 # local imports
-import json
-
 from app.core.repository import SQLBaseRepository
 from app.models import LawyerModel
 from app.services import RedisService
@@ -22,7 +20,7 @@ class LawyerRepository(SQLBaseRepository):
         self.redis_service.set(f"lawyer__{server_data.id}",
                                cache_data)
         cache_all_lawyers = lawyer_schema.dumps(super().index(), many=True)
-        self.redis_service.set(f"all_lawyers", cache_all_lawyers)
+        self.redis_service.set("all_lawyers", cache_all_lawyers)
         return server_data
 
     def index(self):
@@ -57,5 +55,3 @@ class LawyerRepository(SQLBaseRepository):
         self.redis_service.set("all_lawyers",
                                lawyer_schema.dumps(super().index(), many=True))
         return delete
-
-

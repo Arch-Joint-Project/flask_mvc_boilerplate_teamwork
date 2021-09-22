@@ -33,11 +33,9 @@ class AuthService:
         token = jwt.encode({
             'id': id,
             'role': role,
-            'exp': datetime.utcnow() + timedelta(minutes=30)
+            'exp': datetime.utcnow() + timedelta(hours=2)
         },
             os.getenv("SECRET_KEY"),
             algorithm="HS256"
         )
         return token
-
-

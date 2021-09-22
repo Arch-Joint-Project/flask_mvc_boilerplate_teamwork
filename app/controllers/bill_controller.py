@@ -1,3 +1,5 @@
+from flask import jsonify
+
 from app.core.result import Result
 from app.core.service_result import ServiceResult
 from app.repositories import BillRepository
@@ -20,9 +22,9 @@ class BillController:
         bill = self.bill_repository.create(data)
         return ServiceResult(Result(bill, 201))
 
-    def find(self, query_params):
-        bill = self.bill_repository.find(query_params)
-        return ServiceResult(Result(bill, 200))
+    # def find(self, query_params):
+    #     bill = self.bill_repository.find(query_params)
+    #     return ServiceResult(Result(bill, 200))
 
     def find_by_id(self, obj_id):
         bill = self.bill_repository.find_by_id(obj_id)
@@ -33,17 +35,19 @@ class BillController:
         return ServiceResult(Result(bill, 200))
 
     def delete(self, obj_id, user_id):
-        bill_info = self.find({"id": obj_id, "lawyer_id": user_id})
-        print(bill_info.success)
-        if bill_info.success:
+        bill_info = self.bill_repository.find({"id": obj_id, "lawyer_id": user_id})
+        if bill_info:
             bill = self.bill_repository.delete(obj_id)
-        return ServiceResult(Result(bill, 204))
+            return ServiceResult(Result(bill, 204))
 
-    def update(self, query_info, obj_in):
-        obj_in["date"] = create_date_object(obj_in["date"])
-        obj_in["start_time"] = create_time_object(obj_in["start_time"])
-        obj_in["end_time"] = create_time_object(obj_in["end_time"])
-        bill = self.bill_repository.update(query_info, obj_in)
+    def update_by_id(self, obj_id, obj_in, user_id):
+        bill = self.bill_repository.find(
+            {"id": obj_id, "lawyer_id": user_id})
+        if bill:
+            obj_in["date"] = create_date_object(obj_in["date"])
+            obj_in["start_time"] = create_time_object(obj_in["start_time"])
+            obj_in["end_time"] = create_time_object(obj_in["end_time"])
+            bill = self.bill_repository.update_by_id(obj_id, obj_in)
         return ServiceResult(Result(bill, 200))
 
     def generate_invoice(self, company):

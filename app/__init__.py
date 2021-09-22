@@ -6,7 +6,6 @@ from flask import Flask, jsonify
 from flask_mongoengine import MongoEngine
 from sqlalchemy.exc import DBAPIError
 from app.extensions import db, migrate, ma
-import jwt
 
 from flask_swagger_ui import get_swaggerui_blueprint
 from werkzeug.exceptions import HTTPException

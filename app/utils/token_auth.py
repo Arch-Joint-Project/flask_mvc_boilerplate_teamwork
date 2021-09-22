@@ -3,8 +3,10 @@ from flask import request, jsonify, make_response
 import jwt
 import os
 
+from jwt import InvalidTokenError
 
-def token_required(role="lawyer"):
+
+def token_required(role: list):
     def check_token(f):
         @wraps(f)
         def decorated(*args, **kwargs):
@@ -17,11 +19,11 @@ def token_required(role="lawyer"):
             try:
                 data = jwt.decode(token, os.getenv("SECRET_KEY"),
                                   algorithms=["HS256"])
-            except:
+            except InvalidTokenError:
                 return jsonify({
                     "message": "Token is invalid !!"
                 }), 401
-            if data["role"] != role:
+            if data["role"] not in role:
                 return make_response(jsonify({
                     "status": "error",
                     "error": "operation unauthorized"

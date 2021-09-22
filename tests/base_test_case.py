@@ -1,22 +1,21 @@
+from flask import url_for
 from flask_testing import TestCase
 from app import create_app, db
 from app.models import AdminModel, LawyerModel, BillModel
 from datetime import date, time
-from werkzeug.security import generate_password_hash
+from app.services.auth import AuthService
+from fakeredis import FakeRedis
+import fakeredis
+from app.services import redis_conn
+from app.services import RedisService
+from unittest.mock import patch, Mock
+import pytest
 
 
 class BaseTestCase(TestCase):
     def create_app(self):
         app = create_app("config.TestingConfig")
         return app
-
-    def sign_in(self, url, username, password):
-        data = {
-            "username": username,
-            "password": password
-        }
-        response = self.client.get(url, json=data)
-        return response
 
     def setUp(self):
         """
@@ -27,14 +26,14 @@ class BaseTestCase(TestCase):
             name="test_admin",
             username="test_admin_username",
             email="test_admin_email",
-            password=generate_password_hash("test_admin_password", method="sha256")
+            password="test_admin_password"
         )
         lawyer = LawyerModel(
             admin_id=1,
             name="test_lawyer",
             username="test_lawyer_username",
             email="test_lawyer_email",
-            password=generate_password_hash("test_lawyer_password", method="sha256")
+            password="test_lawyer_password"
         )
         bill = BillModel(
             lawyer_id=1,
@@ -48,6 +47,10 @@ class BaseTestCase(TestCase):
         db.session.add(lawyer)
         db.session.add(bill)
         db.session.commit()
+        self.patcher = patch("app.services.redis_service.redis_conn",
+                             fakeredis.FakeStrictRedis())
+        self.addCleanup(self.patcher.stop)
+        self.redis = self.patcher.start()
 
     def tearDown(self):
         """
@@ -55,3 +58,5 @@ class BaseTestCase(TestCase):
         """
         db.session.remove()
         db.drop_all()
+        self.patcher.stop()
+

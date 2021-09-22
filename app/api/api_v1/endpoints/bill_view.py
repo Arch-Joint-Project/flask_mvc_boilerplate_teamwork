@@ -13,7 +13,6 @@ from app.utils import validator
 # third party imports
 import pinject
 from flask import Blueprint, request, jsonify
-from app.models import LawyerModel, AdminModel
 from app.utils.token_auth import token_required
 
 bill = Blueprint("bill", __name__)
@@ -25,38 +24,37 @@ bill_controller = obj_graph.provide(BillController)
 
 
 @bill.route("/", methods=["GET"])
-@token_required(role="admin")
+@token_required(role=["admin"])
 def view_bills(current_user):
     bill_data = bill_controller.index()
     return handle_result(bill_data, schema=BillReadSchema, many=True)
 
 
-@bill.route("/<int:id>", methods=["GET"])
-@token_required(role="lawyer")
-def view_bill(current_user, id):
-    bill_data = bill_controller.find_by_id(id)
+@bill.route("/<int:bill_id>", methods=["GET"])
+@token_required(role=["admin"])
+def view_bill(current_user, bill_id):
+    bill_data = bill_controller.find_by_id(bill_id)
     return handle_result(bill_data, schema=BillReadSchema)
 
 
 @bill.route("/company/<company>", methods=["GET"])
-@token_required(role="admin")
+@token_required(role=["admin"])
 def view_company_bills(current_user, company):
     bill_data = bill_controller.find_all({"company": company})
     return handle_result(bill_data, schema=BillReadSchema, many=True)
 
 
-@bill.route("/lawyer/company/<company>", methods=["GET"])
-@token_required(role="lawyer")
-def view_lawyer_company_bills(current_user, company):
-    bill_data = bill_controller.find_all(
-            {"lawyer_id": current_user["id"], "company": company})
+@bill.route("/lawyer/<int:lawyer_id>", methods=["GET"])
+@token_required(role=["admin"])
+def view_lawyer_bills(current_user, lawyer_id):
+    bill_data = bill_controller.find_all({"lawyer_id": lawyer_id})
     return handle_result(bill_data, schema=BillReadSchema, many=True)
 
 
 # create new bill
 @bill.route("/", methods=["POST"])
 @validator(schema=BillCreateSchema)
-@token_required(role="lawyer")
+@token_required(role=["lawyer"])
 def create_bill(current_user):
     # get incoming bill
     data = request.json
@@ -77,37 +75,34 @@ def create_bill(current_user):
     return handle_result(bill_data, schema=BillReadSchema)
 
 
+@bill.route("/user", methods=["GET"])
+@token_required(role=["lawyer"])
+def view_user_bills(current_user):
+    bill_data = bill_controller.find_all({"lawyer_id": current_user["id"]})
+    return handle_result(bill_data, schema=BillReadSchema, many=True)
+
+
 # update bill created by logged in user
-@bill.route("/", methods=["PUT"])
+@bill.route("/<int:bill_id>", methods=["PUT"])
 @validator(schema=BillUpdateSchema)
-@token_required(role="lawyer")
-def update_bill(current_user):
-    query_info = request.args.to_dict()
-    query_info["lawyer_id"] = current_user["id"]
-    obj_in = request.json
-    # update bill info
-    data = bill_controller.update(query_info, obj_in)
-    return handle_result(data, schema=BillReadSchema)
+@token_required(role=["lawyer"])
+def update_bill(current_user, bill_id):
+    bill_data = bill_controller.update_by_id(bill_id, request.json, current_user.get("id"))
+    return handle_result(bill_data, schema=BillReadSchema)
 
 
 # delete bill created by logged in user for specific company
 @bill.route("/<int:bill_id>", methods=["DELETE"])
-@token_required(role="lawyer")
+@token_required(role=["lawyer"])
 def delete_bill(current_user, bill_id):
-    delete_bill_info = bill_controller.delete(bill_id, current_user["id"])
-    response = handle_result(delete_bill_info)
-    if response.status_code == 204:
-        return jsonify({
-            "status": "operation successful"
-        })
-    return handle_result(delete_bill_info)
+    bill_info = bill_controller.delete(bill_id, current_user["id"])
+    return handle_result(bill_info)
 
 
 # generate invoice for specific company
 # param: company name
 @bill.route("/invoice/<company>", methods=["GET"])
-@token_required(role="admin")
+@token_required(role=["admin"])
 def generate_company_invoice(current_user, company):
     bill_data = bill_controller.generate_invoice({"company": company})
     return handle_result(bill_data)
-

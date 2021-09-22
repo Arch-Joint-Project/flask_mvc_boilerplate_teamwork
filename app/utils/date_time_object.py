@@ -1,4 +1,4 @@
-from datetime import date, time, datetime
+from datetime import date, time
 
 
 def create_date_object(string_date: str):
