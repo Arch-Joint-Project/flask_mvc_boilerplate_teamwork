@@ -1,11 +1,5 @@
 import pytest
-from base64 import b64encode
-
-from flask import url_for
-from flask_testing import TestCase
-from werkzeug.test import Client
 from tests import BaseTestCase
-from app import create_app
 from tests.test_admin_views import TestAdminViews
 
 t = TestAdminViews()

@@ -1,15 +1,9 @@
-from flask import url_for
 from flask_testing import TestCase
 from app import create_app, db
 from app.models import AdminModel, LawyerModel, BillModel
 from datetime import date, time
-from app.services.auth import AuthService
-from fakeredis import FakeRedis
 import fakeredis
-from app.services import redis_conn
-from app.services import RedisService
-from unittest.mock import patch, Mock
-import pytest
+from unittest.mock import patch
 
 
 class BaseTestCase(TestCase):
@@ -59,4 +53,3 @@ class BaseTestCase(TestCase):
         db.session.remove()
         db.drop_all()
         self.patcher.stop()
-

@@ -1,17 +1,9 @@
 import unittest
-from random import choice
 from tests import BaseTestCase
-from app.models import AdminModel, LawyerModel, BillModel
-from unittest.mock import patch, Mock
+from app.models import LawyerModel
 from app import db
 import pytest
 from flask import url_for
-from app.services import AuthService
-import fakeredis
-# from .test_admin_views import TestAdminViews
-
-# test_admin = TestAdminViews()
-# print(test_admin.test_signin_admin())
 
 NO_AUTH_RESPONSE = "Token is missing !!"
 
@@ -141,7 +133,7 @@ class TestLawyerViews(BaseTestCase):
             url_for("lawyer.update_lawyer", lawyer_id=1),
             headers={"Authorization": "Bearer " + sign_in.json["token"]},
             json=data,
-            )
+        )
         assert response.status_code == 401
         assert "operation unauthorized" in response.json.values()
         # test with valid authentication
@@ -187,7 +179,7 @@ class TestLawyerViews(BaseTestCase):
             url_for("lawyer.delete_lawyer", lawyer_id=2),
             headers={"Authorization": "Bearer " + sign_in.json["token"]})
         assert response.status_code == 204
-        assert AdminModel.query.count() == 1
+        assert LawyerModel.query.count() == 1
 
 
 if __name__ == "__main__":

@@ -63,16 +63,16 @@ class TestAdminViews(BaseTestCase):
         # test with authentication
         sign_in = self.test_signin_admin()
         # unavailable user
-        response = self.client.get(url_for("admin.view_admin", admin_id=2),
-                                   headers={"Authorization": "Bearer " +
-                                                             sign_in.json[
-                                                                 "token"]})
+        response = self.client.get(
+            url_for("admin.view_admin", admin_id=2),
+            headers={"Authorization": "Bearer " + sign_in.json["token"]}
+        )
         assert response.status_code == 404
         # available user
-        response = self.client.get(url_for("admin.view_admin", admin_id=1),
-                                   headers={"Authorization": "Bearer " +
-                                                             sign_in.json[
-                                                                 "token"]})
+        response = self.client.get(
+            url_for("admin.view_admin", admin_id=1),
+            headers={"Authorization": "Bearer " + sign_in.json["token"]}
+        )
         assert response.status_code == 200
         assert isinstance(response.json, dict)
         assert "test_admin" in response.json.values()
@@ -92,12 +92,11 @@ class TestAdminViews(BaseTestCase):
         assert NO_AUTH_RESPONSE in response.json.values()
         sign_in = self.test_signin_admin()
         # test with authentication
-        response = self.client.put(url_for("admin.update_admin", admin_id=1),
-                                   headers={"Authorization": "Bearer " +
-                                                             sign_in.json[
-                                                                 "token"]},
-                                   json=data,
-                                   )
+        response = self.client.put(
+            url_for("admin.update_admin", admin_id=1),
+            headers={"Authorization": "Bearer " + sign_in.json["token"]},
+            json=data
+        )
         assert response.status_code == 200
         assert isinstance(response.json, dict)
         assert AdminModel.query.count() == 1
@@ -125,46 +124,14 @@ class TestAdminViews(BaseTestCase):
         sign_in = self.test_signin_admin()
         response = self.client.delete(
             url_for("admin.delete_admin", admin_id=2),
-            headers={"Authorization": "Bearer " +
-                                      sign_in.json[
-                                          "token"]})
+            headers={"Authorization": "Bearer " + sign_in.json["token"]}
+        )
         assert response.status_code == 204
         assert AdminModel.query.count() == 1
 
 
 if __name__ == "__main__":
     unittest.main()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 #     @pytest.mark.admin
 #     def test_admin_lawyer_post(self):
@@ -472,6 +439,3 @@ if __name__ == "__main__":
 #
 #         # print the invoice generated.
 #         return response.json.values()
-
-
-

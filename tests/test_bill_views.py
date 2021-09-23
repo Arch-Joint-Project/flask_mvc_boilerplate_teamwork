@@ -1,23 +1,14 @@
 import unittest
-from random import choice
 from tests import BaseTestCase
-from app.models import AdminModel, LawyerModel, BillModel
-from unittest.mock import patch, Mock
+from app.models import BillModel
 from app import db
 import pytest
 from flask import url_for
 from datetime import date, time
-from app.services import AuthService
-import fakeredis
-# from .test_admin_views import TestAdminViews
-
-# test_admin = TestAdminViews()
-# print(test_admin.test_signin_admin())
 
 NO_AUTH_RESPONSE = "Token is missing !!"
 
 
-# @pytest.mark.usefixtures("admin_signin")
 class TestBillViews(BaseTestCase):
     @pytest.mark.bill
     def test_signin_admin(self):
@@ -77,6 +68,7 @@ class TestBillViews(BaseTestCase):
     def test_view_bills(self):
         # test without authentication
         response = self.client.get(url_for("bill.view_bills"))
+        print(response.json)
         assert response.status_code == 401
         assert NO_AUTH_RESPONSE in response.json.values()
         # test with wrong authentication
@@ -179,30 +171,6 @@ class TestBillViews(BaseTestCase):
         assert response.json[0].get("lawyer_id") == 1
 
     @pytest.mark.bill
-    def test_view_bills(self):
-        # test without authentication
-        response = self.client.get(
-            url_for("bill.view_user_bills"))
-        assert response.status_code == 401
-        assert NO_AUTH_RESPONSE in response.json.values()
-        # test with invalid authentication
-        sign_in = self.test_signin_admin()
-        response = self.client.get(
-            url_for("bill.view_user_bills"),
-            headers={"Authorization": "Bearer " + sign_in.json["token"]})
-        assert response.status_code == 401
-        assert "operation unauthorized" in response.json.values()
-        # test with valid authentication
-        sign_in = self.test_signin_lawyer()
-        response = self.client.get(
-            url_for("bill.view_user_bills"),
-            headers={"Authorization": "Bearer " + sign_in.json["token"]})
-        assert response.status_code == 200
-        assert isinstance(response.json, list)
-        assert len(response.json) == 1
-        assert response.json[0].get("lawyer_id") == 1
-
-    @pytest.mark.bill
     def test_update_bill(self):
         data = {
             "billable_rate": 5000,
@@ -221,7 +189,7 @@ class TestBillViews(BaseTestCase):
             url_for("bill.update_bill", bill_id=1),
             headers={"Authorization": "Bearer " + sign_in.json["token"]},
             json=data,
-            )
+        )
         assert response.status_code == 401
         assert "operation unauthorized" in response.json.values()
         # test with valid authentication
@@ -267,7 +235,7 @@ class TestBillViews(BaseTestCase):
             url_for("bill.delete_bill", bill_id=2),
             headers={"Authorization": "Bearer " + sign_in.json["token"]})
         assert response.status_code == 204
-        assert AdminModel.query.count() == 1
+        assert BillModel.query.count() == 1
 
 
 if __name__ == "__main__":
