@@ -1,5 +1,4 @@
 import unittest
-
 from tests import BaseTestCase
 from app.models import AdminModel
 from app import db
@@ -9,6 +8,7 @@ from flask import url_for
 NO_AUTH_RESPONSE = "Token is missing !!"
 
 
+# @pytest.mark.usefixtures("admin_signin_info")
 class TestAdminViews(BaseTestCase):
     @pytest.mark.admin
     def test_signin_admin(self):
@@ -16,7 +16,6 @@ class TestAdminViews(BaseTestCase):
             "username": "test_admin_username",
             "password": "test_admin_password"
         }
-        self.__class__.client = self.client
         response = self.client.post(
             url_for("admin.signin_admin"),
             json=admin_info
@@ -52,8 +51,18 @@ class TestAdminViews(BaseTestCase):
             url_for("admin.view_admins"),
             headers={"Authorization": "Bearer " + sign_in.json["token"]}
         )
+        assert response.status_code == 200
         assert isinstance(response.json, list)
         assert len(response.json) == 1
+        # test with invalid token
+        sign_in = self.test_signin_admin()
+        response = self.client.get(
+            url_for("admin.view_admins"),
+            headers={"Authorization": "Bearer " + sign_in.json["token"] + "dfajl"}
+        )
+        assert response.status_code == 401
+        assert isinstance(response.json, dict)
+        assert "Token is invalid !!" in response.json.values()
 
     @pytest.mark.admin
     def test_view_admin(self):
@@ -132,6 +141,50 @@ class TestAdminViews(BaseTestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 #     @pytest.mark.admin
 #     def test_admin_lawyer_post(self):
@@ -237,17 +290,7 @@ if __name__ == "__main__":
 # #         response = self.client.get(baseUrl + testRoute, headers=forHeaders,)
 # #         # the response from the server should be successfully since tokens are passed.
 # #         assert response.status_code == 200 or 201
-# #
-# #
-# #
-# #
-# #
-# #
-# #
-# #
-# #
-# #
-#
+
 # class TestLawyerViews(BaseTestCase):
 #     @pytest.mark.lawyer
 #     def test_lawyer_sigin_view(self):

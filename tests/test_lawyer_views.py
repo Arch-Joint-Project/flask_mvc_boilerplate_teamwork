@@ -8,10 +8,34 @@ from flask import url_for
 NO_AUTH_RESPONSE = "Token is missing !!"
 
 
-@pytest.mark.usefixtures("admin_signin")
 class TestLawyerViews(BaseTestCase):
     @pytest.mark.lawyer
     def test_signin_admin(self):
+        # no credential
+        admin_info = {
+            "username": "",
+            "password": ""
+        }
+        response = self.client.post(
+            url_for("admin.signin_admin"),
+            json=admin_info
+        )
+        assert response.status_code == 200
+        assert "authentication information required" in response.json.values()
+        assert isinstance(response.json, dict)
+        # invalid credentials
+        admin_info = {
+            "username": "tes_admin_username",
+            "password": "test_admin_password"
+        }
+        response = self.client.post(
+            url_for("admin.signin_admin"),
+            json=admin_info
+        )
+        assert response.status_code == 200
+        assert "user verification failure. invalid credentials" in response.json.values()
+        assert isinstance(response.json, dict)
+        # valid credentials
         admin_info = {
             "username": "test_admin_username",
             "password": "test_admin_password"
@@ -27,6 +51,31 @@ class TestLawyerViews(BaseTestCase):
 
     @pytest.mark.lawyer
     def test_signin_lawyer(self):
+        # without authentication
+        lawyer_info = {
+            "username": "",
+            "password": ""
+        }
+        response = self.client.post(
+            url_for("lawyer.signin_lawyer"),
+            json=lawyer_info
+        )
+        assert response.status_code == 200
+        assert "authentication information required" in response.json.values()
+        assert isinstance(response.json, dict)
+        # without invalid credential
+        lawyer_info = {
+            "username": "tes_lawyer",
+            "password": "test_lawyer_password"
+        }
+        response = self.client.post(
+            url_for("lawyer.signin_lawyer"),
+            json=lawyer_info
+        )
+        assert response.status_code == 200
+        assert "user verification failure. invalid credentials" in response.json.values()
+        assert isinstance(response.json, dict)
+        # without valid credential
         lawyer_info = {
             "username": "test_lawyer_username",
             "password": "test_lawyer_password"
@@ -37,7 +86,7 @@ class TestLawyerViews(BaseTestCase):
         )
         assert response.status_code == 200
         assert "token" in response.json.keys()
-        assert len(response.json) == 1
+        assert isinstance(response.json, dict)
         return response
 
     @pytest.mark.lawyer
