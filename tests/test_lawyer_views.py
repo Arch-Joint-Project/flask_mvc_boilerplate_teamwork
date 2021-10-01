@@ -1,40 +1,16 @@
 import unittest
-from tests import BaseTestCase
+from tests import BaseTestCase, CommonResponse
 from app.models import LawyerModel
 from app import db
 import pytest
 from flask import url_for
 
-NO_AUTH_RESPONSE = "Token is missing !!"
+common_response = CommonResponse()
 
 
 class TestLawyerViews(BaseTestCase):
     @pytest.mark.lawyer
     def test_signin_admin(self):
-        # no credential
-        admin_info = {
-            "username": "",
-            "password": ""
-        }
-        response = self.client.post(
-            url_for("admin.signin_admin"),
-            json=admin_info
-        )
-        assert response.status_code == 200
-        assert "authentication information required" in response.json.values()
-        assert isinstance(response.json, dict)
-        # invalid credentials
-        admin_info = {
-            "username": "tes_admin_username",
-            "password": "test_admin_password"
-        }
-        response = self.client.post(
-            url_for("admin.signin_admin"),
-            json=admin_info
-        )
-        assert response.status_code == 200
-        assert "user verification failure. invalid credentials" in response.json.values()
-        assert isinstance(response.json, dict)
         # valid credentials
         admin_info = {
             "username": "test_admin_username",
@@ -44,25 +20,10 @@ class TestLawyerViews(BaseTestCase):
             url_for("admin.signin_admin"),
             json=admin_info
         )
-        assert response.status_code == 200
-        assert "token" in response.json.keys()
-        assert len(response.json) == 1
         return response
 
     @pytest.mark.lawyer
     def test_signin_lawyer(self):
-        # without authentication
-        lawyer_info = {
-            "username": "",
-            "password": ""
-        }
-        response = self.client.post(
-            url_for("lawyer.signin_lawyer"),
-            json=lawyer_info
-        )
-        assert response.status_code == 200
-        assert "authentication information required" in response.json.values()
-        assert isinstance(response.json, dict)
         # without invalid credential
         lawyer_info = {
             "username": "tes_lawyer",
@@ -73,9 +34,12 @@ class TestLawyerViews(BaseTestCase):
             json=lawyer_info
         )
         assert response.status_code == 200
-        assert "user verification failure. invalid credentials" in response.json.values()
         assert isinstance(response.json, dict)
-        # without valid credential
+        assert len(common_response.signin_invalid_credentials()) == \
+               len(response.json)
+        assert common_response.signin_invalid_credentials() == \
+               response.json
+        # valid credential
         lawyer_info = {
             "username": "test_lawyer_username",
             "password": "test_lawyer_password"
@@ -85,8 +49,11 @@ class TestLawyerViews(BaseTestCase):
             json=lawyer_info
         )
         assert response.status_code == 200
-        assert "token" in response.json.keys()
         assert isinstance(response.json, dict)
+        assert len(common_response.signin_valid_credentials()) == \
+               len(response.json)
+        assert common_response.signin_valid_credentials().keys() == \
+               response.json.keys()
         return response
 
     @pytest.mark.lawyer
@@ -97,71 +64,65 @@ class TestLawyerViews(BaseTestCase):
             "email": "create_email",
             "password": "create_password"
         }
-        # test without authentication
+        # without token
         response = self.client.post(url_for("lawyer.create_lawyer"),
                                     json=data)
         assert response.status_code == 401
-        assert NO_AUTH_RESPONSE in response.json.values()
-        # test with wrong authentication
+        assert common_response.missing_token_authentication() == response.json
+        # wrong access token
         sign_in = self.test_signin_lawyer()
         response = self.client.post(
             url_for("lawyer.create_lawyer"),
-            headers={"Authorization": "Bearer " + sign_in.json["token"]}, json=data)
+            headers={
+                "Authorization": "Bearer " + sign_in.json["access_token"]},
+            json=data)
         assert response.status_code == 401
-        assert "operation unauthorized" in response.json.values()
+        assert common_response.unauthorize_operation() == response.json
         # test with valid authentication
         sign_in = self.test_signin_admin()
         response = self.client.post(
             url_for("lawyer.create_lawyer"),
-            headers={"Authorization": "Bearer " + sign_in.json["token"]},
+            headers={
+                "Authorization": "Bearer " + sign_in.json["access_token"]},
             json=data)
         assert response.status_code == 201
         assert LawyerModel.query.count() == 2
-        assert "create_lawyer" in response.json.values()
+        assert isinstance(response.json, dict)
+        for key in response.json.keys():
+            assert response.json[key] == getattr(LawyerModel.query.get(2), key)
 
     @pytest.mark.lawyer
     def test_view_lawyers(self):
-        # test without authentication
-        response = self.client.get(url_for("lawyer.view_lawyers"))
-        assert response.status_code == 401
-        assert NO_AUTH_RESPONSE in response.json.values()
-        # test with wrong authentication
-        sign_in = self.test_signin_lawyer()
-        response = self.client.get(
-            url_for("lawyer.view_lawyers"),
-            headers={"Authorization": "Bearer " + sign_in.json["token"]})
-        assert response.status_code == 401
-        assert "operation unauthorized" in response.json.values()
-        # # test with valid authentication
         sign_in = self.test_signin_admin()
         response = self.client.get(
             url_for("lawyer.view_lawyers"),
-            headers={"Authorization": "Bearer " + sign_in.json["token"]})
+            headers={
+                "Authorization": "Bearer " + sign_in.json["access_token"]})
         assert response.status_code == 200
         assert isinstance(response.json, list)
-        assert len(response.json) == 1
+        for key in response.json[0].keys():
+            assert response.json[0][key] == getattr(LawyerModel.query.get(1), key)
 
     @pytest.mark.lawyer
     def test_view_lawyer(self):
-        # test without authentication
-        response = self.client.get(url_for("lawyer.view_lawyer", lawyer_id=1))
-        assert response.status_code == 401
-        assert NO_AUTH_RESPONSE in response.json.values()
-        # test with invalid authentication
-        sign_in = self.test_signin_lawyer()
-        response = self.client.get(
-            url_for("lawyer.view_lawyer", lawyer_id=1),
-            headers={"Authorization": "Bearer " + sign_in.json["token"]})
-        assert response.status_code == 401
-        assert "operation unauthorized" in response.json.values()
-        # test with valid authentication
+        # unavailable user
         sign_in = self.test_signin_admin()
         response = self.client.get(
+            url_for("lawyer.view_lawyer", lawyer_id=2),
+            headers={
+                "Authorization": "Bearer " + sign_in.json["access_token"]})
+        assert response.status_code == 404
+        assert isinstance(response.json, dict)
+        assert common_response.resource_unavailable() == response.json
+        #  available user
+        response = self.client.get(
             url_for("lawyer.view_lawyer", lawyer_id=1),
-            headers={"Authorization": "Bearer " + sign_in.json["token"]})
+            headers={
+                "Authorization": "Bearer " + sign_in.json["access_token"]})
         assert response.status_code == 200
         assert isinstance(response.json, dict)
-        assert "test_lawyer" in response.json.values()
+        for key in response.json.keys():
+            assert response.json[key] == getattr(LawyerModel.query.get(1), key)
 
     @pytest.mark.lawyer
     def test_update_lawyer(self):
@@ -171,32 +132,18 @@ class TestLawyerViews(BaseTestCase):
             "email": "update_email",
             "password": "update_password"
         }
-        # test without authentication
-        response = self.client.put(url_for("lawyer.update_lawyer", lawyer_id=1),
-                                   json=data)
-        assert response.status_code == 401
-        assert NO_AUTH_RESPONSE in response.json.values()
-        # test with invalid authentication
-        sign_in = self.test_signin_lawyer()
-        response = self.client.put(
-            url_for("lawyer.update_lawyer", lawyer_id=1),
-            headers={"Authorization": "Bearer " + sign_in.json["token"]},
-            json=data,
-        )
-        assert response.status_code == 401
-        assert "operation unauthorized" in response.json.values()
-        # test with valid authentication
         sign_in = self.test_signin_admin()
         response = self.client.put(
             url_for("lawyer.update_lawyer", lawyer_id=1),
-            headers={"Authorization": "Bearer " + sign_in.json["token"]},
+            headers={
+                "Authorization": "Bearer " + sign_in.json["access_token"]},
             json=data,
         )
         assert response.status_code == 200
+        assert isinstance(response.json, dict)
         assert LawyerModel.query.count() == 1
-        updated_data = LawyerModel.query.get(1)
         for key in response.json.keys():
-            assert response.json[key] == getattr(updated_data, key)
+            assert response.json[key] == getattr(LawyerModel.query.get(1), key)
 
     @pytest.mark.lawyer
     def test_delete_lawyer(self):
@@ -209,24 +156,12 @@ class TestLawyerViews(BaseTestCase):
         )
         db.session.add(new_lawyer)
         db.session.commit()
-        # test without authentication
         assert LawyerModel.query.count() == 2
-        response = self.client.delete(
-            url_for("lawyer.delete_lawyer", lawyer_id=2))
-        assert response.status_code == 401
-        assert NO_AUTH_RESPONSE in response.json.values()
-        # test with invalid authentication
-        sign_in = self.test_signin_lawyer()
-        response = self.client.delete(
-            url_for("lawyer.delete_lawyer", lawyer_id=2),
-            headers={"Authorization": "Bearer " + sign_in.json["token"]})
-        assert response.status_code == 401
-        assert "operation unauthorized" in response.json.values()
-        # test with valid authentication
         sign_in = self.test_signin_admin()
         response = self.client.delete(
             url_for("lawyer.delete_lawyer", lawyer_id=2),
-            headers={"Authorization": "Bearer " + sign_in.json["token"]})
+            headers={"Authorization": "Bearer " + sign_in.json["access_token"]}
+        )
         assert response.status_code == 204
         assert LawyerModel.query.count() == 1
 

@@ -1,17 +1,33 @@
 import unittest
-from tests import BaseTestCase
+from tests import BaseTestCase, CommonResponse
 from app.models import AdminModel
 from app import db
 import pytest
 from flask import url_for
 
-NO_AUTH_RESPONSE = "Token is missing !!"
+common_response = CommonResponse()
+# NO_AUTH_RESPONSE = "Token is missing !!"
 
 
 # @pytest.mark.usefixtures("admin_signin_info")
 class TestAdminViews(BaseTestCase):
     @pytest.mark.admin
     def test_signin_admin(self):
+        # invalid credentials
+        admin_info = {
+            "username": "test_admin_usname",
+            "password": "test_admin_password"
+        }
+        response = self.client.post(
+            url_for("admin.signin_admin"),
+            json=admin_info
+        )
+        assert response.status_code == 200
+        assert len(common_response.signin_invalid_credentials()) == \
+               len(response.json)
+        assert common_response.signin_invalid_credentials() == \
+               response.json
+        # valid credentials
         admin_info = {
             "username": "test_admin_username",
             "password": "test_admin_password"
@@ -21,8 +37,11 @@ class TestAdminViews(BaseTestCase):
             json=admin_info
         )
         assert response.status_code == 200
-        assert "token" in response.json.keys()
-        assert len(response.json) == 1
+        assert len(common_response.signin_valid_credentials()) == \
+               len(response.json)
+        assert common_response.signin_valid_credentials().keys() == \
+               response.json.keys()
+        print("this is the redis conn", self.redis)
         return response
 
     @pytest.mark.admin
@@ -33,58 +52,73 @@ class TestAdminViews(BaseTestCase):
             "email": "create_email",
             "password": "create_password"
         }
-        response = self.client.post(url_for("admin.create_admin"),
-                                    json=data)
+        response = self.client.post(url_for("admin.create_admin"), json=data)
         assert response.status_code == 201
+        print(response.json)
+        assert isinstance(response.json, dict)
         assert AdminModel.query.count() == 2
-        assert "create_admin" in response.json.values()
+        for key in response.json.keys():
+            assert response.json[key] == getattr(AdminModel.query.get(2), key)
 
     @pytest.mark.admin
     def test_view_admins(self):
-        # test without authentication
+        # test without token
         response = self.client.get(url_for("admin.view_admins"))
         assert response.status_code == 401
-        assert NO_AUTH_RESPONSE in response.json.values()
-        # test with authentication
-        sign_in = self.test_signin_admin()
-        response = self.client.get(
-            url_for("admin.view_admins"),
-            headers={"Authorization": "Bearer " + sign_in.json["token"]}
-        )
-        assert response.status_code == 200
-        assert isinstance(response.json, list)
-        assert len(response.json) == 1
+        assert len(response.json) == \
+               len(common_response.missing_token_authentication())
+        assert common_response.missing_token_authentication() == response.json
         # test with invalid token
         sign_in = self.test_signin_admin()
         response = self.client.get(
             url_for("admin.view_admins"),
-            headers={"Authorization": "Bearer " + sign_in.json["token"] + "dfajl"}
+            headers={"Authorization": "Bearer " + sign_in.json[
+                "access_token"] + "dfajl"}
         )
         assert response.status_code == 401
         assert isinstance(response.json, dict)
-        assert "Token is invalid !!" in response.json.values()
+        assert "error" in response.json.keys()
+        # test with valid token
+        response = self.client.get(
+            url_for("admin.view_admins"),
+            headers={"Authorization": "Bearer " + sign_in.json[
+                "access_token"]}
+        )
+        assert response.status_code == 200
+        assert isinstance(response.json, list)
+        for key in response.json[0].keys():
+            assert response.json[0][key] == getattr(AdminModel.query.get(1), key)
+            # test with refresh token
+        response = self.client.get(
+            url_for("admin.view_admins"),
+            headers={"Authorization": "Bearer " + sign_in.json[
+                "refresh_token"]}
+        )
+        assert response.status_code == 401
+        assert isinstance(response.json, dict)
+        assert common_response.access_token_required() == response.json
 
     @pytest.mark.admin
     def test_view_admin(self):
-        # test without authentication
-        response = self.client.get(url_for("admin.view_admin", admin_id=1))
-        assert response.status_code == 401
-        # test with authentication
         sign_in = self.test_signin_admin()
         # unavailable user
         response = self.client.get(
             url_for("admin.view_admin", admin_id=2),
-            headers={"Authorization": "Bearer " + sign_in.json["token"]}
+            headers={"Authorization": "Bearer " + sign_in.json["access_token"]}
         )
         assert response.status_code == 404
+        assert isinstance(response.json, dict)
+        assert common_response.resource_unavailable() == response.json
         # available user
         response = self.client.get(
             url_for("admin.view_admin", admin_id=1),
-            headers={"Authorization": "Bearer " + sign_in.json["token"]}
+            headers={"Authorization": "Bearer " + sign_in.json["access_token"]}
         )
         assert response.status_code == 200
         assert isinstance(response.json, dict)
-        assert "test_admin" in response.json.values()
+        for key in response.json.keys():
+            assert response.json[key] == getattr(AdminModel.query.get(1),
+                                                    key)
 
     @pytest.mark.admin
     def test_update_admin(self):
@@ -94,24 +128,17 @@ class TestAdminViews(BaseTestCase):
             "email": "update_email",
             "password": "update_password"
         }
-        # test without authentication
-        response = self.client.put(url_for("admin.update_admin", admin_id=1),
-                                   json=data)
-        assert response.status_code == 401
-        assert NO_AUTH_RESPONSE in response.json.values()
         sign_in = self.test_signin_admin()
-        # test with authentication
         response = self.client.put(
             url_for("admin.update_admin", admin_id=1),
-            headers={"Authorization": "Bearer " + sign_in.json["token"]},
+            headers={"Authorization": "Bearer " + sign_in.json["access_token"]},
             json=data
         )
         assert response.status_code == 200
         assert isinstance(response.json, dict)
         assert AdminModel.query.count() == 1
-        updated_info = AdminModel.query.get(1)
         for key in response.json.keys():
-            assert response.json[key] == getattr(updated_info, key)
+            assert response.json[key] == getattr(AdminModel.query.get(1), key)
 
     @pytest.mark.admin
     def test_delete_admin(self):
@@ -124,19 +151,31 @@ class TestAdminViews(BaseTestCase):
         db.session.add(new_admin)
         db.session.commit()
         assert AdminModel.query.count() == 2
-        # test without authentication
-        response = self.client.delete(
-            url_for("admin.delete_admin", admin_id=2))
-        assert response.status_code == 401
-        assert NO_AUTH_RESPONSE in response.json.values()
-        # test with authentication
         sign_in = self.test_signin_admin()
         response = self.client.delete(
             url_for("admin.delete_admin", admin_id=2),
-            headers={"Authorization": "Bearer " + sign_in.json["token"]}
+            headers={"Authorization": "Bearer " + sign_in.json["access_token"]}
         )
         assert response.status_code == 204
         assert AdminModel.query.count() == 1
+
+    @pytest.mark.admin
+    def test_refresh_token(self):
+        sign_in = self.test_signin_admin()
+        # access token
+        response = self.client.get(
+            url_for("admin.refresh_access_token"),
+            headers={"Authorization": "Bearer " + sign_in.json["access_token"]}
+        )
+        assert response.status_code == 401
+        assert common_response.refresh_token_required() == response.json
+        response = self.client.get(
+            url_for("admin.refresh_access_token"),
+            headers={"Authorization": "Bearer " + sign_in.json["refresh_token"]}
+        )
+        assert response.status_code == 200
+        assert common_response.signin_valid_credentials().keys() == \
+               response.json.keys()
 
 
 if __name__ == "__main__":
