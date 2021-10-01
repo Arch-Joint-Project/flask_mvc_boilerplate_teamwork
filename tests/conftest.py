@@ -4,21 +4,21 @@ from app.repositories import AdminRepository
 
 
 @pytest.fixture(scope="class")
-def base_test_case_setup_requirement(request):
-    request.cls.init_admin_info = {
+def initial_data(request):
+    request.cls.admin_data = {
         "name": "initial_admin",
         "username": "initial_admin_username",
         "email": "initial_admin_email",
         "password": "initial_admin_password"
     }
-    request.cls.init_lawyer_info = {
+    request.cls.lawyer_data = {
         "admin_id": 1,
         "name": "initial_lawyer",
         "username": "initial_lawyer_username",
         "email": "initial_lawyer_email",
         "password": "initial_lawyer_password"
     }
-    request.cls.init_bill_info = {
+    request.cls.bill_data = {
         "lawyer_id": 1,
         "billable_rate": 300,
         "company": "initial_company",

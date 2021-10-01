@@ -1,20 +1,21 @@
 import unittest
-from tests import BaseTestCase, CommonResponse
+from tests import BaseTestCase, SharedResponse
 from app.models import LawyerModel
 from app import db
 import pytest
 from flask import url_for
 
-common_response = CommonResponse()
+shared_response = SharedResponse()
 
 
+@pytest.mark.usefixtures("initial_data")
 class TestLawyerViews(BaseTestCase):
     @pytest.mark.lawyer
     def test_signin_admin(self):
         # valid credentials
         admin_info = {
-            "username": "test_admin_username",
-            "password": "test_admin_password"
+            "username": self.admin_data["username"],
+            "password": self.admin_data["password"]
         }
         response = self.client.post(
             url_for("admin.signin_admin"),
@@ -35,14 +36,14 @@ class TestLawyerViews(BaseTestCase):
         )
         assert response.status_code == 200
         assert isinstance(response.json, dict)
-        assert len(common_response.signin_invalid_credentials()) == \
+        assert len(shared_response.signin_invalid_credentials()) == \
                len(response.json)
-        assert common_response.signin_invalid_credentials() == \
+        assert shared_response.signin_invalid_credentials() == \
                response.json
         # valid credential
         lawyer_info = {
-            "username": "test_lawyer_username",
-            "password": "test_lawyer_password"
+            "username": self.lawyer_data["username"],
+            "password": self.lawyer_data["password"]
         }
         response = self.client.post(
             url_for("lawyer.signin_lawyer"),
@@ -50,9 +51,9 @@ class TestLawyerViews(BaseTestCase):
         )
         assert response.status_code == 200
         assert isinstance(response.json, dict)
-        assert len(common_response.signin_valid_credentials()) == \
+        assert len(shared_response.signin_valid_credentials()) == \
                len(response.json)
-        assert common_response.signin_valid_credentials().keys() == \
+        assert shared_response.signin_valid_credentials().keys() == \
                response.json.keys()
         return response
 
@@ -68,7 +69,7 @@ class TestLawyerViews(BaseTestCase):
         response = self.client.post(url_for("lawyer.create_lawyer"),
                                     json=data)
         assert response.status_code == 401
-        assert common_response.missing_token_authentication() == response.json
+        assert shared_response.missing_token_authentication() == response.json
         # wrong access token
         sign_in = self.test_signin_lawyer()
         response = self.client.post(
@@ -77,9 +78,10 @@ class TestLawyerViews(BaseTestCase):
                 "Authorization": "Bearer " + sign_in.json["access_token"]},
             json=data)
         assert response.status_code == 401
-        assert common_response.unauthorize_operation() == response.json
+        assert shared_response.unauthorize_operation() == response.json
         # test with valid authentication
         sign_in = self.test_signin_admin()
+        print(sign_in)
         response = self.client.post(
             url_for("lawyer.create_lawyer"),
             headers={
@@ -113,7 +115,7 @@ class TestLawyerViews(BaseTestCase):
                 "Authorization": "Bearer " + sign_in.json["access_token"]})
         assert response.status_code == 404
         assert isinstance(response.json, dict)
-        assert common_response.resource_unavailable() == response.json
+        assert shared_response.resource_unavailable() == response.json
         #  available user
         response = self.client.get(
             url_for("lawyer.view_lawyer", lawyer_id=1),

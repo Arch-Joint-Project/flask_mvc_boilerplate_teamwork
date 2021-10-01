@@ -1,15 +1,15 @@
 import unittest
-from tests import BaseTestCase, CommonResponse
+from tests import BaseTestCase, SharedResponse
 from app.models import AdminModel
 from app import db
 import pytest
 from flask import url_for
 
-common_response = CommonResponse()
+shared_response = SharedResponse()
 # NO_AUTH_RESPONSE = "Token is missing !!"
 
 
-# @pytest.mark.usefixtures("admin_signin_info")
+@pytest.mark.usefixtures("initial_data")
 class TestAdminViews(BaseTestCase):
     @pytest.mark.admin
     def test_signin_admin(self):
@@ -22,26 +22,24 @@ class TestAdminViews(BaseTestCase):
             url_for("admin.signin_admin"),
             json=admin_info
         )
-        assert response.status_code == 200
-        assert len(common_response.signin_invalid_credentials()) == \
-               len(response.json)
-        assert common_response.signin_invalid_credentials() == \
-               response.json
-        # valid credentials
+        self.assert200(response)
+        self.assertEqual(len(shared_response.signin_invalid_credentials()), len(response.json))
+        self.assertEqual(shared_response.signin_invalid_credentials(), response.json)
+        # # valid credentials
         admin_info = {
-            "username": "test_admin_username",
-            "password": "test_admin_password"
+            "username": self.admin_data.get("username"),
+            "password": self.admin_data.get("password")
         }
         response = self.client.post(
             url_for("admin.signin_admin"),
             json=admin_info
         )
-        assert response.status_code == 200
-        assert len(common_response.signin_valid_credentials()) == \
-               len(response.json)
-        assert common_response.signin_valid_credentials().keys() == \
-               response.json.keys()
-        print("this is the redis conn", self.redis)
+        self.assert200(response)
+        self.assertEqual(len(shared_response.signin_valid_credentials()),
+                         len(response.json))
+        self.assertEqual(shared_response.signin_valid_credentials().keys(),
+                         response.json.keys())
+
         return response
 
     @pytest.mark.admin
@@ -66,8 +64,8 @@ class TestAdminViews(BaseTestCase):
         response = self.client.get(url_for("admin.view_admins"))
         assert response.status_code == 401
         assert len(response.json) == \
-               len(common_response.missing_token_authentication())
-        assert common_response.missing_token_authentication() == response.json
+               len(shared_response.missing_token_authentication())
+        assert shared_response.missing_token_authentication() == response.json
         # test with invalid token
         sign_in = self.test_signin_admin()
         response = self.client.get(
@@ -96,7 +94,7 @@ class TestAdminViews(BaseTestCase):
         )
         assert response.status_code == 401
         assert isinstance(response.json, dict)
-        assert common_response.access_token_required() == response.json
+        assert shared_response.access_token_required() == response.json
 
     @pytest.mark.admin
     def test_view_admin(self):
@@ -108,7 +106,7 @@ class TestAdminViews(BaseTestCase):
         )
         assert response.status_code == 404
         assert isinstance(response.json, dict)
-        assert common_response.resource_unavailable() == response.json
+        assert shared_response.resource_unavailable() == response.json
         # available user
         response = self.client.get(
             url_for("admin.view_admin", admin_id=1),
@@ -168,13 +166,13 @@ class TestAdminViews(BaseTestCase):
             headers={"Authorization": "Bearer " + sign_in.json["access_token"]}
         )
         assert response.status_code == 401
-        assert common_response.refresh_token_required() == response.json
+        assert shared_response.refresh_token_required() == response.json
         response = self.client.get(
             url_for("admin.refresh_access_token"),
             headers={"Authorization": "Bearer " + sign_in.json["refresh_token"]}
         )
         assert response.status_code == 200
-        assert common_response.signin_valid_credentials().keys() == \
+        assert shared_response.signin_valid_credentials().keys() == \
                response.json.keys()
 
 

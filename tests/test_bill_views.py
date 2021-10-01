@@ -1,20 +1,20 @@
 import unittest
-from tests import BaseTestCase, CommonResponse
+from tests import BaseTestCase, SharedResponse
 from app.models import BillModel
 from app import db
 import pytest
 from flask import url_for
 from datetime import date, time
 
-common_response = CommonResponse()
+shared_response = SharedResponse()
 
 
 class TestBillViews(BaseTestCase):
     @pytest.mark.bill
     def test_signin_admin(self):
         admin_info = {
-            "username": "test_admin_username",
-            "password": "test_admin_password"
+            "username": self.admin_data["username"],
+            "password": self.admin_data["password"]
         }
         response = self.client.post(
             url_for("admin.signin_admin"),
@@ -25,8 +25,8 @@ class TestBillViews(BaseTestCase):
     @pytest.mark.bill
     def test_signin_lawyer(self):
         lawyer_info = {
-            "username": "test_lawyer_username",
-            "password": "test_lawyer_password"
+            "username": self.lawyer_data["username"],
+            "password": self.lawyer_data["password"]
         }
         response = self.client.post(
             url_for("lawyer.signin_lawyer"),
@@ -46,14 +46,14 @@ class TestBillViews(BaseTestCase):
         # no token
         response = self.client.post(url_for("bill.create_bill"), json=data)
         assert response.status_code == 401
-        assert common_response.missing_token_authentication() == response.json
+        assert shared_response.missing_token_authentication() == response.json
         # wrong access token
         sign_in = self.test_signin_admin()
         response = self.client.post(
             url_for("bill.create_bill"),
             headers={"Authorization": "Bearer " + sign_in.json["access_token"]}, json=data)
         assert response.status_code == 401
-        assert common_response.unauthorize_operation() == response.json
+        assert shared_response.unauthorize_operation() == response.json
         # access token
         sign_in = self.test_signin_lawyer()
         response = self.client.post(
@@ -84,16 +84,16 @@ class TestBillViews(BaseTestCase):
                                             sign_in.json["access_token"]})
         assert response.status_code == 404
         assert isinstance(response.json, dict)
-        assert common_response.resource_unavailable() == response.json
+        assert shared_response.resource_unavailable() == response.json
         # available resource
         response = self.client.get(
             url_for("bill.view_bill", bill_id=1),
             headers={"Authorization": "Bearer " + sign_in.json["access_token"]})
         assert response.status_code == 200
         assert isinstance(response.json, dict)
-        assert "test_bill_company" in response.json.values()
+        assert self.bill_data["company"] in response.json.values()
 
-    @pytest.mark.bill
+    @pytest.mark.active
     def test_view_company_bills(self):
         sign_in = self.test_signin_admin()
         # unavailable resource
@@ -105,11 +105,12 @@ class TestBillViews(BaseTestCase):
         assert response.json == []
         # available resource
         response = self.client.get(
-            url_for("bill.view_company_bills", company="test_bill_company"),
+            url_for("bill.view_company_bills", company=self.bill_data["company"]),
             headers={"Authorization": "Bearer " + sign_in.json["access_token"]})
         assert response.status_code == 200
         assert isinstance(response.json, list)
-        assert "test_bill_company" in response.json[0].values()
+        print(response.json)
+        assert self.bill_data["company"] in response.json[0].values()
 
     @pytest.mark.bill
     def test_view_lawyer_bills(self):
@@ -119,7 +120,7 @@ class TestBillViews(BaseTestCase):
             headers={"Authorization": "Bearer " + sign_in.json["access_token"]})
         assert response.status_code == 200
         assert isinstance(response.json, list)
-        assert response.json[0].get("company") == "test_bill_company"
+        assert response.json[0].get("company") == self.bill_data["company"]
 
     @pytest.mark.bill
     def test_update_bill(self):

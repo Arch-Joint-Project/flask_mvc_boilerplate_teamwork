@@ -1,5 +1,7 @@
+from datetime import date, time
 
-class CommonResponse:
+
+class SharedResponse:
     def signin_invalid_credentials(self):
         return {
             "error": "user verification failure. invalid credentials",
