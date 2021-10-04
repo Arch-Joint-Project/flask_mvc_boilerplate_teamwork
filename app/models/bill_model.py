@@ -23,7 +23,7 @@ class BillModel(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     # foreign key to link this table to the lawyers table using
     # the lawyers id
-    lawyer_id = db.Column('Lawyer ID', db.ForeignKey('lawyers.id'), index=True, nullable=False)
+    lawyer_id = db.Column('LawyerID', db.ForeignKey('lawyers.id'), index=True, nullable=False)
     billable_rate = db.Column('Billable Rate (per hour)', db.Integer, nullable=False)
     company = db.Column('Company', db.String, nullable=False, index=True)
     date = db.Column('Date', db.Date, nullable=False)
