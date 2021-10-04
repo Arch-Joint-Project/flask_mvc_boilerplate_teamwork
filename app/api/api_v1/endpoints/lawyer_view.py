@@ -29,7 +29,7 @@ lawyer_controller = obj_graph.provide(LawyerController)
 @validator(schema=LawyerCreateSchema)
 @token_required(role=["admin"])
 def create_lawyer(current_user):
-    lawyer_data = lawyer_controller.create(request.json, current_user["id"])
+    lawyer_data = lawyer_controller.create(current_user["id"], request.json)
     return handle_result(lawyer_data, schema=LawyerReadSchema)
 
 
@@ -37,7 +37,7 @@ def create_lawyer(current_user):
 @validator(schema=LawyerSigninSchema)
 def signin_lawyer():
     token = lawyer_controller.sign_in(request.json)
-    return jsonify({"token": token})
+    return token
 
 
 @lawyer.route("/", methods=["GET"])
@@ -66,3 +66,13 @@ def update_lawyer(current_user, lawyer_id):
 def delete_lawyer(current_user, lawyer_id):
     lawyer_data = lawyer_controller.delete(lawyer_id)
     return handle_result(lawyer_data)
+
+
+@lawyer.route("/refresh_token", methods=["GET"])
+@token_required(role=["lawyer"], refresh=True)
+def refresh_access_token(data):
+    token = lawyer_controller.refresh_token(data)
+    return jsonify({
+        "access_token": token[0],
+        "refresh_token": token[1]
+    })

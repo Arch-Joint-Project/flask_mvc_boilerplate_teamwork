@@ -29,6 +29,9 @@ class BillRepository(SQLBaseRepository):
         return super().index()
 
     def create(self, obj_in):
+        obj_in["date"] = create_date_object(obj_in["date"])
+        obj_in["start_time"] = create_time_object(obj_in["start_time"])
+        obj_in["end_time"] = create_time_object(obj_in["end_time"])
         server_data = super().create(obj_in)
         cache_bill = bill_schema.dumps(server_data)
         self.redis_service.set(f"bill__{server_data.id}", cache_bill)
@@ -38,17 +41,18 @@ class BillRepository(SQLBaseRepository):
 
     def find_by_id(self, obj_id):
         cache_data = self.redis_service.get(f"bill__{obj_id}")
-        if not cache_data:
-            result = super().find_by_id(obj_id)
-            bill_info = bill_schema.dumps(result)
-            self.redis_service.set(f"bill__{obj_id}", bill_info)
-            return result
-        cache_data["date"] = create_date_object(cache_data["date"])
-        cache_data["start_time"] = create_time_object(cache_data["start_time"])
-        cache_data["end_time"] = create_time_object(cache_data["end_time"])
-        return self.model(**cache_data)
+        if cache_data:
+            cache_data["date"] = create_date_object(cache_data["date"])
+            cache_data["start_time"] = create_time_object(cache_data["start_time"])
+            cache_data["end_time"] = create_time_object(cache_data["end_time"])
+            return self.model(**cache_data)
+        server_data = super().find_by_id(obj_id)
+        return server_data
 
     def update_by_id(self, obj_id, obj_in):
+        obj_in["date"] = create_date_object(obj_in["date"])
+        obj_in["start_time"] = create_time_object(obj_in["start_time"])
+        obj_in["end_time"] = create_time_object(obj_in["end_time"])
         server_data = super().find_by_id(obj_id)
         if server_data:
             self.redis_service.delete(f"bill__{server_data.id}")
@@ -58,8 +62,10 @@ class BillRepository(SQLBaseRepository):
         return result
 
     def delete(self, obj_id):
-        server_data = super().find_by_id(obj_id)
-        if server_data:
-            bill_info = super().delete(obj_id)
-            self.redis_service.delete(f"bill__{server_data.id}")
-            return bill_info
+        cache_data = self.redis_service.get(f"bill__{obj_id}")
+        if cache_data:
+            self.redis_service.delete(f"bill__{obj_id}")
+        delete = super().delete(obj_id)
+        self.redis_service.set("all_bills",
+                               bill_schema.dumps(super().index(), many=True))
+        return delete

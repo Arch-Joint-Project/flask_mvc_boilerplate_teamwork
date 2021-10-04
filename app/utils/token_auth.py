@@ -2,11 +2,10 @@ from functools import wraps
 from flask import request, jsonify, make_response
 import jwt
 import os
-
 from jwt import InvalidTokenError
 
 
-def token_required(role: list):
+def token_required(role: list, refresh=False):
     def check_token(f):
         @wraps(f)
         def decorated(*args, **kwargs):
@@ -19,15 +18,29 @@ def token_required(role: list):
             try:
                 data = jwt.decode(token, os.getenv("SECRET_KEY"),
                                   algorithms=["HS256"])
-            except InvalidTokenError:
+            except InvalidTokenError as invalid_token:
                 return jsonify({
-                    "message": "Token is invalid !!"
+                    "error": invalid_token.args
                 }), 401
+            if refresh:
+                if data["grant_type"] != "refresh_token":
+                    return make_response(jsonify({
+                        "status": "error",
+                        "error": "refresh token required"
+                    }), 401)
+            else:
+                if data["grant_type"] == "refresh_token":
+                    return make_response(jsonify({
+                        "status": "error",
+                        "error": "access token required"
+                    }), 401)
             if data["role"] not in role:
                 return make_response(jsonify({
                     "status": "error",
-                    "error": "operation unauthorized"
+                    "error": "unauthorized user"
                 }), 401)
             return f(data, *args, **kwargs)
+
         return decorated
+
     return check_token

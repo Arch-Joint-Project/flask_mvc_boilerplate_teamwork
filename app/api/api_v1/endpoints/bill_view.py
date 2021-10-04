@@ -12,7 +12,7 @@ from app.utils import validator
 
 # third party imports
 import pinject
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request
 from app.utils.token_auth import token_required
 
 bill = Blueprint("bill", __name__)
@@ -56,22 +56,7 @@ def view_lawyer_bills(current_user, lawyer_id):
 @validator(schema=BillCreateSchema)
 @token_required(role=["lawyer"])
 def create_bill(current_user):
-    # get incoming bill
-    data = request.json
-    # add lawyer id to the data
-    data["lawyer_id"] = current_user["id"]
-    # get all bills within the system
-    query_bill = bill_controller.index()
-    bills = handle_result(query_bill, schema=BillReadSchema, many=True)
-    for bill in bills.json:
-        bill_id = bill.pop("id")
-        # compare the bills within the system to the incoming data
-        if data == bill:
-            # if equal data exist
-            # create a duplicate key scenario
-            data["id"] = bill_id
-            break
-    bill_data = bill_controller.create(data)
+    bill_data = bill_controller.create(current_user.get("id"), request.json)
     return handle_result(bill_data, schema=BillReadSchema)
 
 

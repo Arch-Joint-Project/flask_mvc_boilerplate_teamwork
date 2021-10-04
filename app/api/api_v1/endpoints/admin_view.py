@@ -41,7 +41,7 @@ def create_admin():
 @validator(schema=AdminSigninSchema)
 def signin_admin():
     token = admin_controller.sign_in(request.json)
-    return jsonify({"token": token})
+    return token
 
 
 @admin.route("/", methods=["GET"])
@@ -70,3 +70,13 @@ def update_admin(current_user, admin_id):
 def delete_admin(current_user, admin_id):
     admin_data = admin_controller.delete(admin_id)
     return handle_result(admin_data)
+
+
+@admin.route("/refresh_token", methods=["GET"])
+@token_required(role=["admin"], refresh=True)
+def refresh_access_token(data):
+    token = admin_controller.refresh_token(data)
+    return jsonify({
+        "access_token": token[0],
+        "refresh_token": token[1]
+    })
