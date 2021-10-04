@@ -32,4 +32,7 @@ class AdminController:
         return ServiceResult(Result(admin, 204))
 
     def sign_in(self, auth_info):
-        return auth.sign_in(auth_info, AdminModel, role="admin")
+        return auth.sign_in(auth_info, AdminModel)
+
+    def refresh_token(self, data):
+        return auth.create_token(data.get("id"), data.get("role"))

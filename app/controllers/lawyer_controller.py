@@ -15,7 +15,7 @@ class LawyerController:
         lawyer = self.lawyer_repository.index()
         return ServiceResult(Result(lawyer, 200))
 
-    def create(self, data, id):
+    def create(self, id, data):
         data["admin_id"] = id
         lawyer = self.lawyer_repository.create(data)
         return ServiceResult(Result(lawyer, 201))
@@ -33,4 +33,7 @@ class LawyerController:
         return ServiceResult(Result(lawyer, 204))
 
     def sign_in(self, auth_info):
-        return auth.sign_in(auth_info, LawyerModel, role="lawyer")
+        return auth.sign_in(auth_info, LawyerModel)
+
+    def refresh_token(self, data):
+        return auth.create_token(data.get("id"), data.get("role"))

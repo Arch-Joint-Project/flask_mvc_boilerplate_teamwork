@@ -21,7 +21,7 @@ class LawyerModel(db.Model):
     name: str
     username: str
     email: str
-    hash_password: str
+    password: str
     bill: db.Model
 
     __tablename__ = 'lawyers'
@@ -39,7 +39,8 @@ class LawyerModel(db.Model):
 
     @property
     def password(self):
-        raise AttributeError("password is inaccessible")
+        # raise AttributeError("password is inaccessible")
+        return self.hash_password
 
     @password.setter
     def password(self, password):
@@ -47,3 +48,10 @@ class LawyerModel(db.Model):
 
     def verify_password(self, password):
         return check_password_hash(self.hash_password, password)
+
+    @property
+    def role(self):
+        return "lawyer"
+
+    def __repr__(self):
+        return f"<Lawyer: {self.name}>"

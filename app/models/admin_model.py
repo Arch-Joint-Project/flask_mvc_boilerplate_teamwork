@@ -22,7 +22,7 @@ class AdminModel(db.Model):
     name: str
     username: str
     email: str
-    hash_password: str
+    password: str
 
     __tablename__ = 'admins'
     id = db.Column(db.Integer, primary_key=True)
@@ -36,8 +36,8 @@ class AdminModel(db.Model):
 
     @property
     def password(self):
-        raise AttributeError("password inaccessible")
-        # return self.hash_password
+        # raise AttributeError("password inaccessible")
+        return self.hash_password
 
     @password.setter
     def password(self, password):
@@ -45,3 +45,10 @@ class AdminModel(db.Model):
 
     def verify_password(self, password):
         return check_password_hash(self.hash_password, password)
+
+    @property
+    def role(self):
+        return "admin"
+
+    def __repr__(self):
+        return f"<Admin: {self.name}>"

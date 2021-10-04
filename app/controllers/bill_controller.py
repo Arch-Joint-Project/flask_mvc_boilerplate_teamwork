@@ -1,9 +1,9 @@
-from flask import jsonify
-
 from app.core.result import Result
-from app.core.service_result import ServiceResult
+from app.core.service_result import ServiceResult, handle_result
 from app.repositories import BillRepository
 from collections import defaultdict
+
+from app.schema import BillReadSchema
 from app.utils import create_time_object, create_date_object
 
 
@@ -15,23 +15,28 @@ class BillController:
         bill = self.bill_repository.index()
         return ServiceResult(Result(bill, 200))
 
-    def create(self, data):
-        data["date"] = create_date_object(data["date"])
-        data["start_time"] = create_time_object(data["start_time"])
-        data["end_time"] = create_time_object(data["end_time"])
+    def create(self, user_id, data):
+        data["lawyer_id"] = user_id
+        # get all bills within the system
+        query_bill = self.index()
+        bills = handle_result(query_bill, schema=BillReadSchema, many=True)
+        for bill in bills.json:
+            bill_id = bill.pop("id")
+            # compare the bills within the system to the incoming data
+            if data == bill:
+                # if data exist
+                # create a duplicate key scenario
+                data["id"] = bill_id
+                break
         bill = self.bill_repository.create(data)
         return ServiceResult(Result(bill, 201))
-
-    # def find(self, query_params):
-    #     bill = self.bill_repository.find(query_params)
-    #     return ServiceResult(Result(bill, 200))
 
     def find_by_id(self, obj_id):
         bill = self.bill_repository.find_by_id(obj_id)
         return ServiceResult(Result(bill, 200))
 
-    def find_all(self, obj_id):
-        bill = self.bill_repository.find_all(obj_id)
+    def find_all(self, query):
+        bill = self.bill_repository.find_all(query)
         return ServiceResult(Result(bill, 200))
 
     def delete(self, obj_id, user_id):
@@ -44,9 +49,6 @@ class BillController:
         bill = self.bill_repository.find(
             {"id": obj_id, "lawyer_id": user_id})
         if bill:
-            obj_in["date"] = create_date_object(obj_in["date"])
-            obj_in["start_time"] = create_time_object(obj_in["start_time"])
-            obj_in["end_time"] = create_time_object(obj_in["end_time"])
             bill = self.bill_repository.update_by_id(obj_id, obj_in)
         return ServiceResult(Result(bill, 200))
 
