@@ -18,20 +18,20 @@ class LawyerRepository(SQLBaseRepository):
         server_data = super().create(obj_in)
         cache_data = lawyer_schema.dumps(server_data)
         print(cache_data)
-        self.redis_service.set(self=self,name=f"lawyer__{server_data.id}",
-                                data=cache_data)
+        self.redis_service.set(f"lawyer__{server_data.id}",
+                                cache_data)
         cache_all_lawyers = lawyer_schema.dumps(super().index(), many=True)
-        self.redis_service.set(self=self,name="all_lawyers", data=cache_all_lawyers)
+        self.redis_service.set("all_lawyers",cache_all_lawyers)
         return server_data
 
     def index(self):
-        all_lawyers = self.redis_service.get(self=self,name="all_lawyers")
+        all_lawyers = self.redis_service.get("all_lawyers")
         if all_lawyers:
             return all_lawyers
         return super().index()
 
     def find_by_id(self, obj_id: int):
-        cache_data = self.redis_service.get(self=self,name=f"lawyer__{obj_id}")
+        cache_data = self.redis_service.get(f"lawyer__{obj_id}")
         if cache_data:
             print("cache")
             return cache_data
@@ -49,10 +49,10 @@ class LawyerRepository(SQLBaseRepository):
         return server_data
 
     def delete(self, obj_id):
-        cache_data = self.redis_service.get(self=self,name=f"lawyer__{obj_id}")
+        cache_data = self.redis_service.get(f"lawyer__{obj_id}")
         if cache_data:
-            self.redis_service.delete(name=f"lawyer__{obj_id}")
+            self.redis_service.delete(f"lawyer__{obj_id}")
         delete = super().delete(obj_id)
-        self.redis_service.set(self=self,name="all_lawyers",
-                               data=lawyer_schema.dumps(super().index(), many=True))
+        self.redis_service.set("all_lawyers",
+                               lawyer_schema.dumps(super().index(), many=True))
         return delete
