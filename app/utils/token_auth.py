@@ -4,6 +4,10 @@ import jwt
 import os
 from jwt import InvalidTokenError
 from config import Config
+from app.services import AuthService
+from jwt import InvalidTokenError
+
+auth_service = AuthService()
 
 
 def token_required(role: list, refresh=False):
@@ -16,31 +20,22 @@ def token_required(role: list, refresh=False):
                 token = authorization_info.split(" ")[1]
             if not token:
                 return jsonify({'message': 'Token is missing !!'}), 401
-            try:
-                data = jwt.decode(token, Config.SECRET_KEY,
-                                  algorithms=["HS256"])
-            except InvalidTokenError as invalid_token:
-                return jsonify({
-                    "error": invalid_token.args
-                }), 401
-            if refresh:
-                if data["grant_type"] != "refresh_token":
-                    return make_response(jsonify({
-                        "status": "error",
-                        "error": "refresh token required"
-                    }), 401)
+            decoded_token = auth_service.decode_token(token)
+            if isinstance(decoded_token, dict):
+                token_payload = decoded_token
             else:
-                if data["grant_type"] == "refresh_token":
-                    return make_response(jsonify({
-                        "status": "error",
-                        "error": "access token required"
-                    }), 401)
-            if data["role"] not in role:
-                return make_response(jsonify({
-                    "status": "error",
-                    "error": "unauthorized user"
-                }), 401)
-            return f(data, *args, **kwargs)
+                return jsonify({
+                        "error": decoded_token
+                    }), 401
+            check_token_type = auth_service.check_token_type(payload=token_payload,
+                                                     refresh_token=refresh)
+            if check_token_type:
+                return check_token_type
+            check_role_type = auth_service.check_access_role(token_payload, access_role=role)
+            if check_role_type:
+                return check_role_type
+
+            return f(token_payload, *args, **kwargs)
 
         return decorated
 
