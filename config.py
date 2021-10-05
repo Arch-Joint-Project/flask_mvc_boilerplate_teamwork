@@ -16,7 +16,7 @@ class Config:
 
     DB_ENGINE = os.getenv("DB_ENGINE", default="POSTGRES")
 
-    SECRET_KEY = os.getenv("SECRET_KEY")
+    SECRET_KEY = os.getenv("SECRET_KEY", "thisisthesecretkey")
 
     # SQL database
     SQL_DB_USER = os.getenv("DB_USER")
@@ -38,7 +38,6 @@ class Config:
     # General
     DEBUG = False
     DEVELOPMENT = False
-    SECRET_KEY = os.getenv("SECRET_KEY")
     FLASK_RUN_PORT = 6000
     TESTING = False
     LOGFILE = "log.log"
