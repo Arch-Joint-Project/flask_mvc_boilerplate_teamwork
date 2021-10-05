@@ -8,6 +8,7 @@ from flask import jsonify
 
 # local imports
 from app import db
+from config import Config
 
 
 class AuthService:
@@ -37,8 +38,8 @@ class AuthService:
             'exp': datetime.utcnow() + timedelta(days=1),
             'grant_type': 'access_token'
         }
-        access_token = jwt.encode(payload, os.getenv("SECRET_KEY"), algorithm="HS256")
+        access_token = jwt.encode(payload, Config.SECRET_KEY, algorithm="HS256")
         payload["grant_type"] = "refresh_token"
         payload["exp"] = datetime.utcnow() + timedelta(days=1)
-        refresh_token = jwt.encode(payload, os.getenv("SECRET_KEY"), algorithm="HS256")
+        refresh_token = jwt.encode(payload, Config.SECRET_KEY, algorithm="HS256")
         return [access_token, refresh_token]
