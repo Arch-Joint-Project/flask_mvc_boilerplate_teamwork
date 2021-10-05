@@ -1,59 +1,75 @@
+# in-built imports
 import os
+from datetime import datetime, timedelta
 
+# third party imports
 import jwt
-import inspect
-from functools import wraps
-from flask import request
-from jwt.exceptions import (
-    ExpiredSignatureError,
-    InvalidTokenError,
-)
+from flask import jsonify, make_response
+from jwt import InvalidTokenError
 
-from app.core.exceptions import AppException
+# local imports
+from app import db
+from config import Config
 
 
-def auth_required(authorized_roles=None):
-    def authorize_user(func):
-        """
-        A wrapper to authorize an action using
-        :param func: {function} the function to wrap around
-        :return:
-        """
+class AuthService:
+    def sign_in(self, auth_info: dict, model: db.Model):
+        if not auth_info or not auth_info.get("username") or not auth_info.get("password"):
+            return jsonify({
+                "status": "error",
+                "error": "authentication information required"
+            })
+        user = model.query.filter_by(
+            username=auth_info.get("username")).first()
+        if user is not None and user.verify_password(auth_info.get("password")):
+            user_token = self.create_token(user.id, role=user.role)
+            return jsonify({
+                "access_token": user_token[0],
+                "refresh_token": user_token[1]
+            })
+        return jsonify({
+            "status": "error",
+            "error": "user verification failure. invalid credentials"
+        })
 
-        @wraps(func)
-        def view_wrapper(*args, **kwargs):
-            authorization = request.headers.get("Authorization")
-            if not authorization:
-                raise AppException.ValidationException("Missing authentication token")
+    def create_token(self, id: int, role=None):
+        payload = {
+            'id': id,
+            'role': role,
+            'exp': datetime.utcnow() + timedelta(days=1),
+            'grant_type': 'access_token'
+        }
+        access_token = jwt.encode(payload, Config.SECRET_KEY, algorithm="HS256")
+        payload["grant_type"] = "refresh_token"
+        payload["exp"] = datetime.utcnow() + timedelta(days=1)
+        refresh_token = jwt.encode(payload, Config.SECRET_KEY, algorithm="HS256")
+        return [access_token, refresh_token]
 
-            token = authorization.split()[1]
-            try:
-                key = os.getenv("JWT_PUBLIC_KEY")  # noqa E501
-                payload = jwt.decode(
-                    token,
-                    key=key,
-                    algorithms=["HS256", "RS256"],
-                    audience="account",
-                    issuer=os.getenv("JWT_ISSUER"),
-                )  # noqa E501
-                available_roles = payload.get("realm_access").get("roles")
-                service_name = os.getenv("SERVICE_NAME")
-                func_name = service_name + "_" + func.__name__
-                access_roles = authorized_roles.split("|")
-                access_roles.append(func_name)
-                for role in access_roles:
-                    if role in available_roles:
-                        if "user_id" in inspect.getfullargspec(func).args:
-                            kwargs["user_id"] = payload.get(
-                                "preferred_username"
-                            )  # noqa E501
-                        return func(*args, **kwargs)
-            except ExpiredSignatureError:
-                raise AppException.ExpiredTokenException("Token Expired")
-            except InvalidTokenError:
-                raise AppException.OperationError("Invalid Token")
-            raise AppException.Unauthorized()
+    def decode_token(self, token: str):
+        try:
+            decode_token = jwt.decode(token, Config.SECRET_KEY,
+                              algorithms=["HS256"])
+        except InvalidTokenError as invalid_token:
+            return invalid_token.args
+        return decode_token
 
-        return view_wrapper
+    def check_token_type(self, payload: dict, refresh_token=False):
+        if refresh_token:
+            if payload["grant_type"] != "refresh_token":
+                return make_response(jsonify({
+                    "status": "error",
+                    "error": "refresh token required"
+                }), 401)
+        else:
+            if payload["grant_type"] == "refresh_token":
+                return make_response(jsonify({
+                    "status": "error",
+                    "error": "access token required"
+                }), 401)
 
-    return authorize_user
+    def check_access_role(self, payload: dict, access_role: list):
+        if payload["role"] not in access_role:
+            return make_response(jsonify({
+                "status": "error",
+                "error": "unauthorized user"
+            }), 401)
