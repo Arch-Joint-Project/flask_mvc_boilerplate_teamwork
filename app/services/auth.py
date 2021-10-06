@@ -19,6 +19,11 @@ class AuthService:
                 "status": "error",
                 "error": "authentication information required"
             })
+
+
+
+
+
         user = model.query.filter_by(
             username=auth_info.get("username")).first()
         if user is not None and user.verify_password(auth_info.get("password")):
