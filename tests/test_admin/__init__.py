@@ -1,3 +1,0 @@
-from .test_admin_repository import TestAdminRepository
-from .test_admin_controller import TestAdminController
-from .test_admin_views import TestAdminViews
