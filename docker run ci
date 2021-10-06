@@ -1,0 +1,29 @@
+ 
+ -e is the environment variables to pass from .env file.
+ 
+ *your_preferred_name_of_container* = name of container you would like to use for the docker run.
+ 
+**Syntax**
+sudo docker run -d -p 8000:5000 --network=host \
+  -e DB_NAME=postgres \
+  -e DB_PORT=5432 \
+  -e DB_USER=postgres" \
+  -e DB_PASSWORD=rootpassword \
+  -e DB_HOST=127.0.0.1 \
+  --name your_preferred_name_of_container thebluedocker/flask_mvc_boilerplate_teamwork
+ 
+ Example:
+ sudo docker run -d -p 8000:5000 --network=host -e DB_NAME=postgres -e DB_PORT=5432 -e DB_USER=postgres -e DB_PASSWORD=rootpassword -e DB_HOST=127.0.0.1 -e FLASK_ENV=development --name thiscontainer thebluedocker/flask_mvc_boilerplate_teamwork
+
+ 
+ To verify running status of container:
+ sudo docker logs *your_preferred_name_of_container*
+ 
+ sudo docker ps
+ 
+ sudo docker images
+ 
+ sudo docker stop 
+
+ 
+  
