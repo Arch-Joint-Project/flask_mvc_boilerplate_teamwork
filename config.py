@@ -16,7 +16,7 @@ class Config:
 
     DB_ENGINE = os.getenv("DB_ENGINE", default="POSTGRES")
 
-    SECRET_KEY = os.getenv("SECRET_KEY", "thisisthesecretkey")
+    SECRET_KEY = os.getenv("SECRET_KEY")
 
     # SQL database
     SQL_DB_USER = os.getenv("DB_USER")
