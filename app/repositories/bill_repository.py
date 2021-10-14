@@ -1,11 +1,11 @@
 # local imports
 from app.core.repository import SQLBaseRepository
 from app.models import BillModel
-from app.schema import BillReadSchema
+from app.schema import BillSchema
 from app.services import RedisService
 from app.utils import create_time_object, create_date_object
 
-bill_schema = BillReadSchema()
+bill_schema = BillSchema()
 
 
 class BillRepository(SQLBaseRepository):

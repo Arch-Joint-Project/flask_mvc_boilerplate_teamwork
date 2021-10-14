@@ -1,0 +1,37 @@
+<!doctype html>
+<html>
+    <head>
+      <title>Bill Invoice</title>
+    </head>
+    <body>
+    <h1>Invoice for {{ company.get("company") }} </h1>
+    <table>
+        <tr valign="top">
+            <td>Eployee ID</td>
+            <td>Number of Hours</td>
+            <td>Unit Price</td>
+            <td>Cost</td>
+            <td>Total</td>
+        </tr>
+
+        {% for item in invoice %}
+            {% if item.get("Employee ID") %}
+                <tr valign="top">
+                    <td>{{ item["Employee ID"] }}</td>
+                    <td>{{ item["Number Of Hours"] }}</td>
+                    <td>{{ item["Unit Price"] }}</td>
+                    <td>{{ item["Cost"] }}</td>
+                <tr/>
+            {% else %}
+                <tr>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td>{{ item["Total"] }}</td>
+                </tr>
+            {% endif %}
+        {% endfor %}
+    </table>
+    </body>
+</html>

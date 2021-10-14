@@ -5,7 +5,7 @@ from loguru import logger
 from flask import Flask, jsonify
 from flask_mongoengine import MongoEngine
 from sqlalchemy.exc import DBAPIError
-from app.extensions import db, migrate, ma
+from app.extensions import db, migrate, ma, mail
 
 from flask_swagger_ui import get_swaggerui_blueprint
 from werkzeug.exceptions import HTTPException
@@ -70,6 +70,7 @@ def register_extensions(flask_app):
             db.create_all()
     factory.init_app(flask_app, db)
     ma.init_app(flask_app)
+    mail.init_app(flask_app)
 
     @flask_app.errorhandler(HTTPException)
     def handle_http_exception(e):

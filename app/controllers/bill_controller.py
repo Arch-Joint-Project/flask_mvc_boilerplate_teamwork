@@ -2,9 +2,20 @@ from app.core.result import Result
 from app.core.service_result import ServiceResult, handle_result
 from app.repositories import BillRepository
 from collections import defaultdict
-
+from app.core.notifications import NotificationHandler, Notifier
 from app.schema import BillReadSchema
-from app.utils import create_time_object, create_date_object
+import sendgrid
+import os
+from sendgrid.helpers.mail import *
+# from app import mail
+# import blinker
+# from flask_mail import Message
+from flask import render_template
+from app.services import EmailNotification
+
+email_notification = EmailNotification()
+
+notifier = Notifier()
 
 
 class BillController:
@@ -82,6 +93,17 @@ class BillController:
                     "Cost": total_rate,
                 })
             company_bills[company.get("company")].append({"Total": total_bill_cost})
+            email_parameters = {
+                "from_email": "michaelasumadu1@outlook.com",
+                "to_emails": "michaelasumadu1@gmail.com",
+                "subject": f"Invoice of {company.get('company')}",
+                "html_content": render_template("mail.html", company=company,
+                                        invoice=company_bills[company.get("company")])
+            }
+            email_notification.email_parameters = email_parameters
+
+            notifier.notify(notification_listener=email_notification)
+
             return ServiceResult(Result(company_bills, 200))
         else:
             return ServiceResult(Result(data, 200))

@@ -1,4 +1,5 @@
 # local imports
+from flask_mail import Message
 from app.core.service_result import handle_result
 from app.schema import (
     AdminReadSchema, AdminCreateSchema,
@@ -18,6 +19,7 @@ from app.services import AuthService
 # third party imports
 import pinject
 from flask import Blueprint, request, jsonify
+from app import mail
 
 admin = Blueprint("admin", __name__)
 
@@ -80,3 +82,17 @@ def refresh_access_token(data):
         "access_token": token[0],
         "refresh_token": token[1]
     })
+
+
+@admin.route("/mail", methods=["GET"])
+# @token_required(role=["admin"], refresh=True)
+def send_mail():
+    msg = Message(
+        subject='Testing Emali Configuration',
+        sender='flask_app@test.com',
+        recipients=['paul@mailtrap.io'],
+        body="This is the body of the email"
+    )
+    # msg.body = "Hey Paul, sending you this email from my Flask app, lmk if it works"
+    mail.send(msg)
+    return "Message sent!"

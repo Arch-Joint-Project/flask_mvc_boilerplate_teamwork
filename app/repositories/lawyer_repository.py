@@ -2,9 +2,9 @@
 from app.core.repository import SQLBaseRepository
 from app.models import LawyerModel
 from app.services import RedisService
-from app.schema import LawyerReadSchema
+from app.schema import LawyerSchema
 
-lawyer_schema = LawyerReadSchema()
+lawyer_schema = LawyerSchema()
 
 
 class LawyerRepository(SQLBaseRepository):

@@ -2,9 +2,9 @@
 from app.core.repository import SQLBaseRepository
 from app.models import AdminModel
 from app.services import RedisService
-from app.schema import AdminReadSchema
+from app.schema import AdminSchema
 
-admin_schema = AdminReadSchema()
+admin_schema = AdminSchema()
 
 
 class AdminRepository(SQLBaseRepository):
