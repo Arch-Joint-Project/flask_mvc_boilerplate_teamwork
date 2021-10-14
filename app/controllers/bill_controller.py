@@ -2,19 +2,12 @@ from app.core.result import Result
 from app.core.service_result import ServiceResult, handle_result
 from app.repositories import BillRepository
 from collections import defaultdict
-from app.core.notifications import NotificationHandler, Notifier
+from app.core.notifications import Notifier
 from app.schema import BillReadSchema
-import sendgrid
-import os
-from sendgrid.helpers.mail import *
-# from app import mail
-# import blinker
-# from flask_mail import Message
 from flask import render_template
 from app.services import EmailNotification
 
 email_notification = EmailNotification()
-
 notifier = Notifier()
 
 
