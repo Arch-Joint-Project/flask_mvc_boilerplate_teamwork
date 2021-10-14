@@ -40,6 +40,7 @@ class AuthService:
             'grant_type': 'access_token'
         }
         access_token = jwt.encode(payload, Config.SECRET_KEY, algorithm="HS256")
+        print("this is the secret key ", Config.SECRET_KEY)
         payload["grant_type"] = "refresh_token"
         payload["exp"] = datetime.utcnow() + timedelta(days=1)
         refresh_token = jwt.encode(payload, Config.SECRET_KEY, algorithm="HS256")
