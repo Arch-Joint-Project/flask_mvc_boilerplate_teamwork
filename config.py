@@ -50,6 +50,10 @@ class Config:
     MAIL_USE_TLS = True
     MAIL_USE_SSL = False
 
+    # celery
+    CELERY_BROKER_URL = 'redis://localhost:6379/0'
+    CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
+
     @property
     def SQLALCHEMY_DATABASE_URI(self):  # noqa
         return "postgresql+psycopg2://{db_user}:{password}@{host}:{port}/{db_name}".format(  # noqa

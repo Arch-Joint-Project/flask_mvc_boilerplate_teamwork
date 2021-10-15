@@ -17,6 +17,8 @@ from app.core.exceptions.app_exceptions import (
     app_exception_handler,
     AppExceptionCase,
 )
+from celery import Celery
+# from app.utils.task import init_celery
 
 
 APP_ROOT = os.path.join(os.path.dirname(__file__), "..")  # refers to application_top
@@ -37,15 +39,24 @@ class InterceptHandler(logging.Handler):
         logger_opt.log(record.levelno, record.getMessage())
 
 
+# celery = Celery(__name__, broker='redis://localhost:6379/0')
+
+
 def create_app(config="config.DevelopmentConfig"):
     """Construct the core application"""
     app = Flask(__name__, instance_relative_config=False)
+    # app.config['CELERY_BROKER_URL'] = 'redis://localhost:6379/0'
+    # app.config['result_backend'] = 'redis://localhost:6379/0'
     with app.app_context():
         environment = os.getenv("FLASK_ENV")
         cfg = import_string(config)()
         if environment == "production":
             cfg = import_string("config.ProductionConfig")()
         app.config.from_object(cfg)
+        # print(app.config)
+        # celery = Celery(app.name, broker=app.config['CELERY_BROKER_URL'])
+        # celery.conf.update(app.config)
+        # print(celery.conf)
 
         # add extensions
         register_extensions(app)

@@ -2,10 +2,10 @@ from app.core.result import Result
 from app.core.service_result import ServiceResult, handle_result
 from app.repositories import BillRepository
 from collections import defaultdict
-from app.core.notifications import Notifier
 from app.schema import BillReadSchema
 from flask import render_template
 from app.services import EmailNotification
+from app.core.notifications import Notifier
 
 email_notification = EmailNotification()
 notifier = Notifier()
@@ -94,9 +94,7 @@ class BillController:
                                         invoice=company_bills[company.get("company")])
             }
             email_notification.email_parameters = email_parameters
-
-            notifier.notify(notification_listener=email_notification)
-
+            notifier.notify(email_notification)
             return ServiceResult(Result(company_bills, 200))
         else:
             return ServiceResult(Result(data, 200))
