@@ -1,7 +1,11 @@
 from celery import Celery
+from app import create_app
 
 
-def make_celery(app):
+app = create_app()
+
+
+def make_celery():
     celery = Celery(
         app.import_name, backend=app.config['CELERY_RESULT_BACKEND'],
         broker=app.config['CELERY_BROKER_URL']
