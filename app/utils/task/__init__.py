@@ -1,2 +1,2 @@
-from .prep_celery import make_celery
+from .cook_celery import make_celery
 from .task_scheduler import send_email
