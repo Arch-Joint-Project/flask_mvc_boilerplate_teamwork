@@ -1,12 +1,13 @@
 import os
+
+from celery import shared_task
 from sendgrid import sendgrid, Mail
-from .celery import make_celery
+#from .prep_celery import make_celery
 from app.core.exceptions import AppException
 
-celery = make_celery()
 
 
-@celery.task
+@shared_task
 def send_email(email_parameters):
     try:
         sg = sendgrid.SendGridAPIClient(

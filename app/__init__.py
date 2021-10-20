@@ -5,7 +5,7 @@ from loguru import logger
 from flask import Flask, jsonify
 from flask_mongoengine import MongoEngine
 from sqlalchemy.exc import DBAPIError
-from app.extensions import db, migrate, ma, mail
+from app.extensions import db, migrate, ma, mail, ext_celery
 
 from flask_swagger_ui import get_swaggerui_blueprint
 from werkzeug.exceptions import HTTPException
@@ -71,6 +71,7 @@ def register_extensions(flask_app):
     factory.init_app(flask_app, db)
     ma.init_app(flask_app)
     mail.init_app(flask_app)
+    ext_celery.init_app(flask_app)
 
     @flask_app.errorhandler(HTTPException)
     def handle_http_exception(e):
@@ -111,3 +112,6 @@ def register_swagger_definitions(app):
         Swagger API definition.
         """
         return jsonify(spec.to_dict())
+
+# celery instance
+celery = ext_celery.celery
