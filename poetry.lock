@@ -424,6 +424,23 @@ async = ["asgiref (>=3.2)"]
 dotenv = ["python-dotenv"]
 
 [[package]]
+name = "flask-celeryext"
+version = "0.3.4"
+description = "Flask-CeleryExt is a simple integration layer between Celery and Flask."
+category = "main"
+optional = false
+python-versions = "*"
+
+[package.dependencies]
+celery = {version = ">=4.3", markers = "python_version >= \"3.7\""}
+Flask = ">=0.10"
+
+[package.extras]
+all = ["Sphinx (>=1.4.2)", "check-manifest (>=0.25)", "coverage (>=4.0)", "isort (>=4.3.4)", "pydocstyle (>=1.0.0)", "pytest-cache (>=1.0)", "pytest-cov (>=1.8.0)", "pytest-pep8 (>=1.0.6)", "pytest (>=2.8.0)", "pytest-mock (>=1.6.0)"]
+docs = ["Sphinx (>=1.4.2)"]
+tests = ["check-manifest (>=0.25)", "coverage (>=4.0)", "isort (>=4.3.4)", "pydocstyle (>=1.0.0)", "pytest-cache (>=1.0)", "pytest-cov (>=1.8.0)", "pytest-pep8 (>=1.0.6)", "pytest (>=2.8.0)", "pytest-mock (>=1.6.0)"]
+
+[[package]]
 name = "flask-jwt-extended"
 version = "4.3.0"
 description = "Extended JWT integration with Flask"
@@ -1304,7 +1321,7 @@ testing = ["pytest (>=4.6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytes
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8"
-content-hash = "43da1a4e2dd8b1f64f5f22b1185cd997c447c5adb0a0a1eeca353960211f6eb4"
+content-hash = "969333b5b07286780d9dbc5f60a0f6b8b0e67ae57b3eed4dbb3f4a91af4e0e53"
 
 [metadata.files]
 alembic = [
@@ -1537,6 +1554,10 @@ flake8 = [
 flask = [
     {file = "Flask-2.0.1-py3-none-any.whl", hash = "sha256:a6209ca15eb63fc9385f38e452704113d679511d9574d09b2cf9183ae7d20dc9"},
     {file = "Flask-2.0.1.tar.gz", hash = "sha256:1c4c257b1892aec1398784c63791cbaa43062f1f7aeb555c4da961b20ee68f55"},
+]
+flask-celeryext = [
+    {file = "Flask-CeleryExt-0.3.4.tar.gz", hash = "sha256:47d5d18daebad300b215faca0d1c6da24625f333020482e27591634c05792c98"},
+    {file = "Flask_CeleryExt-0.3.4-py2.py3-none-any.whl", hash = "sha256:1c84b35462d41d1317800d256b2ce30031b7d3d20dd8dc680ce4f4cc88029867"},
 ]
 flask-jwt-extended = [
     {file = "Flask-JWT-Extended-4.3.0.tar.gz", hash = "sha256:6e2b40d548b9dfc6051740c4552c097ac38e514e500c16c682d9a533d17ca418"},

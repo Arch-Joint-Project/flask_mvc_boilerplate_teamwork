@@ -13,5 +13,7 @@ ma = Marshmallow()
 mail = Mail()
 ext_celery = FlaskCeleryExt(create_celery_app=make_celery)
 
+
+
 # jwt = JWTManager()
 db.__setattr__("GUID", GUID)

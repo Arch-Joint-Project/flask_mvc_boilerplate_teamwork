@@ -38,6 +38,7 @@ pytest = "^6.2.5"
 Flask-Mail = "^0.9.1"
 sendgrid = "^6.8.2"
 celery = "^5.1.2"
+Flask-CeleryExt = "^0.3.4"
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.2.3"
