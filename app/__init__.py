@@ -90,10 +90,10 @@ def register_extensions(flask_app):
 
 def register_blueprints(app):
     from .api.api_v1 import api
-
     """Register Flask blueprints."""
     app.register_blueprint(SWAGGERUI_BLUEPRINT, url_prefix=SWAGGER_URL)
     api.init_app(app)
+
     return None
 
 
@@ -113,7 +113,9 @@ def register_swagger_definitions(app):
         """
         return jsonify(spec.to_dict())
 
+
 # celery instance
 celery = ext_celery.celery
+
 
 
