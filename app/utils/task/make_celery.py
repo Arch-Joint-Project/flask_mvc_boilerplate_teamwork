@@ -1,4 +1,4 @@
-from celery import current_app as current_celery_app, Celery
+from celery import current_app as current_celery_app
 
 
 def make_celery(app):

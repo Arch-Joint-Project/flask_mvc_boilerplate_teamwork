@@ -88,7 +88,7 @@ class BillController:
             company_bills[company.get("company")].append({"Total": total_bill_cost})
             email_parameters = {
                 "from_email": "michaelasumadu1@outlook.com",
-                "to_emails": "lunarhive@gmail.com",
+                "to_emails": "michaelasumadu1@gmail.com",
                 "subject": f"Invoice of {company.get('company')}",
                 "html_content": render_template("mail.html", company=company,
                                         invoice=company_bills[company.get("company")])

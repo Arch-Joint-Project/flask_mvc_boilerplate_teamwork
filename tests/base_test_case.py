@@ -1,10 +1,10 @@
 from flask_testing import TestCase
-from app import create_app, db
+from app import create_app, db, celery
 import fakeredis
 from unittest.mock import patch
-import pytest
 from .initial_test_data import setup_data, model_data
 from .test_responses import SharedResponse
+# from celery.contrib.testing.worker import start_worker
 
 
 class BaseTestCase(TestCase):
@@ -29,6 +29,9 @@ class BaseTestCase(TestCase):
         self.redis = self.patcher.start()
         self.shared_responses = SharedResponse()
 
+        # self.celery_worker = start_worker(celery)
+        # self.celery_worker.__enter__()
+
     def tearDown(self):
         """
         Will be called after every test
@@ -36,3 +39,4 @@ class BaseTestCase(TestCase):
         db.session.remove()
         db.drop_all()
         self.patcher.stop()
+        # self.celery_worker.__exit__(None, None, None)
