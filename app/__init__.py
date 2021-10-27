@@ -116,6 +116,3 @@ def register_swagger_definitions(app):
 
 # celery instance
 celery = ext_celery.celery
-
-
-

@@ -1,6 +1,5 @@
-import os
 from celery import shared_task
-from sendgrid import sendgrid, Mail, SendGridAPIClient
+from sendgrid import sendgrid, Mail
 from app.core.exceptions import AppException
 
 EMAIL_PROVIDER_API = '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'
