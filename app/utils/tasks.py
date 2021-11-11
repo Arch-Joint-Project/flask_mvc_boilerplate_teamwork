@@ -15,6 +15,8 @@ from app import mail
 # from flask import render_template
 from app.celery_app import app
 
+print("this is the app", app)
+
 
 @app.task
 def send_mail(email_info: dict):
