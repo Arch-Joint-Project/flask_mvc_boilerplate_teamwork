@@ -4,7 +4,7 @@ import unittest
 from app.core.notifications.notifier import Notifier
 from app.services.email_service import EmailNotification
 from unittest.mock import patch
-from app.utils.tasks import send_mail
+# from app.utils.tasks import send_mail
 
 email_notification = EmailNotification()
 notifier = Notifier()
@@ -25,13 +25,13 @@ class TestEmailNotification(BaseTestCase):
         self.assertTrue(mock_send.called)
         self.assertEqual(mock_send.call_count, 1)
 
-    @pytest.mark.email
-    def test_email_notification_send(self):
-        with patch.object(send_mail, "delay") as mock_celery_delay:
-            email_notification.email_parameters = email_parameters
-            email_notification.send()
-        self.assertTrue(mock_celery_delay.called)
-        self.assertEqual(mock_celery_delay.call_count, 1)
+    # @pytest.mark.email
+    # def test_email_notification_send(self):
+    #     with patch.object(send_mail, "delay") as mock_celery_delay:
+    #         email_notification.email_parameters = email_parameters
+    #         email_notification.send()
+    #     self.assertTrue(mock_celery_delay.called)
+    #     self.assertEqual(mock_celery_delay.call_count, 1)
 
 
 if __name__ == "__main__":

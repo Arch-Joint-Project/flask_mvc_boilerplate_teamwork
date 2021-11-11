@@ -1,5 +1,5 @@
 from flask_testing import TestCase
-from app import create_app, db, celery
+from app import create_app, db
 import fakeredis
 from unittest.mock import patch
 from .initial_test_data import setup_data, model_data
