@@ -11,7 +11,7 @@
 
 from flask_mail import Message
 from app import mail
-from config import Config
+# from config import Config
 # from flask import render_template
 from app.celery_app import app
 
