@@ -1,5 +1,5 @@
 from flask_testing import TestCase
-from app import create_app, db
+from app import create_app, db, init_celery
 import fakeredis
 from unittest.mock import patch
 from .initial_test_data import setup_data, model_data
@@ -11,6 +11,9 @@ class BaseTestCase(TestCase):
     def create_app(self):
         app = create_app("config.TestingConfig")
         return app
+
+    def init_celery(self):
+        return init_celery(self.create_app())
 
     def setUp(self):
         """

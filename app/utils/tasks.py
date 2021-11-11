@@ -1,18 +1,8 @@
-# from app.extensions import celery
-
-# from celery import shared_task
-# from sendgrid import sendgrid, Mail
-# from app.core.exceptions import AppException
-# from app.extensions import celery
-# from app import celery
-
 # EMAIL_PROVIDER_API = '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'
 
 
 from flask_mail import Message
 from app import mail
-# from config import Config
-# from flask import render_template
 from app.celery_app import app
 
 print("this is the app", app)
