@@ -5,8 +5,7 @@ from app.core.notifications.notifier import Notifier
 from app.services.email_service import EmailNotification
 from unittest.mock import patch
 from app import init_celery
-# from app.utils.tasks import send_mail
-from app import celery_app
+
 
 email_notification = EmailNotification()
 notifier = Notifier()
@@ -28,9 +27,9 @@ class TestEmailNotification(BaseTestCase):
         self.assertEqual(mock_send.call_count, 1)
 
     @pytest.mark.email
-    # @patch("app.init_celery", self.create_app())
     def test_email_notification_send(self):
-        with patch.object(celery_app, "app", return_value=init_celery(self.create_app())) as mock_celery:
+        with patch("app.celery_app.app",  return_value=init_celery(self.create_app())) as mock_celery:
+        # with patch.object(app, "init_celery", return_value=init_celery(self.create_app())) as mock_celery:
             with patch("app.utils.tasks.send_mail.delay") as mock_celery_delay:
                 print(mock_celery)
                 email_notification.email_parameters = email_parameters
