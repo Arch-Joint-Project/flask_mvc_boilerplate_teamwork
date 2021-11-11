@@ -4,7 +4,7 @@ import unittest
 from app.core.notifications.notifier import Notifier
 from app.services.email_service import EmailNotification
 from unittest.mock import patch
-from app.utils.task.task_scheduler import send_email, sendgrid
+from app.utils.tasks import send_mail
 
 email_notification = EmailNotification()
 notifier = Notifier()
@@ -27,7 +27,7 @@ class TestEmailNotification(BaseTestCase):
 
     @pytest.mark.email
     def test_email_notification_send(self):
-        with patch.object(send_email, "delay") as mock_celery_delay:
+        with patch.object(send_mail, "delay") as mock_celery_delay:
             email_notification.email_parameters = email_parameters
             email_notification.send()
         self.assertTrue(mock_celery_delay.called)

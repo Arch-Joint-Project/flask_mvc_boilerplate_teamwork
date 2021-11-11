@@ -49,10 +49,14 @@ class Config:
     MAIL_PASSWORD = os.getenv("MAIL_PASSWORD")
     MAIL_USE_TLS = True
     MAIL_USE_SSL = False
+    ADMIN_EMAIL = "michaelasumadu1@gmail.com"
 
     # celery
-    CELERY_BROKER_URL = 'redis://localhost:6379/0'
-    CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
+    # CELERY_BROKER_URL = 'redis://localhost:6379/0'
+    # CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
+    CELERY = {
+        "broker_url": 'redis://localhost:6379/0'
+    }
 
     @property
     def SQLALCHEMY_DATABASE_URI(self):  # noqa

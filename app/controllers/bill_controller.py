@@ -86,12 +86,15 @@ class BillController:
                     "Cost": total_rate,
                 })
             company_bills[company.get("company")].append({"Total": total_bill_cost})
+
             email_parameters = {
+                "subject": f"Invoice of {company.get('company')}",
                 "from_email": "michaelasumadu1@outlook.com",
                 "to_emails": "michaelasumadu1@gmail.com",
-                "subject": f"Invoice of {company.get('company')}",
+                "body": "this is the test body",
                 "html_content": render_template("mail.html", company=company,
-                                        invoice=company_bills[company.get("company")])
+                                                invoice=company_bills[
+                                                    company.get("company")])
             }
             email_notification.email_parameters = email_parameters
             notifier.notify(email_notification)

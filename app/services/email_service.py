@@ -6,8 +6,8 @@ class EmailNotification(NotificationHandler):
     email_parameters: dict
 
     def send(self):
-        from app.utils.task import send_email
+        from app.utils.tasks import send_mail
         try:
-            send_email.delay(self.email_parameters)
-        except send_email.OperationalError as exc:
+            send_mail.delay(self.email_parameters)
+        except send_mail.OperationalError as exc:
             raise AppException.OperationError(context=exc.args[0])
